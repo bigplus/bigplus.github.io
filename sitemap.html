@@ -1,0 +1,593 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2017-12-07 Thu 15:21 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sitemap</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Jerry" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="css/org.css" />
+<link rel="stylesheet" type="text/css" href="../css/org.css" /><link rel="stylesheet" type="text/css" href="../../css/org.css" />
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2017 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Sitemap</h1>
+<ul class="org-ul">
+<li>algo<br />
+<ul class="org-ul">
+<li><a href="algo/concept.html">concept</a><br /></li>
+<li><a href="algo/learn-algo.html">learn-algo</a><br /></li>
+</ul></li>
+<li>blablabla<br />
+<ul class="org-ul">
+<li><a href="blablabla/007.html">007</a><br /></li>
+<li><a href="blablabla/nn-summary.html">NN Summary</a><br /></li>
+<li><a href="blablabla/paper.html">Paper</a><br /></li>
+<li><a href="blablabla/README.html">README</a><br /></li>
+<li><a href="blablabla/blog.html">blog</a><br /></li>
+<li><a href="blablabla/books.html">books</a><br /></li>
+<li><a href="blablabla/corpus.html">corpus</a><br /></li>
+<li><a href="blablabla/dl-turorial.html">dl-turorial</a><br /></li>
+<li><a href="blablabla/feature-engineering.html">feature-engineering</a><br /></li>
+<li><a href="blablabla/ml.html">ml</a><br /></li>
+<li><a href="blablabla/news.html">news</a><br /></li>
+<li><a href="blablabla/nlp.html">nlp</a><br /></li>
+<li><a href="blablabla/others.html">others</a><br /></li>
+<li><a href="blablabla/outline.html">outline</a><br /></li>
+<li><a href="blablabla/practice.html">practice</a><br /></li>
+<li><a href="blablabla/python-env.html">python-env</a><br /></li>
+<li><a href="blablabla/python-tutorial.html">python-tutorial</a><br /></li>
+<li><a href="blablabla/rnn-extentions.html">rnn-extentions</a><br /></li>
+<li><a href="blablabla/rnn-tutorial.html">rnn-tutorial</a><br /></li>
+<li><a href="blablabla/todo.html">todo</a><br /></li>
+<li><a href="blablabla/todo-new.html">todo-new</a><br /></li>
+<li><a href="blablabla/vim-plugins.html">vim-plugins</a><br /></li>
+<li><a href="blablabla/vps.html">vps</a><br /></li>
+<li><a href="blablabla/乱七八糟.html">乱七八糟</a><br /></li>
+<li><a href="blablabla/course.html">公开课</a><br /></li>
+<li>chatbot<br />
+<ul class="org-ul">
+<li><a href="blablabla/chatbot/todo.html">todo</a><br /></li>
+</ul></li>
+<li>cnn<br />
+<ul class="org-ul">
+<li><a href="blablabla/cnn/cnn.html">cnn</a><br /></li>
+</ul></li>
+<li>demos<br />
+<ul class="org-ul">
+<li><a href="blablabla/demos/demos.html">demos</a><br /></li>
+<li><a href="blablabla/demos/lyric.html">lyric</a><br /></li>
+</ul></li>
+<li>gan<br />
+<ul class="org-ul">
+<li><a href="blablabla/gan/tutorial.html">tutorial</a><br /></li>
+</ul></li>
+<li>hinton<br />
+<ul class="org-ul">
+<li><a href="blablabla/hinton/hinton.html">hinton</a><br /></li>
+</ul></li>
+<li>lstm<br />
+<ul class="org-ul">
+<li><a href="blablabla/lstm/tutorial.html">tutorial</a><br /></li>
+</ul></li>
+<li>math<br />
+<ul class="org-ul">
+<li><a href="blablabla/math/ML-MAP.html">ML-MAP</a><br /></li>
+<li><a href="blablabla/math/entropy.html">entropy</a><br /></li>
+</ul></li>
+<li>memory-network<br />
+<ul class="org-ul">
+<li><a href="blablabla/memory-network/memory-network.html">memory-network</a><br /></li>
+<li>rnn-ntm<br />
+<ul class="org-ul">
+<li><a href="blablabla/memory-network/rnn-ntm/impl.html">impl</a><br /></li>
+<li><a href="blablabla/memory-network/rnn-ntm/paper.html">paper</a><br /></li>
+<li><a href="blablabla/memory-network/rnn-ntm/tutorial.html">tutorial</a><br /></li>
+</ul></li>
+</ul></li>
+<li>nlp<br />
+<ul class="org-ul">
+<li><a href="blablabla/nlp/nlp.html">nlp</a><br /></li>
+</ul></li>
+<li>notes<br />
+<ul class="org-ul">
+<li><a href="blablabla/notes/memNN.html">memNN</a><br /></li>
+<li><a href="blablabla/notes/task-oriented.html">task-oriented</a><br /></li>
+</ul></li>
+<li>optimization<br />
+<ul class="org-ul">
+<li><a href="blablabla/optimization/optimization.html">optimization</a><br /></li>
+</ul></li>
+<li>pp<br />
+<ul class="org-ul">
+<li><a href="blablabla/pp/tutorial.html">tutorial</a><br /></li>
+</ul></li>
+<li>rbm<br />
+<ul class="org-ul">
+<li><a href="blablabla/rbm/tutorial.html">tutorial</a><br /></li>
+</ul></li>
+<li>rl<br />
+<ul class="org-ul">
+<li><a href="blablabla/rl/tutorial.html">tutorial</a><br /></li>
+</ul></li>
+<li>spider<br />
+<ul class="org-ul">
+<li><a href="blablabla/spider/neteasy.html">neteasy</a><br /></li>
+</ul></li>
+<li>train<br />
+<ul class="org-ul">
+<li><a href="blablabla/train/how-to-train-model.html">how-to-train-model</a><br /></li>
+</ul></li>
+<li>word2vec<br />
+<ul class="org-ul">
+<li><a href="blablabla/word2vec/bow.html">bow</a><br /></li>
+</ul></li>
+</ul></li>
+<li>others<br />
+<ul class="org-ul">
+<li><a href="others/cracking-code-interview-1.1.html">1.1</a><br /></li>
+<li><a href="others/2015-10-25.html">10years</a><br /></li>
+<li><a href="others/2015-11-08.html">11月8日， 周末</a><br /></li>
+<li><a href="others/2015-11-1.html">11月开始了</a><br /></li>
+<li><a href="others/2015-11-09.html">2011-11-09随笔</a><br /></li>
+<li><a href="others/2015-09-22.html">2015-09-22</a><br /></li>
+<li><a href="others/2015-10-13.html">2015-10-13随笔</a><br /></li>
+<li><a href="others/2015-10-21.html">2015-10-21随笔</a><br /></li>
+<li><a href="others/2015-11-23.html">2015-11-23</a><br /></li>
+<li><a href="others/2016-01-01.html">2016 不知不觉中到来了</a><br /></li>
+<li><a href="others/ailu.html">AILu文档</a><br /></li>
+<li><a href="others/pattern-adapter.html">Adapter 模式</a><br /></li>
+<li><a href="others/agile-dev-5p.html">Agile Dev 5 Principles</a><br /></li>
+<li><a href="others/android-nfc-dev.html">Android NFC Development</a><br /></li>
+<li><a href="others/apple.html">Apple</a><br /></li>
+<li><a href="others/cap-and-base.html">CAP原理和BASE思想</a><br /></li>
+<li><a href="others/cnn.html">CNN</a><br /></li>
+<li><a href="others/clojure-1.html">Clojue 入门 1</a><br /></li>
+<li><a href="others/confluent-build.html">Confluent Build</a><br /></li>
+<li><a href="others/es-plugin-develop.html">Create pluggable REST endpoints in elasticsearch</a><br /></li>
+<li><a href="others/distributed-crawler.html">Distributed Crawler简介</a><br /></li>
+<li><a href="others/dynamic-proxy-patterns.html">Dynamic Proxy Pattern</a><br /></li>
+<li><a href="others/etl.html">ETL 设计文档</a><br /></li>
+<li><a href="others/etl-bak.html">ETL 设计文档</a><br /></li>
+<li><a href="others/es-plugins.html">Elasticsearch Plugins</a><br /></li>
+<li><a href="others/es-river.html">Elasticsearch-River-HBase 简单分析</a><br /></li>
+<li><a href="others/elisp.html">Elisp Tutorial FSM有限状态机</a><br /></li>
+<li><a href="others/fsm.html">FSM有限状态机</a><br /></li>
+<li><a href="others/go-to-column.html">Go to Column</a><br /></li>
+<li><a href="others/hbase-problem-set.html">HBase 应急处理和经验总结</a><br /></li>
+<li><a href="others/hbase-bulkload.html">HBase-Bulkload</a><br /></li>
+<li><a href="others/es-simple.html">HBase-Es-Index策略分析</a><br /></li>
+<li><a href="others/hbase-basic-concept.html">HBase基本知识</a><br /></li>
+<li><a href="others/HBase查询设计.html">HBase查询设计之主键设计</a><br /></li>
+<li><a href="others/how-to-code-map-red-on-hbase.html">HOW TO CODE MAP-REDUCE ON HBASE</a><br /></li>
+<li><a href="others/upgrade-git-on-mac.html">HOW TO: 升级Mac OS X上的GIT</a><br /></li>
+<li><a href="others/happybase.html">HappyBase</a><br /></li>
+<li><a href="others/mac-start.html">Idea Tomcat JRebel</a><br /></li>
+<li><a href="others/idea-tomcat.html">Idea Tomcat JRebel</a><br /></li>
+<li><a href="others/htop-install.html">Install htop on Mac OS X</a><br /></li>
+<li><a href="others/junit-1.html">JUnit 1</a><br /></li>
+<li><a href="others/java-gc.html">Java 内存模型</a><br /></li>
+<li><a href="others/joining-lines.html">Joining Lines</a><br /></li>
+<li><a href="others/kafka2hbase.html">Kafka2HBase设计概要</a><br /></li>
+<li><a href="others/lecture-set.html">Lecture Set About ML</a><br /></li>
+<li><a href="others/likelihood-probability.html">Likelihood and Probability</a><br /></li>
+<li><a href="others/problem1.1-longest_plateau.html">Longest Plateau</a><br /></li>
+<li><a href="others/ml-loss.html">ML Loss</a><br /></li>
+<li><a href="others/terminal-balabala-on-mac.html">Mac terminal 乱码</a><br /></li>
+<li><a href="others/macinfo.html">Mac中将delete键定义为删除键</a><br /></li>
+<li><a href="others/move-current-line-up-or-down.html">Move Current Line Up or Down</a><br /></li>
+<li><a href="others/nlp-stanford.html">NLP Standford</a><br /></li>
+<li><a href="others/nn-summary.html">NN Summary</a><br /></li>
+<li><a href="others/nothing.html">Nothing</a><br /></li>
+<li><a href="others/p-np.html">P, NP Problems</a><br /></li>
+<li><a href="others/p-value.html">P-value</a><br /></li>
+<li><a href="others/python-setup.py.html">Python setup</a><br /></li>
+<li><a href="others/hbase-es-query.html">Query Processor</a><br /></li>
+<li><a href="others/what-is-rpc.html">RPC 总结</a><br /></li>
+<li><a href="others/recently-visited-files.html">Recently Visited Files</a><br /></li>
+<li><a href="others/ebay-scalability-best-practices.html">Scalability Best Practices: Lessons from eBay</a><br /></li>
+<li><a href="others/sitemap.html">Sitemap</a><br /></li>
+<li><a href="others/spark-tune.html">Spark Tune</a><br /></li>
+<li><a href="others/spark-dag.html">Spark-DAG</a><br /></li>
+<li><a href="others/tomcat-arch.html">Tomcat Architecture</a><br /></li>
+<li><a href="others/uml-demo.html">UML类图与类的关系详解</a><br /></li>
+<li><a href="others/window-numbering-mode.html">WINDOW-NUMBERING-MODE</a><br /></li>
+<li><a href="others/zsh-config.html">ZSH-Configuration</a><br /></li>
+<li><a href="others/abcxx.html">abcxx</a><br /></li>
+<li><a href="others/ai-turotial.html">ai-turotial</a><br /></li>
+<li><a href="others/auth-design.html">auth-design</a><br /></li>
+<li><a href="others/auto-toString.html">auto-toString</a><br /></li>
+<li><a href="others/bayes.html">bayes</a><br /></li>
+<li><a href="others/best-time-to-buy-and-sell-stock.html">best-time-to-buy-and-sell-stock</a><br /></li>
+<li><a href="others/binary-heap.html">binary-heap</a><br /></li>
+<li><a href="others/binary-tree-right-side-view.html">binary-tree-right-side-view</a><br /></li>
+<li><a href="others/book-recommend.html">book-recommend</a><br /></li>
+<li><a href="others/create-new-native-thread-error.html">create-new-native-thread-error</a><br /></li>
+<li><a href="others/css-123.html">css-123</a><br /></li>
+<li><a href="others/database-store-tree.html">database-store-tree</a><br /></li>
+<li><a href="others/deep-learning.html">deep-learning</a><br /></li>
+<li><a href="others/distribut.html">distribut</a><br /></li>
+<li><a href="others/dp.html">dp</a><br /></li>
+<li><a href="others/e.html">e</a><br /></li>
+<li><a href="others/emacs-custom.html">emacs custom</a><br /></li>
+<li><a href="others/emacs-1.html">emacs-1</a><br /></li>
+<li><a href="others/emacs-helm-ivy.html">emacs-helm-ivy</a><br /></li>
+<li><a href="others/emacs-learn.html">emacs-learn</a><br /></li>
+<li><a href="others/emacs-on-mac.html">emacs-on-mac</a><br /></li>
+<li><a href="others/emacs-tips.html">emacs-tips</a><br /></li>
+<li><a href="others/english-word.html">english-word</a><br /></li>
+<li><a href="others/funnel-js.html">funnel-js</a><br /></li>
+<li><a href="others/gaussian.html">gaussian</a><br /></li>
+<li><a href="others/generative-discinative-model.html">generative-discinative-model</a><br /></li>
+<li><a href="others/git-confilct.html">git 冲突</a><br /></li>
+<li><a href="others/git-pull-conflict-merge.html">git-pull-conflict-merge</a><br /></li>
+<li><a href="others/haixing.html">haixing</a><br /></li>
+<li><a href="others/hash-sort-algo.html">hash+salt的加密算法</a><br /></li>
+<li><a href="others/ido-vertical-mode.html">ido-vertical-mode</a><br /></li>
+<li><a href="others/info-theory.html">info theory</a><br /></li>
+<li><a href="others/java-reflect.html">java 反射</a><br /></li>
+<li><a href="others/js-extend.html">js extend区别</a><br /></li>
+<li><a href="others/jvm.html">jvm</a><br /></li>
+<li><a href="others/knn.html">kNN</a><br /></li>
+<li><a href="others/law-of-large-number.html">law-of-large-number</a><br /></li>
+<li><a href="others/learn-ai.html">learn-ai</a><br /></li>
+<li><a href="others/learn-concurrent.html">learn-concurrent</a><br /></li>
+<li><a href="others/learn-emacs.html">learn-emacs</a><br /></li>
+<li><a href="others/learn-git.html">learn-git</a><br /></li>
+<li><a href="others/learn-hbase.html">learn-hbase</a><br /></li>
+<li><a href="others/learn-idea.html">learn-idea</a><br /></li>
+<li><a href="others/learn-java.html">learn-java</a><br /></li>
+<li><a href="others/learn-k8s.html">learn-k8s</a><br /></li>
+<li><a href="others/learn-linux.html">learn-linux</a><br /></li>
+<li><a href="others/learn-log.html">learn-log</a><br /></li>
+<li><a href="others/learn-mac.html">learn-mac</a><br /></li>
+<li><a href="others/learn-mvn.html">learn-mvn</a><br /></li>
+<li><a href="others/learn-python.html">learn-python</a><br /></li>
+<li><a href="others/learn-rsa.html">learn-rsa</a><br /></li>
+<li><a href="others/learn-shell.html">learn-shell</a><br /></li>
+<li><a href="others/learn-spacemacs.html">learn-spacemacs</a><br /></li>
+<li><a href="others/learn-vim.html">learn-vim</a><br /></li>
+<li><a href="others/linux-command.html">linux-command</a><br /></li>
+<li><a href="others/local-limit-thread.html">local-limit-thread</a><br /></li>
+<li><a href="others/mac-terminal-长连接.html">mac terminal 长连接</a><br /></li>
+<li><a href="others/mac-emacs.html">mac-emacs</a><br /></li>
+<li><a href="others/markovchain.html">markovchain</a><br /></li>
+<li><a href="others/math-blog.html">math-blog</a><br /></li>
+<li><a href="others/maven-scala-mix.html">maven-scala-mix</a><br /></li>
+<li><a href="others/monte-carlo.html">monte-carlo</a><br /></li>
+<li><a href="others/my-day-work.html">my-day-work</a><br /></li>
+<li><a href="others/mysql.html">mysql</a><br /></li>
+<li><a href="others/mysql-tips.html">mysql-tips</a><br /></li>
+<li><a href="others/nlp-git.html">nlp git</a><br /></li>
+<li><a href="others/2015-10-28.html">nothing</a><br /></li>
+<li><a href="others/np-api.html">np api</a><br /></li>
+<li><a href="others/oneplus.html">oneplus</a><br /></li>
+<li><a href="others/org-tips.html">org-tips</a><br /></li>
+<li><a href="others/others.html">others</a><br /></li>
+<li><a href="others/path-sum.html">path-sum</a><br /></li>
+<li><a href="others/pip-cache.html">pip-cache</a><br /></li>
+<li><a href="others/python-config.html">python-config</a><br /></li>
+<li><a href="others/python-network.html">python-network</a><br /></li>
+<li><a href="others/python-tips.html">python-tips</a><br /></li>
+<li><a href="others/python-virtualenv.html">python-virtualenv</a><br /></li>
+<li><a href="others/qa-report.html">qa demo</a><br /></li>
+<li><a href="others/ransom-note.html">ransom-note</a><br /></li>
+<li><a href="others/report.html">report</a><br /></li>
+<li><a href="others/dp-erha.html">report ETL 设计文档</a><br /></li>
+<li><a href="others/rnn.html">rnn</a><br /></li>
+<li><a href="others/sbt.html">sbt</a><br /></li>
+<li><a href="others/learnscala.html">scala basic</a><br /></li>
+<li><a href="others/shadowsock.html">shadowsock</a><br /></li>
+<li><a href="others/share.html">share</a><br /></li>
+<li><a href="others/spacemacs-cheat.html">spacemacs-cheat</a><br /></li>
+<li><a href="others/spacemacs-org.html">spacemacs-org</a><br /></li>
+<li><a href="others/speaker.html">speaker</a><br /></li>
+<li><a href="others/2015-11-13.html">suibi</a><br /></li>
+<li><a href="others/2015-11-10.html">suibi</a><br /></li>
+<li><a href="others/teck-blog.html">teck-blog</a><br /></li>
+<li><a href="others/tf-api.html">tf api</a><br /></li>
+<li><a href="others/todo.html">todo</a><br /></li>
+<li><a href="others/upgrade-jdk.html">upgrade-jdk</a><br /></li>
+<li><a href="others/vim-plugins.html">vim-plugins</a><br /></li>
+<li><a href="others/vim-surround.html">vim-surround</a><br /></li>
+<li><a href="others/vim-tips.html">vim-tips</a><br /></li>
+<li><a href="others/vimgolf.html">vimgolf</a><br /></li>
+<li><a href="others/why-we-use-bulkload.html">why-we-use-bulkload</a><br /></li>
+<li><a href="others/xxx.html">xxx</a><br /></li>
+<li><a href="others/yeepay-work.html">yeepay-work</a><br /></li>
+<li><a href="others/zsh-plugin-auto-fu.html">zsh-plugin-auto-fu</a><br /></li>
+<li><a href="others/zsh-plugin-autojump.html">zsh-plugin-autojump</a><br /></li>
+<li><a href="others/fp-demo.html">一个demo：从命令式到函数式</a><br /></li>
+<li><a href="others/just-a-joke.html">一个老笑话的伟大境界</a><br /></li>
+<li><a href="others/check.html">一致性对账</a><br /></li>
+<li><a href="others/2015-11-12.html">不应该活在别人的世界里</a><br /></li>
+<li><a href="others/2016-03-12.html">与紫辉兄小聚</a><br /></li>
+<li><a href="others/2015-03-14.html">专注&amp;专业</a><br /></li>
+<li><a href="others/interview-problem.html">今天出的一道面试题</a><br /></li>
+<li><a href="others/tree-structure.html">关于树的数据结构</a><br /></li>
+<li><a href="others/分布式和集群的区别.html">分布式和集群的区别</a><br /></li>
+<li><a href="others/dynamic-report.html">动态分析型报表</a><br /></li>
+<li><a href="others/aegis.html">商户智能检测-模型</a><br /></li>
+<li><a href="others/mac-save-git-info.html">在mac中自动保存git用户名与密码</a><br /></li>
+<li><a href="others/基于zookeeper实现HA.html">基于zookeeper实现HA</a><br /></li>
+<li><a href="others/singleton-design.html">如何写一个单例模式</a><br /></li>
+<li><a href="others/cal-threadpool-size.html">如何计算线程池大小</a><br /></li>
+<li><a href="others/2015-09-30.html">对未来充满了迷茫</a><br /></li>
+<li><a href="others/standalone-app.html">将 JAVA 程序打成独立的App简介</a><br /></li>
+<li><a href="others/smart-kill.html">小技巧</a><br /></li>
+<li><a href="others/2016-03-16.html">小记</a><br /></li>
+<li><a href="others/mac-shortcut.html">常用的Mac快捷键</a><br /></li>
+<li><a href="others/幂等性.html">幂等性</a><br /></li>
+<li><a href="others/2015-10-27.html">年龄让我更加在乎内心的东西</a><br /></li>
+<li><a href="others/do-what.html">我要做什么</a><br /></li>
+<li><a href="others/print-log-tips.html">打印日志的10个建议打印日志的10个建议</a><br /></li>
+<li><a href="others/auth.html">报表设计Auth</a><br /></li>
+<li><a href="others/sloth.html">数据交换平台 Sloth 设计概要</a><br /></li>
+<li><a href="others/SimHash文本去重.html">文本去重-SimHash</a><br /></li>
+<li><a href="others/2015-11-07.html">时间过的有点快，我想让它慢点</a><br /></li>
+<li><a href="others/max-sum-val.html">最大字段和各种不同算法实现（参考编程珠玑）</a><br /></li>
+<li><a href="others/最小差值的划分.html">最小差值的划分</a><br /></li>
+<li><a href="others/query-platform-design.html">查询Module</a><br /></li>
+<li><a href="others/24hours-eql.html">浪漫24小时，eql产品原型</a><br /></li>
+<li><a href="others/mq-infos.html">消息队列中间件的技术选型分析</a><br /></li>
+<li><a href="others/circuit-breaker-pattern.html">熔断策略设计</a><br /></li>
+<li><a href="others/ebaybase-1.html">牺牲一致性来换取分布式架构的可伸缩性</a><br /></li>
+<li><a href="others/2015-11-02.html">现在有那么辛苦么</a><br /></li>
+<li><a href="others/strategy-pattern.html">策略模式</a><br /></li>
+<li><a href="others/简单压力测试.html">简单压力测试</a><br /></li>
+<li><a href="others/composite-pattern.html">组合模式 Composite Pattern</a><br /></li>
+<li><a href="others/2015-11-11.html">自娱自乐</a><br /></li>
+<li><a href="others/2015-10-31.html">计划</a><br /></li>
+<li><a href="others/reflection-hack-jar.html">通过反射处理第三方bug</a><br /></li>
+<li><a href="others/2015-09-28.html">郁闷的一天</a><br /></li>
+<li><a href="others/reset-kafka-offset.html">重置kafka offset</a><br /></li>
+<li><a href="others/retry-design.html">重试机制</a><br /></li>
+<li><a href="others/2015-11-25.html">随笔</a><br /></li>
+<li><a href="others/2015-10-29.html">随笔</a><br /></li>
+<li><a href="others/2015-10-24.html">随笔</a><br /></li>
+<li><a href="others/2015-10-15.html">随笔</a><br /></li>
+<li><a href="others/2015-10-01.html">随笔</a><br /></li>
+<li><a href="others/2015-10-09.html">随笔10月10日</a><br /></li>
+<li><a href="others/2015-10-11.html">随笔10月11沉默的一天</a><br /></li>
+<li><a href="others/2015-10-06.html">随笔10月6日</a><br /></li>
+<li><a href="others/2015-09-26.html">随笔2015-09-26</a><br /></li>
+<li><a href="others/2015-10-08.html">随笔2015-10-08</a><br /></li>
+<li><a href="others/2015-09-27.html">随笔中秋</a><br /></li>
+<li><a href="others/2015-10-07.html">随笔回京10月7日</a><br /></li>
+<li><a href="others/2015-10-10.html">随笔，好迷茫</a><br /></li>
+<li><a href="others/需求分析案例之查询.html">需求分析之查询相关</a><br /></li>
+<li><a href="others/eat.html">食物的选择</a></li>
+</ul></li>
+</ul>
+</div>
+<div id="postamble" class="status">
+<p>
+     <a href="mailto:zhuyu.deng@gmail.com?Subject=Comments on (Sitemap)">Send a feedback</a>
+     </p>
+
+     <p>
+     <span class="date">Created: 2017-12-07 Thu 15:21</span> by <span class="creator"> Jerry </span>
+     </p>
+</div>
+</body>
+</html>

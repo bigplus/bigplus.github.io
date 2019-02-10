@@ -1,0 +1,101 @@
+#+STYLE: <link rel="stylesheet" type="text/css" href="http://files.cnblogs.com/csophys/orgstyle.css" />
+#+STYLE: #+STYLE: <link rel="stylesheet" type="text/css" href="./org.css" />
+#+TITLE:auto-toString
+#+AUTHOR: Jerry
+#+STYLE: <link rel="stylesheet" type="text/css" href="org.css" />
+
+作为资深Geek，这也算不什么创新，不过还是能给大家带来便利，说说也好。
+
+* 简单的扯淡一下
+在做业务的时候，我们需要定义很多的实体。\\
+通常一部分包括数据库表的映射，写好实体类的以后\\
+由于各种原因，我们需要实现toString方法，不管是打印log也好，还是排错也罢，反正要实现它。\\
+如果每次都手工的实现，你是否会感觉很无聊呢。。。
+
+借此机会把我平时用的toString()方式分享给大家。\\
+通过java中的反射，获取JAVA
+其实用统一的toString()还是有好处的：至少是保证了格式的统一。
+这里要反射出pojo类的所有字段值，如果字段是其他pojo类的对象时，也要拿过来把所有属性都列出来。
+* Code 
+  
+#+BEGIN_SRC java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Field;
+
+/**
+ * @author Jerry
+ */
+public class AutoToString {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AutoToString.class);
+
+    public static String getString(Object o, Class<?> c) {
+        String result = c.getSimpleName() + ":";
+
+        if (c.getSuperclass().getName().indexOf("entity") >= 0) {
+            result += "\n<" + getString(o, c.getSuperclass()) + ">,\n";
+        }
+
+        Field[] fields = c.getDeclaredFields();
+
+        for (Field field : fields) {
+            field.setAccessible(true);
+
+            try {
+                result += field.getName() + "=" + field.get(o) + ",\n";
+            } catch (Exception e) {
+            }
+        }
+        if (result.indexOf(",") >= 0) result = result.substring(0, result.length() - 2);
+        return result;
+    }
+
+}
+#+END_SRC
+
+* DEMO：
+
+#+BEGIN_SRC java
+public class Persion {
+        private String name;
+	private String add;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getAdd() {
+            return add;
+        }
+
+        public void setAdd(String add) {
+            this.add = add;
+        }
+
+        // how to use
+        @Override
+        public String toString() {
+            return AutoToString.getString(this, Persion.class);
+        }
+
+    public static void main(String[] args) {
+        Persion persion = new Persion();
+        persion.setName("dzy");
+        persion.setAdd("dsafad");
+        System.out.println(persion);
+    }
+
+}
+#+END_SRC
+
+
+
+
+  
+  

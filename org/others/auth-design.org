@@ -1,0 +1,264 @@
+* 逻辑层
+  html
+  aop
+  -- log
+  -- auth
+  repport
+
+* 权限
+  所有信息均为系统内部字段信息, 如果有外部系统，建立对应关系，所有内部关系不对外暴露
+  基于角色的权限控制
+  是说角色起到桥梁作用，核心支撑
+  但是对象的主体依然应该是用户
+  /* !!! [ 角色 ] 是 [ 用户 ] 管理 [ 功能 ] 的武器 */
+  因为在软件设计时，只有用户对外暴露api
+  其他均为pojo对象
+** 场景：
+*** 从使用的角度
+    用户登陆，查询角色，根据角色展现功能（此处只读权限for data）
+*** 从管理的角度
+    用户登陆，查询角色，基于角色操作功能（读写权限for urf）
+
+    --------------------------------------------------------------------------------
+** 用户分3类
+*** 普通用户
+    - 无管理功能for urf（可操作自己偏好）
+    - 只有应有功能
+    - 自带属性 usertype （0，1，2）
+      或者把这个属性放到特殊的角色中
+    #+BEGIN_SRC Java
+class User {
+    getData()
+    getRole()
+    getFunction()
+}
+
+    #+END_SRC
+*** 管理员
+    除了系统平台功能外的所有功能
+    无角色操作能力（待定）
+    #+BEGIN_SRC Java
+class Manager {
+    upsertUser()
+    queryUser()
+    deleteUser()
+
+    upsertFunction()
+    deleteFunction()
+    queryFunction()
+}
+    #+END_SRC()
+*** 超级管理员()
+    所有功能+管理系统角色功能
+    创建固定角色
+    #+BEGIN_SRC Java
+class Admin {
+    upsertUser()
+    queryUser()
+    deleteUser()
+
+    upsertFunction()
+    deleteFunction()
+    queryFunction()
+
+    upsertRole()
+    queryRole()
+    deleteRole()
+}
+    #+END_SRC
+** 角色分2类
+*** 应用角色
+*** 系统角色
+role下
+对应很多报表
+当用户为 管理员，超级管理员的时候有w权限
+当用户为 普通用户的时候有r权限
+
+角色可以有如下字段，分类型
+id
+type 权限，报表
+comment
+#+BEGIN_SRC sql
+select
+sum(MATCH_ERROR_CNT),
+sum(TOTAL_CNT),
+TRADE_INTERFACE,
+DATES,
+sum(SPECIAL_ERROR_CNT)
+from QAB.tbl_inter_ava
+where 1=1
+and DATES>='2017-05-09' and DATES<='2017-05-09'
+group by
+TRADE_INTERFACE
+having 1=1
+order by
+sum(MATCH_ERROR_CNT) desc,
+sum(TOTAL_CNT) desc,
+TRADE_INTERFACE desc,
+sum(SPECIAL_ERROR_CNT) desc
+fetch first 20 rows only
+with ur
+
+select
+sum(MATCH_ERROR_CNT),
+sum(TOTAL_CNT),
+TRADE_INTERFACE,
+DATES,
+sum(SPECIAL_ERROR_CNT)
+from QAB.tbl_inter_ava
+where 1=1
+and DATES>='2017-05-09' and DATES<='2017-05-09'
+group by
+TRADE_INTERFACE,
+DATES
+having 1=1
+order by
+sum(MATCH_ERROR_CNT) desc,
+sum(TOTAL_CNT) desc,
+TRADE_INTERFACE desc,
+DATES desc,
+sum(SPECIAL_ERROR_CNT) desc
+fetch first 20 rows only
+with ur
+
+#+END_SRC
+** 功能分2类
+   其实可以只有1类，统一由角色控制
+*** 应用功能
+*** 系统功能
+** 数据库表关系定义
+
+主要对象
+    用户
+    角色
+    功能
+
+关系
+    U : R : F
+    1 : n : n
+
+5张表 (当然可以扩展为更多的表，但是暂时没必要）
+    user
+    u2r
+    role
+    r2f
+    function
+*** auth_user
+#+BEGIN_SRC sql
+CREATE TABLE auth_user (
+  id bigint(20) AUTO_INCREAMENT COMMENT '非业务主键',
+  username varchar(50) COMMENT 'name',
+  password varchar(255) COMMENT 'pw',
+  usertype varchar(10) COMENT 'user type',
+  parent varchar(20) COMENT 'who create it'
+)
+#+END_SRC
+
+*** auth_role
+CREATE TABLE auth_user (
+  id bigint(20)
+  comment
+  created_user_id
+)
+
+*** auth_function
+#+BEGIN_SRC sql
+id
+function_name
+pid comment '属于某个大目录下',
+created_user_id 创建者id
+#+END_SRC
+*** auth_u2r
+id
+uid
+rid
+
+*** auth_r2f
+id
+rid
+fid
+optype: r, w (r: 只读， w：可读写， 可用0，1表示)
+
+** 逻辑实现 based on SQL
+*** 普通用户
+    因为用户是基于角色操作Function
+**** getFunctions()
+     // 通过用户-> 角色 -> 所有菜单
+**** getRole()
+*** 普通管理员
+**** get
+*** 超级管理员
+**** getRoles()
+**** getRoleById()
+**** upsertRole()
+
+**** getUsers()
+**** getUserByuid()
+**** upsertUser
+
+
+* user
+** query
+*** 超级管理员
+**** all
+     select * from auth_user;
+**** by id
+     select * from auth_user where userid = ?
+*** 管理员
+    管理员的所有角色，角色下的用户, 到管理员位置（血统）
+
+    NOTE : 用户的角色满足血统
+
+    select a.uid from auth_u2r a left join auth_u2r b on a.rid = b.rid where b.uid = 126;
+    == (等价于)
+    select uid from auth_u2r where rid in (select rid from auth_u2r where uid = 51);
+
+*** 普通用户
+    没有看用户的权限，只能看自己。
+
+** upsert
+*** 超级管理员
+   直接操作
+*** 管理员
+**** 关联角色与用户的关系
+**** 调整用户的级别
+     一个角色内的管理员级别用户可以创建Function
+     可以修改的角色到自己的角色为止
+*** 普通用户
+   无权限
+
+* role
+  属性：
+  X轴分类：分类
+  业务类，系统类（super-manager， manager，user）
+  Y轴分类：血统
+  (继承关系, 3层级别)
+** query
+*** user
+    自己被赋予的角色
+*** manager
+    查询自己拥有的所有业务角色，不包含系统角色
+*** supermanager
+    所有的角色
+** upsert
+*** user
+    无
+*** manager
+**** upsert 角色
+     创建角色，选择角色的血统
+**** 关联角色与 function 的关系
+*** supermanager
+
+* function
+** query
+*** user
+    只读
+*** manager
+    自己所有角色下的所有功能
+*** supermanager
+    所有功能
+** upsert
+
+* how to do
+  ??????????????
+  赋给一个manager对某个功能的只读角色

@@ -1,0 +1,5 @@
+#+TITLE: Lecture Set About ML
+#+AUTHOR: Jerry
+
+Andrew Ng
+https://zhuanlan.zhihu.com/p/29504856

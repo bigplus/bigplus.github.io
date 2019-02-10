@@ -1,0 +1,21 @@
+#+TITLE: nlp git
+#+AUTHOR: Jerry
+
+https://github.com/UFAL-DSG/tgen
+
+* Cambriage
+https://bitbucket.org/dialoguesystems/pydial.git
+
+http://dialogue.mi.eng.cam.ac.uk/
+
+http://aclweb.org/anthology/P17-1045
+
+https://github.com/MiuLab/KB-InfoBot
+
+http://camdial.org/~mh521/dstc/
+
+* nbt
+https://github.com/nmrksic/neural-belief-tracker
+https://arxiv.org/pdf/1606.03777.pdf
+https://zhuanlan.zhihu.com/p/27470864
+https://zhuanlan.zhihu.com/p/27399471

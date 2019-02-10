@@ -1,0 +1,597 @@
+配置 vim
+https://segmentfault.com/a/1190000003962806#articleHeader21
+
+* vim product
+https://www.zhihu.com/question/20151659
+https://github.com/spf13/spf13-vim
+* installed plugin
+tabular
+vim-cursorword
+vim-unimpaired
+vim-auto-pairs
+vim-surround
+nerdtree
+* vim plugin
+** vim8
+packadd
+packadd
+   packadd
+** Vundle
+** pathogen
+** vim-plug
+   https://github.com/junegunn/vim-plug
+** 总结
+   作者：EZLippi
+   链接：https://www.zhihu.com/question/24294358/answer/42583802
+   来源：知乎
+   著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+   pathogen 让每个插件占有一个单独的目录，解决插件文件分散的问题。 安装了 pathogen 以后只要在 ~/.vim （注：MS Windows 下貌似是 ~\vimfiles，下同）里建立一个 bundle 目录，然后把所有插件一一放在 ~/.vim/bundle/插件名 下面，就可以使用。 插件的安装过程与没有 pathogen 时类似，但从安装结束开始，一切的插件管理过程都能得到简化。试用过某个插件以后需要删除？安装在 bundle 目录里最后把插件的目录一删了之就行了。想保持使用某个插件的最新版本？直接从插件的仓库 checkout 一份代码到 bundle 目录，或者别的地方再 symlink 一下就行了。
+   vundle, 更是把git操作整合进去，用户需要做的只是去Github上找到自己想要的插件的名字，安装，更新和卸载都可有vundle来完成了。虽然去发现一个好的插件仍然是一个上下求索的过程，但是用户已经可以从安装配置的繁琐过程解脱了。Vundle的具体介绍查看vim.org,或者github repo
+   neoBundle 是一个基于 Vundle 的项目，如同 Vundle，它们都可以安装和升级插件。然而 NeoBundle 的说明文件上明确指出：“NeoBundle 不是一个稳定的插件管理器，如果你想要一个稳定的，请选择 Vundle”。最新的 release-note 上也有警告“可能会造成兼容性问题”——这是一个开发者写的注解，说明这个管理器还不能让人放心使用。所以，我们为什么要使用 NeoBundle？它都不能保证稳定运行！好吧，它还是有可取之处的。Vundle 只支持 Git 这种版本控制系统，而 NeoBundle 可以支持 Subversion 和 Mercurial。另一个原因是如果你不想插件升级时破坏你的 Vim 生态环境，你可以锁住 NeoBundle，让它只使用某个插件的固定版本。
+* vim leader
+  http://blog.csdn.net/xiongzhengxiang/article/details/38852419?locationNum=8
+
+  http://blog.sina.com.cn/s/blog_498a6eeb0100v3km.html
+
+* others
+  vim
+  交换2行 ddp
+  交换左右字符位置 xp
+
+* Practical Vim
+  http://www.tuicool.com/articles/vA3Aj23
+
+  http://macshuo.com/?p=755
+
+  vim
+  vim
+  http://www.cnblogs.com/ltang/articles/2034291.html
+  http://www.wtoutiao.com/p/2e3yCJ3.html
+  http://blog.csdn.net/nicky_zs/article/details/6941648
+  http://www.cnblogs.com/shenh062326/p/3658543.html
+  http://forum.huawei.com/enterprise/thread-161419-1-1.html
+  http://www.cnblogs.com/panfeng412/archive/2013/06/08/hbase-slow-query-troubleshooting.html
+  http://blog.csdn.net/wireless_com/article/details/51472185
+  https://segmentfault.com/a/1190000006919295
+  https://segmentfault.com/a/1190000004366786
+
+
+
+  vim
+  vim
+  book http://iccf-holland.org/click5.html
+
+  http://www.rayninfo.co.uk/vimtips.html
+
+  https://zhuanlan.zhihu.com/p/19709858
+  https://www.zhihu.com/question/19691653
+
+  http://www.rayninfo.co.uk/vimtips.html
+
+  https://zhuanlan.zhihu.com/p/21278816
+
+  http://blog.csdn.net/memray/article/details/48652701
+
+  http://coolshell.cn/articles/5479.html
+
+  http://coolshell.cn/articles/956.html
+
+  sheet http://sheet.shiar.nl/vi
+  http://www.cnblogs.com/ggjucheng/archive/2011/12/15/2288809.html
+  http://blog.csdn.net/niushuai666/article/details/7275406
+
+  https://www.zhihu.com/search?type=content&q=vim+%E5%91%BD%E4%BB%A4+%E8%A7%84%E5%BE%8B
+
+  http://blog.163.com/chen_dawn/blog/static/112506320111145955649/
+
+  http://blog.jobbole.com/tag/vim/
+
+  http://blog.jobbole.com/87481/
+  http://blog.jobbole.com/100932/
+
+  http://www.tldp.org/LDP/abs/html/index.html
+  http://www.cnblogs.com/GODYCA/archive/2013/02/22/2922840.html
+  http://hongjiang.info/scala-style-checker/
+
+  http://blog.sina.com.cn/s/blog_9ca9623b0102w81t.html
+  http://python.jobbole.com/84166/
+  https://www.iteblog.com/archives/1278
+  http://www.csdn.net/article/2015-03-09/2824135
+  http://blog.csdn.net/keets1992/article/details/52316053
+  http://blog.csdn.net/zhong_han_jun/article/details/50813981
+  https://www.zhihu.com/question/21094489
+  http://www.cnblogs.com/bamanzi/p/zsh-simple-guide.html
+
+  vim
+  http://vim-adventures.com/
+
+  http://www.jianshu.com/p/bcbe916f97e1
+
+  http://www.dabu.info/vim-shortcut-key-operation.html
+
+  http://blog.csdn.net/sunboy_2050/article/details/6002837
+
+  http://blog.csdn.net/cywosp/article/details/23397179/
+
+  http://www.finalshares.com/read-1161
+
+  vim
+  http://blog.csdn.net/sunboy_2050/article/details/6002837
+  http://www.dabu.info/vim-shortcut-key-operation.html
+
+* Search
+  \C sensitivity case
+  \c non-sensitivity case
+
+  \v regex
+
+* 正则表达式
+  http://www.cnblogs.com/yirlin/archive/2006/04/12/373222.html
+
+* 注释
+  http://www.cnblogs.com/ziqang/p/6108294.html
+  http://blog.csdn.net/u011002599/article/details/12438769
+
+  Python注释
+  map = 0i# ^[j
+  map - 0xxj
+
+
+
+  https://www.fullstackpython.com/vim.html
+  https://justin.abrah.ms/vim/vim_and_python.html
+  https://realpython.com/blog/python/vim-and-python-a-match-made-in-heaven/
+
+  vim map
+  http://yyq123.blogspot.jp/2010/12/vim-map.html
+  http://yyq123.blogspot.jp/2010/12/vim-map.html
+  http://learnvimscriptthehardway.onefloweroneworld.com/chapters/03.html
+
+  删除空行
+  如果需要删除文章中的空行，可以使用一下语句：
+
+  :g/^\s*$/d
+
+  简单解释一下：
+
+  g ：全区命令
+  / ：分隔符
+  ^\s*$ ：匹配空行，其中^表示行首，\s表示空字符，包括空格和制表符，*重复0到n个前面的字符，$表示行尾。连起来就是匹配只有空字符的行，也就是空行。
+  /d ：删除该行
+  http://blog.csdn.net/robertsong2004/article/details/45741835
+
+  http://blog.csdn.net/epeaktop/article/details/23273123
+  :%s/r//g 删除DOS方式的回车^M
+  :%s= *$== 删除行尾空白
+  :%s/^(.*)n1/1$/ 删除重复行
+  :%s/^.pdf/new.pdf/ 只是删除第一个pdf
+  :%s/<!--_.-->// 又是删除多行注释（咦？为什么要说「又」呢？）
+  :g/^s*$/d 删除所有空行 :g/^s*$/d 删除所有空行
+  :g!/^dd/d 删除不含字符串'dd'的行
+  :v/^dd/d 同上 （译释：v == g!，就是不匹配！）
+  :g/str1/,/str2/d 删除所有第一个含str1到第一个含str2之间的行
+
+
+  :v/./.,/./-1join 压缩空行
+  :g/^$/,/./-j 压缩空行
+  ndw 或 ndW 删除光标处开始及其后的 n-1 个字符。
+  d0 删至行首。
+  d$ 删至行尾。
+  ndd 删除当前行及其后 n-1 行。
+  x 或 X 删除一个字符。
+  Ctrl+u 删除输入方式下所输入的文本。
+  ^R 恢复u的操作
+  J 把下一行合并到当前行尾
+  V 选择一行
+  ^V 按下^V后即可进行矩形的选择了
+  aw 选择单词
+  iw 内部单词(无空格)
+  as 选择句子
+  is 选择句子(无空格)
+  ap 选择段落
+  ip 选择段落(无空格)
+  D 删除到行尾
+  x,y 删除与复制包含高亮区
+  dl 删除当前字符（与x命令功能相同）
+  d0 删除到某一行的开始位置
+  d^ 删除到某一行的第一个字符位置（不包括空格或TAB字符）
+  dw 删除到某个单词的结尾位置
+  d3w 删除到第三个单词的结尾位置
+  db 删除到某个单词的开始位置
+  dW 删除到某个以空格作为分隔符的单词的结尾位置
+  dB 删除到某个以空格作为分隔符的单词的开始位置
+  d7B 删除到前面7个以空格作为分隔符的单词的开始位置
+  d） 删除到某个语句的结尾位置
+  d4） 删除到第四个语句的结尾位置
+  d（ 删除到某个语句的开始位置
+  d） 删除到某个段落的结尾位置
+  d{ 删除到某个段落的开始位置
+  d7{ 删除到当前段落起始位置之前的第7个段落位置
+  dd 删除当前行
+  d/text 删除从文本中出现“text”中所指定字样的位置，
+  一直向前直到下一个该字样所出现的位置（但不包括该字样）之间的内容
+  dfc 删除从文本中出现字符“c”的位置，一直向前直到下一个该字符所出现的位置（包括该字符）之间的内容
+  dtc 删除当前行直到下一个字符“c”所出现位置之间的内容
+  D 删除到某一行的结尾
+  d$ 删除到某一行的结尾
+  5dd 删除从当前行所开始的5行内容
+  dL 删除直到屏幕上最后一行的内容
+  dH 删除直到屏幕上第一行的内容
+  dG 删除直到工作缓存区结尾的内容
+  d1G 删除直到工作缓存区开始的内容
+  :g/^s*$/d 删除所有空行
+
+* 执行脚本
+  http://stackoverflow.com/questions/3166413/execute-a-script-directly-within-vim-mvim-gvim
+  http://stackoverflow.com/questions/18948491/running-python-code-in-vim
+  http://vim.wikia.com/wiki/Execute_Python_from_within_current_file
+
+
+vim shell
+http://www.cnblogs.com/wuchanming/p/4507428.html
+
+vim plugins
+"vim-surround"
+
+trailing-whitespace 
+tp://www.wklken.me/posts/2015/06/07/vim-plugin-trailing-whitespace.html 
+
+
+* vim surround
+
+cs change surround
+http://www.vim.org/scripts/script.php?script_id=1697
+
+http://www.cnblogs.com/bkylee/p/5903343.html
+
+酷
+https://www.linuxzen.com/tui-jian-ji-kuan-zui-jin-fa-xian-fei-chang-ku-de-vimcha-jian.html
+
+http://www.hulufei.com/post/repeat-command-on-each-line-in-vim
+
+https://segmentfault.com/q/1010000000312478
+
+
+http://vim.wikia.com/wiki/VimTip600
+
+* Ex命令适合远距离操作：影响广且距离远，Normal适合就近操作
+
+* Normal Mode
+** text-object
+   text-obj = [i | a] + {,[,(,<,`,',"
+*** d | allui : inside
+*** a : around | all
+*** a) = ab
+*** a{ = aB
+*** at : around tag
+*** d [a] w, s, p
+*** c [i] w, s, p
+** C-r{register} : 插入模式存储到寄存器
+** Screen
+*** zz: 当前行到屏幕中间
+** motion
+*** word-motion
+**** w forward-word
+**** b backward-word
+**** e
+**** ge
+** char search
+*** f{char}
+*** ;
+*** ,
+* 插入模式
+  打错一个word，最好先删除再重新enter
+** 插入-普通模式：执行一个普通命令后回到插入模式
+*** C-o =》 to Insert Mode
+
+* 寄存器
+  "{Register} + {cmd}
+
+** 无名寄存器 = " => ""
+   x,s,c,d,y
+** 复制专用寄存器 = 0 => "0
+   y 命令不仅会把文本拷贝到无名寄存器，而且还会拷贝到 复制专用寄存器
+** 有名寄存器 = ("a-"z)
+** 黑空寄存器 = _ => "-
+   "_d 彻底删除
+** 系统剪贴板 = + => "+
+   "+p
+   "+<C-r>+
+** 表达式寄存器
+   insert-mode : <C-r>= => 调到命令模式做计算
+   http://vimdoc.sourceforge.net/htmldoc/insert.html
+* Ex tips
+** :t (copy To) 理解为 copy To， 拷贝到；是 :copy 命令的同义词 ==> co
+*** [range]copy{address} == [range]co{address} == [range]t{address}
+*** :6t. 第6行复制到当前行的下方
+*** :t6  当前行复制到第6行的下方
+*** :t$  当前行复制到行尾
+*** :t.  当前行创建一个副本 == yyp (区别是 yyp使用了 寄存器)
+** :m == :move
+*** [range]copy{address} == [range]co{address} == [range]t{address}
+*** 与 :t 相似
+** 对指定范围上执行普通模式命令
+*** step 1 : 在一行上执行操作
+*** step 2 : VnG选中范围
+*** step 3 : :'<,'>normal .
+
+    --------------------------------------------------------------------------------
+    插入若干连续字符 == [number]i{char}ESC => Try (in Normal mode) 80i#<Esc>, where <Esc> means pressing the Escape key.
+    *
+    *
+
+* vim python ide
+  http://python.jobbole.com/84166/
+  https://github.com/fisadev/fisa-vim-config
+
+* vim vundle
+  http://blog.csdn.net/jiaolongdy/article/details/17889787/
+  https://www.flickr.com/photos/30496122@N07/2862367534/sizes/o/
+
+  eazy-motion
+  https://github.com/easymotion/vim-easymotion
+* vim nerdtree
+  http://blog.csdn.net/wjy397/article/details/51809498
+* quick fixed
+  http://blog.csdn.net/joeblackzqq/article/details/7447606
+* tips
+  http://vim.wikia.com/wiki/Best_Vim_Tips
+  http://easwy.com/blog/archives/advanced-vim-skills-netrw-bufexplorer-winmanager-plugin/
+
+** 去除高亮显示
+http://bbs.chinaunix.net/thread-4120174-1-1.html
+https://zhidao.baidu.com/question/1574869395955046300.html
+:noh
+* python scope
+  https://github.com/portante/pycscope
+
+* jump mode
+  https://github.com/winterTTr/ace-jump-mode
+* vim
+  http://blog.csdn.net/redguardtoo/article/details/1172136
+
+  http://easwy.com/blog/archives/automatically_update_ctags_tag_cscope_database/
+  http://blog.csdn.net/namecyf/article/details/7787479
+
+* vim-sneak
+  https://github.com/justinmk/vim-sneak
+
+
+  https://www.zhihu.com/question/20833248
+
+  层次0： 对vim一无所知
+  层次1： 了解vim的基本使用
+  层次2： 知道可视模式
+  层次3： 知道多种移动动作
+  层次4： 不再需要可视模式
+  http://www.360doc.com/content/15/0423/13/9075092_465414687.shtml
+  上面这个链接里面的内容很好！
+  http://www.cnblogs.com/lijia0511/p/5644566.html
+  http://blog.csdn.net/niushuai666/article/details/7275406
+  http://ju.outofmemory.cn/entry/79671
+
+:[range]{cmd}
+
+delete
+  :[range]d
+yank
+  :[range]y
+put
+  :[range]put
+
+// :[line]put [x] Put the text from register x after the specified line
+// Copy the specified lines to below the line specified
+// by {address}
+// :[range]copy {address}
+// Move the specified lines to below the line specified
+// by {address}
+// :[range]move {address}
+// :[range]join Join the specified lines
+// Execute Normal mode {commands} on each specified
+// line
+// :[range]normal {commands}
+// Replace occurrences of {pattern} with {string} on
+// each specified line
+// :[range]substitute/{pattern}/{string}/[flags]
+// Execute the Ex command [cmd] on all specified
+// lines where the {pattern} matches
+// :[range]global/{pattern}/[cmd]
+// Table 9—Ex Commands That Operate on the Text in a Buffer
+
+* 删除
+
+删除操作
+:%s/r//g 删除DOS方式的回车^M
+:%s= *$== 删除行尾空白
+:%s/^(.*)n1/1$/ 删除重复行
+:%s/^.pdf/new.pdf/ 只是删除第一个pdf
+:%s/<!--_.-->// 又是删除多行注释（咦？为什么要说「又」呢？）
+:g/^s*$/d 删除所有空行 :g/^s*$/d 删除所有空行
+:g!/^dd/d 删除不含字符串'dd'的行
+:v/^dd/d 同上 （译释：v == g!，就是不匹配！）
+:g/str1/,/str2/d 删除所有第一个含str1到第一个含str2之间的行
+
+:v/./.,/./-1join 压缩空行
+:g/^$/,/./-j 压缩空行
+ndw 或 ndW 删除光标处开始及其后的 n-1 个字符。
+d0 删至行首。
+d$ 删至行尾。
+ndd 删除当前行及其后 n-1 行。
+x 或 X 删除一个字符。
+Ctrl+u 删除输入方式下所输入的文本。
+^R 恢复u的操作
+J 把下一行合并到当前行尾
+V 选择一行
+^V 按下^V后即可进行矩形的选择了
+aw 选择单词
+iw 内部单词(无空格)
+as 选择句子
+is 选择句子(无空格)
+ap 选择段落
+ip 选择段落(无空格)
+D 删除到行尾
+x,y 删除与复制包含高亮区
+dl 删除当前字符（与x命令功能相同）
+d0 删除到某一行的开始位置
+d^ 删除到某一行的第一个字符位置（不包括空格或TAB字符）
+dw 删除到某个单词的结尾位置
+d3w 删除到第三个单词的结尾位置
+db 删除到某个单词的开始位置
+dW 删除到某个以空格作为分隔符的单词的结尾位置
+dB 删除到某个以空格作为分隔符的单词的开始位置
+d7B 删除到前面7个以空格作为分隔符的单词的开始位置
+d） 删除到某个语句的结尾位置
+d4） 删除到第四个语句的结尾位置
+d（ 删除到某个语句的开始位置
+d） 删除到某个段落的结尾位置
+d{ 删除到某个段落的开始位置
+d7{ 删除到当前段落起始位置之前的第7个段落位置
+dd 删除当前行
+d/text 删除从文本中出现“text”中所指定字样的位置，
+一直向前直到下一个该字样所出现的位置（但不包括该字样）之间的内容
+dfc 删除从文本中出现字符“c”的位置，一直向前直到下一个该字符所出现的位置（包括该字符）之间的内容
+dtc 删除当前行直到下一个字符“c”所出现位置之间的内容
+D 删除到某一行的结尾
+d$ 删除到某一行的结尾
+5dd 删除从当前行所开始的5行内容
+dL 删除直到屏幕上最后一行的内容
+dH 删除直到屏幕上第一行的内容
+dG 删除直到工作缓存区结尾的内容
+d1G 删除直到工作缓存区开始的内容
+
+* vim 删除每行开头结尾空格
+#+BEGIN_SRC
+
+  行末：$
+  行首：^
+  空格：\s
+
+  行末空格：\s\+$
+  行首空格：^\+\s
+
+  删除行末空格，可以执行如下命令：
+  :%s/\s\+$//
+
+  命令前面的"%"指明范围，表示作用于整个文件。"substitute" 命令的匹配模式是"\s\+$"。这表示行末（$）前的一个或者多个（\+）空格（\s）。替换命令的 "to" 部分是空的："//"。这样就会删除那些匹配的空白字符。
+
+  另一种没有用的空格是 Tab 前面的字符。通常这可以删除而不影响格式。但并不是总这样！所以，你最好手工删除它。执行如下命令：
+  /
+
+  没错，你什么都看不见，因为这其实是一个空格加一个 TAB 键。相当于 "/<Space><Tab>"。现在，你可以用 "x" 删除多余的空格，并保证格式没有改变。接着你可以用 "n" 找到下一个位置并重复这个操作。
+
+  http://blog.csdn.net/ywcpig/article/details/41653279
+#+END_SRC
+* vim 代码折叠
+  http://blog.csdn.net/ywcpig/article/details/42104543
+
+* vim 括号插件
+  http://www.cnblogs.com/litifeng/p/5651657.html
+
+* vim 窗口管理
+  vim打开多窗口、多文件之间的切换
+  打开多个文件：
+  一、vim还没有启动的时候：
+  1.在终端里输入
+  vim file1 file2 ... filen便可以打开所有想要打开的文件
+  2.vim已经启动
+  输入
+  :e file
+  可以再打开一个文件，并且此时vim里会显示出file文件的内容。
+  3.同时显示多个文件：
+  :sp         //水平切分窗口
+  :vsplit     //垂直切分窗口
+  二、在文件之间切换：
+  1.文件间切换
+  Ctrl+6  //两文件间的切换
+  :bn      //下一个文件
+  :bp      //上一个文件
+  :ls       //列出打开的文件，带编号
+  :b1~n  //切换至第n个文件
+  对于用(v)split在多个窗格中打开的文件，这种方法只会在当前窗格中切换不同的文件。
+  2.在窗格间切换的方法
+  Ctrl+w+方向键——切换到前／下／上／后一个窗格
+  Ctrl+w+h/j/k/l ——同上
+  Ctrl+ww——依次向后切换到下一个窗格中
+  http://www.blogjava.net/willpower88/archive/2014/02/19/410060.html
+
+  我一般用:vs，把屏幕一分为二，:q只退出当前的
+         :vs filename
+  :bdelete or :bd
+
+  http://blog.csdn.net/shuangde800/article/details/11430659
+
+* vim 历史命令
+  q: 进入命令历史编辑。
+  类似的还有 q/ 可以进入搜索历史编辑。
+  注意 q 后面如果跟随其它字母，是进入命令记录。
+
+  可以像编辑缓冲区一样编辑某个命令，然后回车执行。
+  也可以用 ctrl-c 退出历史编辑，但此时历史编辑窗口不关闭，可以参照之前的命令再自己输入。
+  用 :x 关闭历史编辑并放弃编辑结果，也可以在空命令上回车相当于退出。
+
+  /*  有时候在vim下边会出来另一个窗口，因为在我想退出编辑器时把“:q”敲成了“q:”。号称这个就是vim的命令历史窗口。要退出这个窗口也很简单，直接按回车或者输入“:q”都可以。http://blog.csdn.net/wangjianno2/article/details/38458777 */
+
+  http://www.cnblogs.com/tekkaman/p/3514728.html
+
+* vim 删除包含特定字符串的行
+  比较全
+  http://blog.sina.com.cn/s/blog_8cf0057a0101d2gq.html
+  :g/something/d
+  Vim 删除不包含指定字符串的行：
+
+  :g/xxx/d，删除包含xxx的行
+
+  :v/xxx/d，删除不含xxx的行
+
+  :%s/xxx//gn，统计xxx个数，n表示只报告匹配的个数而不进行实际的替换。
+
+  详见「:help :v」或「help :g」
+
+  http://blog.csdn.net/vichie2008/article/details/46410921
+  http://blog.csdn.net/mailyangy/article/details/8978109
+
+* vim 跳出括号
+C-o a
+inoremap <esc>la
+https://www.zhihu.com/question/29618658
+
+* vim buffer
+vim *.py
+:ls [列出所有被载入内存中的缓冲区的列表]
+% 哪个缓冲区在当前窗口可见
+# 轮换文件
+<C-^> % <-> #
+:bprev
+:bnext
+:bfirst
+:blast
+* vim 屏幕进行操作
+g 作为前缀，对屏幕行进行操作
+gj
+gk
+g0
+g^
+g$
+* vim 单词移动
+w
+b
+e
+ge
+
+* vim word count
+https://www.zhihu.com/question/54118781
+* vim specified word count
+http://blog.csdn.net/liuxuejiang158blog/article/details/32135575
+
+* delete specified character
+http://yuhuang-neil.iteye.com/blog/1190123
+
+* delete repeated lines
+http://www.cnblogs.com/air-of-code/p/4703005.html
+http://blog.csdn.net/jhjbjbn/article/details/22927585
+
+
+
+Combines all items 
+One number per line

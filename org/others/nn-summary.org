@@ -1,0 +1,8 @@
+#+TITLE: NN Summary
+#+AUTHOR: Jerry
+
+* model loss optimization data
+
+* nn architecture
+
+* matrix transform

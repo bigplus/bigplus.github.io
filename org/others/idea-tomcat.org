@@ -1,0 +1,26 @@
+#+TITLE: Idea Tomcat JRebel
+#+AUTHOR: Jerry
+
+热部署
+http://my.oschina.net/u/2457218/blog/609985
+http://my.oschina.net/u/2457218/blog/609985
+
+idea depoy tomcat
+* 靠谱
+http://blog.csdn.net/miaoy220/article/details/53450179
+http://www.07net01.com/2015/10/937858.html
+
+
+http://blog.csdn.net/rznice/article/details/40779155
+http://wibiline.iteye.com/blog/2073399
+http://showlike.iteye.com/blog/1680034
+
+http://blog.csdn.net/first_reclls/article/details/50878838
+
+baidu : idea tomcat mvn profile 
+
+http://www.cnblogs.com/muhezi/p/4738995.html
+
+* idea 查看调用关系
+http://www.cnblogs.com/huaxingtianxia/p/5728847.html
+http://blog.csdn.net/wc250025/article/details/51352658

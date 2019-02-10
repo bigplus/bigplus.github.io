@@ -1,0 +1,2450 @@
+<!DOCTYPE html>
+<!-- saved from url=(0024)http://sheet.shiar.nl/vi -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>vi cheat sheet</title>
+<meta name="description" content="Interactive cheat sheet for vi text editors, notably Vim, describing each key in various modes.">
+<meta name="keywords" content="vi, vim, nvi, sheet, cheat, reference, overview, commands, keyboard">
+<link rel="icon" type="image/png" href="http://sheet.shiar.nl/clip.png">
+<link rel="stylesheet" type="text/css" media="all" href="./vi-cheat-sheet/light.css" title="light">
+<link rel="alternate stylesheet" type="text/css" media="all" href="./vi-cheat-sheet/dark.css" title="dark">
+<link rel="alternate stylesheet" type="text/css" media="all" href="./vi-cheat-sheet/circus.css" title="circus">
+<link rel="alternate stylesheet" type="text/css" media="all" href="./vi-cheat-sheet/mono.css" title="mono">
+<link rel="alternate stylesheet" type="text/css" media="all" href="./vi-cheat-sheet/red.css" title="red">
+<link rel="alternate stylesheet" type="text/css" media="all" href="./vi-cheat-sheet/terse.css" title="terse">
+
+<!--[if lte IE 6]><style> .help dl.legend dt {margin:0 0 1px} </style><![endif]-->
+<!--[if lte IE 7]><style> .help dl.legend dd {float:none} </style><![endif]-->
+<style type="text/css"> .no {visibility:hidden} </style>
+<script type="text/javascript" src="./vi-cheat-sheet/keys.js"></script>
+</head>
+
+<body id="vi">
+
+<h1>vi/vim cheat sheet</h1>
+
+<h2>normal mode (default)</h2>
+
+<table id="rows" class="keys">
+
+<tbody class="row row0">
+	<tr class="shift meta">
+		<td class="no chr27"><b>Esc</b> normal mode
+		</td></tr>
+	<tr class="mode modeZ lead shift meta">
+		<td class="mo chr27" onclick="setmode()"><b>Esc</b> normal mode
+		</td></tr>
+	<tr class="mode mode_sbo lead shift meta">
+		<td class="mo chr27" onclick="setmode()"><b>Esc</b> normal mode
+		</td></tr>
+	<tr class="mode mode_sbc lead shift meta">
+		<td class="mo chr27" onclick="setmode()"><b>Esc</b> normal mode
+		</td></tr>
+	<tr class="mode mode_cw lead shift meta">
+		<td class="mo chr27" onclick="setmode()"><b>Esc</b> normal mode
+		</td></tr>
+	<tr class="mode mode_cwg lead shift meta">
+		<td class="mo chr27" onclick="setmode()"><b>Esc</b> normal mode
+		</td></tr>
+	<tr class="mode modeg lead shift meta">
+		<td class="mo chr27" onclick="setmode()"><b>Esc</b> normal mode
+		</td></tr>
+	<tr class="mode modei shift meta">
+		<td class="mo chr27" onclick="setmode()"><b>Esc</b> normal mode
+		</td></tr>
+	<tr class="mode modei_cg lead shift meta">
+		<td class="mi chr27" onclick="setmode(&#39;modei&#39;)"><b>Esc</b> insert mode
+		</td></tr>
+	<tr class="mode modei_cx lead shift meta">
+		<td class="mo chr27" onclick="setmode()"><b>Esc</b> normal mode
+		</td></tr>
+	<tr class="mode modev shift meta">
+		<td class="mo chr27" onclick="setmode()"><b>Esc</b> normal mode
+		</td></tr>
+	<tr class="mode modeva shift meta">
+		<td class="mv chr27" onclick="setmode(&#39;modev&#39;)"><b>Esc</b> visual mode
+		</td></tr>
+	<tr class="mode modevg lead shift meta">
+		<td class="mv chr27" onclick="setmode(&#39;modev&#39;)"><b>Esc</b> visual mode
+		</td></tr>
+	<tr class="mode modez lead shift meta">
+		<td class="mo chr27" onclick="setmode()"><b>Esc</b> normal mode
+		</td></tr>
+	</tbody>
+<tbody class="row row1">
+	<tr class="ctrl"><th>normal mode<small>: numeric row ctrl</small></th>
+		<td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr64"><b><small>^</small>@</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="co chr94"><b><small>^</small>^</b> edit alt. file
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="ni"><b><b><b><b></b></b></b></b>
+		</td><td class="no chr95"><b><small>^</small>_</b>
+		</td><td class="ni"><b></b>
+		</td></tr>
+	<tr class="shift"><th>normal mode<small>: numeric row shift</small></th>
+		<td class="co undo chr126"><b>~</b> case toggle
+		</td><td class="co undo chr33"><b>!<small>↕</small></b> filt<wbr>er lines
+		</td><td class="co undo chr64"><b>@·</b> play macro
+		</td><td class="pm ext vim6 chr35"><b>#</b> rev. find word
+		</td><td class="pm chr36"><b>$</b> eol
+		</td><td class="pm chr37"><b>%</b> goto match
+		</td><td class="pm chr94"><b>^</b> "soft" bol
+		</td><td class="co undo chr38"><b>&amp;</b> :s rep<wbr>eat
+		</td><td class="pm ext vim6 chr42"><b>*</b> find word
+		</td><td class="pm chr40"><b>(</b> begin senten<wbr>ce
+		</td><td class="pm chr41"><b>)</b> end senten<wbr>ce
+		</td><td class="pm chr95"><b>_</b> "soft" bol down
+		</td><td class="pm chr43"><b>+</b> next line
+		</td></tr>
+	<tr><th>normal mode<small>: numeric row </small></th>
+		<td class="pm chr96"><b>`·</b> goto mark
+		</td><td class="no chr49"><b>1</b>
+		</td><td class="no chr50"><b>2</b>
+		</td><td class="no chr51"><b>3</b>
+		</td><td class="no chr52"><b>4</b>
+		</td><td class="no chr53"><b>5</b>
+		</td><td class="no chr54"><b>6</b>
+		</td><td class="no chr55"><b>7</b>
+		</td><td class="no chr56"><b>8</b>
+		</td><td class="no chr57"><b>9</b>
+		</td><td class="pm chr48"><b>0</b> "hard" bol
+		</td><td class="pm chr45"><b>-</b> prev line
+		</td><td class="co undo chr61"><b>=<small>↕</small></b> re<wbr>ind<wbr>ent
+		</td></tr>
+	<tr class="mode modeZ lead ctrl"><th>quit commands<small>: numeric row ctrl</small></th>
+		<td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr64"><b>Z<small>^</small>@</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="no chr94"><b>Z<small>^</small>^</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="ni"><b><b><b><b></b></b></b></b>
+		</td><td class="no chr95"><b>Z<small>^</small>_</b>
+		</td><td class="ni"><b></b>
+		</td></tr>
+	<tr class="mode modeZ lead shift"><th>quit commands<small>: numeric row shift</small></th>
+		<td class="no chr126"><b>Z~</b>
+		</td><td class="no chr33"><b>Z!</b>
+		</td><td class="no chr64"><b>Z@</b>
+		</td><td class="no chr35"><b>Z#</b>
+		</td><td class="no chr36"><b>Z$</b>
+		</td><td class="no chr37"><b>Z%</b>
+		</td><td class="no chr94"><b>Z^</b>
+		</td><td class="no chr38"><b>Z&amp;</b>
+		</td><td class="no chr42"><b>Z*</b>
+		</td><td class="no chr40"><b>Z(</b>
+		</td><td class="no chr41"><b>Z)</b>
+		</td><td class="no chr95"><b>Z_</b>
+		</td><td class="no chr43"><b>Z+</b>
+		</td></tr>
+	<tr class="mode modeZ lead"><th>quit commands<small>: numeric row </small></th>
+		<td class="no chr96"><b>Z`</b>
+		</td><td class="no chr49"><b>Z1</b>
+		</td><td class="no chr50"><b>Z2</b>
+		</td><td class="no chr51"><b>Z3</b>
+		</td><td class="no chr52"><b>Z4</b>
+		</td><td class="no chr53"><b>Z5</b>
+		</td><td class="no chr54"><b>Z6</b>
+		</td><td class="no chr55"><b>Z7</b>
+		</td><td class="no chr56"><b>Z8</b>
+		</td><td class="no chr57"><b>Z9</b>
+		</td><td class="no chr48"><b>Z0</b>
+		</td><td class="no chr45"><b>Z-</b>
+		</td><td class="no chr61"><b>Z=</b>
+		</td></tr>
+	<tr class="mode mode_sbo lead ctrl"><th>backward search commands ([)<small>: numeric row ctrl</small></th>
+		<td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr64"><b>[<small>^</small>@</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="no chr94"><b>[<small>^</small>^</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="ni"><b><b><b><b></b></b></b></b>
+		</td><td class="no chr95"><b>[<small>^</small>_</b>
+		</td><td class="ni"><b></b>
+		</td></tr>
+	<tr class="mode mode_sbo lead shift"><th>backward search commands ([)<small>: numeric row shift</small></th>
+		<td class="no chr126"><b>[~</b>
+		</td><td class="no chr33"><b>[!</b>
+		</td><td class="no chr64"><b>[@</b>
+		</td><td class="pm chr35"><b>[#</b> previous open #if<wbr>/#else
+		</td><td class="no chr36"><b>[$</b>
+		</td><td class="no chr37"><b>[%</b>
+		</td><td class="no chr94"><b>[^</b>
+		</td><td class="no chr38"><b>[&amp;</b>
+		</td><td class="pm alias chr42"><b>[*</b> »[/
+		</td><td class="pm chr40"><b>[(</b> previous open (
+		</td><td class="no chr41"><b>[)</b>
+		</td><td class="no chr95"><b>[_</b>
+		</td><td class="no chr43"><b>[+</b>
+		</td></tr>
+	<tr class="mode mode_sbo lead"><th>backward search commands ([)<small>: numeric row </small></th>
+		<td class="pm ext vim6 chr96"><b>[`</b> previous lc mark
+		</td><td class="no chr49"><b>[1</b>
+		</td><td class="no chr50"><b>[2</b>
+		</td><td class="no chr51"><b>[3</b>
+		</td><td class="no chr52"><b>[4</b>
+		</td><td class="no chr53"><b>[5</b>
+		</td><td class="no chr54"><b>[6</b>
+		</td><td class="no chr55"><b>[7</b>
+		</td><td class="no chr56"><b>[8</b>
+		</td><td class="no chr57"><b>[9</b>
+		</td><td class="no chr48"><b>[0</b>
+		</td><td class="no chr45"><b>[-</b>
+		</td><td class="no chr61"><b>[=</b>
+		</td></tr>
+	<tr class="mode mode_sbc lead ctrl"><th>forward search commands (])<small>: numeric row ctrl</small></th>
+		<td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr64"><b>]<small>^</small>@</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="no chr94"><b>]<small>^</small>^</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="ni"><b><b><b><b></b></b></b></b>
+		</td><td class="no chr95"><b>]<small>^</small>_</b>
+		</td><td class="ni"><b></b>
+		</td></tr>
+	<tr class="mode mode_sbc lead shift"><th>forward search commands (])<small>: numeric row shift</small></th>
+		<td class="no chr126"><b>]~</b>
+		</td><td class="no chr33"><b>]!</b>
+		</td><td class="no chr64"><b>]@</b>
+		</td><td class="pm chr35"><b>]#</b> next open #endif<wbr>/#else
+		</td><td class="no chr36"><b>]$</b>
+		</td><td class="no chr37"><b>]%</b>
+		</td><td class="no chr94"><b>]^</b>
+		</td><td class="no chr38"><b>]&amp;</b>
+		</td><td class="pm alias chr42"><b>]*</b> »]/
+		</td><td class="no chr40"><b>](</b>
+		</td><td class="pm chr41"><b>])</b> next open )
+		</td><td class="no chr95"><b>]_</b>
+		</td><td class="no chr43"><b>]+</b>
+		</td></tr>
+	<tr class="mode mode_sbc lead"><th>forward search commands (])<small>: numeric row </small></th>
+		<td class="pm ext vim6 chr96"><b>]`</b> next lc mark
+		</td><td class="no chr49"><b>]1</b>
+		</td><td class="no chr50"><b>]2</b>
+		</td><td class="no chr51"><b>]3</b>
+		</td><td class="no chr52"><b>]4</b>
+		</td><td class="no chr53"><b>]5</b>
+		</td><td class="no chr54"><b>]6</b>
+		</td><td class="no chr55"><b>]7</b>
+		</td><td class="no chr56"><b>]8</b>
+		</td><td class="no chr57"><b>]9</b>
+		</td><td class="no chr48"><b>]0</b>
+		</td><td class="no chr45"><b>]-</b>
+		</td><td class="no chr61"><b>]=</b>
+		</td></tr>
+	<tr class="mode mode_cw lead ctrl"><th>window commands (ctrl-w)<small>: numeric row ctrl</small></th>
+		<td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr64"><b>ŵ<small>^</small>@</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="no chr94"><b>ŵ<small>^</small>^</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="ni"><b><b><b><b></b></b></b></b>
+		</td><td class="no chr95"><b>ŵ<small>^</small>_</b>
+		</td><td class="ni"><b></b>
+		</td></tr>
+	<tr class="mode mode_cw lead shift"><th>window commands (ctrl-w)<small>: numeric row shift</small></th>
+		<td class="no chr126"><b>ŵ~</b>
+		</td><td class="no chr33"><b>ŵ!</b>
+		</td><td class="no chr64"><b>ŵ@</b>
+		</td><td class="no chr35"><b>ŵ#</b>
+		</td><td class="no chr36"><b>ŵ$</b>
+		</td><td class="no chr37"><b>ŵ%</b>
+		</td><td class="co chr94"><b>ŵ^</b> split, edit alt file
+		</td><td class="no chr38"><b>ŵ&amp;</b>
+		</td><td class="no chr42"><b>ŵ*</b>
+		</td><td class="no chr40"><b>ŵ(</b>
+		</td><td class="no chr41"><b>ŵ)</b>
+		</td><td class="po chr95"><b>ŵ_</b> set height
+		</td><td class="po chr43"><b>ŵ+</b> height incr<wbr>ease
+		</td></tr>
+	<tr class="mode mode_cw lead"><th>window commands (ctrl-w)<small>: numeric row </small></th>
+		<td class="no chr96"><b>ŵ`</b>
+		</td><td class="no chr49"><b>ŵ1</b>
+		</td><td class="no chr50"><b>ŵ2</b>
+		</td><td class="no chr51"><b>ŵ3</b>
+		</td><td class="no chr52"><b>ŵ4</b>
+		</td><td class="no chr53"><b>ŵ5</b>
+		</td><td class="no chr54"><b>ŵ6</b>
+		</td><td class="no chr55"><b>ŵ7</b>
+		</td><td class="no chr56"><b>ŵ8</b>
+		</td><td class="no chr57"><b>ŵ9</b>
+		</td><td class="no chr48"><b>ŵ0</b>
+		</td><td class="po chr45"><b>ŵ-</b> height decr<wbr>ease
+		</td><td class="po chr61"><b>ŵ=</b> same height
+		</td></tr>
+	<tr class="mode mode_cwg lead ctrl"><th>extended window commands (ctrl-w g)<small>: numeric row ctrl</small></th>
+		<td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr64"><b>ŵg<small>^</small>@</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="no chr94"><b>ŵg<small>^</small>^</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="ni"><b><b><b><b></b></b></b></b>
+		</td><td class="no chr95"><b>ŵg<small>^</small>_</b>
+		</td><td class="ni"><b></b>
+		</td></tr>
+	<tr class="mode mode_cwg lead shift"><th>extended window commands (ctrl-w g)<small>: numeric row shift</small></th>
+		<td class="no chr126"><b>ŵg~</b>
+		</td><td class="no chr33"><b>ŵg!</b>
+		</td><td class="no chr64"><b>ŵg@</b>
+		</td><td class="no chr35"><b>ŵg#</b>
+		</td><td class="no chr36"><b>ŵg$</b>
+		</td><td class="no chr37"><b>ŵg%</b>
+		</td><td class="no chr94"><b>ŵg^</b>
+		</td><td class="no chr38"><b>ŵg&amp;</b>
+		</td><td class="no chr42"><b>ŵg*</b>
+		</td><td class="no chr40"><b>ŵg(</b>
+		</td><td class="no chr41"><b>ŵg)</b>
+		</td><td class="no chr95"><b>ŵg_</b>
+		</td><td class="no chr43"><b>ŵg+</b>
+		</td></tr>
+	<tr class="mode mode_cwg lead"><th>extended window commands (ctrl-w g)<small>: numeric row </small></th>
+		<td class="no chr96"><b>ŵg`</b>
+		</td><td class="no chr49"><b>ŵg1</b>
+		</td><td class="no chr50"><b>ŵg2</b>
+		</td><td class="no chr51"><b>ŵg3</b>
+		</td><td class="no chr52"><b>ŵg4</b>
+		</td><td class="no chr53"><b>ŵg5</b>
+		</td><td class="no chr54"><b>ŵg6</b>
+		</td><td class="no chr55"><b>ŵg7</b>
+		</td><td class="no chr56"><b>ŵg8</b>
+		</td><td class="no chr57"><b>ŵg9</b>
+		</td><td class="no chr48"><b>ŵg0</b>
+		</td><td class="no chr45"><b>ŵg-</b>
+		</td><td class="no chr61"><b>ŵg=</b>
+		</td></tr>
+	<tr class="mode modeg lead ctrl"><th>extended commands (g)<small>: numeric row ctrl</small></th>
+		<td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr64"><b>g<small>^</small>@</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="no chr94"><b>g<small>^</small>^</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="ni"><b><b><b><b></b></b></b></b>
+		</td><td class="no chr95"><b>g<small>^</small>_</b>
+		</td><td class="ni"><b></b>
+		</td></tr>
+	<tr class="mode modeg lead shift"><th>extended commands (g)<small>: numeric row shift</small></th>
+		<td class="co ext vim6 chr126"><b>g~<small>↕</small></b> case toggl<wbr>e
+		</td><td class="no chr33"><b>g!</b>
+		</td><td class="co ext vim7 new chr64"><b>g@</b> oper<wbr>at<wbr>or<wbr>func
+		</td><td class="pm ext vim6 chr35"><b>g#</b> rev. find string
+		</td><td class="pm chr36"><b>g$</b> virt<wbr>ual eol
+		</td><td class="no chr37"><b>g%</b>
+		</td><td class="pm ext vim6 chr94"><b>g^</b> "soft" bol v<wbr>irt<wbr>ual
+		</td><td class="co chr38"><b title="Global substitute">g&amp;</b> :s rep<wbr>eat glob<wbr>al<wbr>ly
+		</td><td class="pm ext vim6 chr42"><b>g*</b> find string
+		</td><td class="no chr40"><b>g(</b>
+		</td><td class="no chr41"><b>g)</b>
+		</td><td class="pm ext vim6 chr95"><b>g_</b> "soft" eol
+		</td><td class="co ext vim7 new chr43"><b>g+</b> later undo
+		</td></tr>
+	<tr class="mode modeg lead"><th>extended commands (g)<small>: numeric row </small></th>
+		<td class="pm ext vim6 chr96"><b>g`·</b> to mark keepj<wbr>umps
+		</td><td class="no chr49"><b>g1</b>
+		</td><td class="no chr50"><b>g2</b>
+		</td><td class="no chr51"><b>g3</b>
+		</td><td class="no chr52"><b>g4</b>
+		</td><td class="no chr53"><b>g5</b>
+		</td><td class="no chr54"><b>g6</b>
+		</td><td class="no chr55"><b>g7</b>
+		</td><td class="ci chr56"><b>g8</b> char hex val<wbr>ue<wbr>s
+		</td><td class="no chr57"><b>g9</b>
+		</td><td class="pm ext vim6 chr48"><b>g0</b> virtual bol
+		</td><td class="co ext vim7 new chr45"><b>g-</b> earlier undo
+		</td><td class="no chr61"><b>g=</b>
+		</td></tr>
+	<tr class="mode modei ctrl"><th>insert mode<small>: numeric row ctrl</small></th>
+		<td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="co chr64"><b><small>^</small>@</b> last insert
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="co ext vim6 chr94"><b><small>^</small>^</b> toggle :lmap usag<wbr>e
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="ni"><b><b><b><b></b></b></b></b>
+		</td><td class="co ext vim6 chr95"><b><small>^</small>_</b> toggle lang<wbr>uage
+		</td><td class="ni"><b></b>
+		</td></tr>
+	<tr class="mode modei shift"><th>insert mode<small>: numeric row shift</small></th>
+		<td class="no chr126"><b>~</b>
+		</td><td class="no chr33"><b>!</b>
+		</td><td class="no chr64"><b>@</b>
+		</td><td class="no chr35"><b>#</b>
+		</td><td class="no chr36"><b>$</b>
+		</td><td class="no chr37"><b>%</b>
+		</td><td class="no chr94"><b>^</b>
+		</td><td class="no chr38"><b>&amp;</b>
+		</td><td class="no chr42"><b>*</b>
+		</td><td class="no chr40"><b>(</b>
+		</td><td class="no chr41"><b>)</b>
+		</td><td class="no chr95"><b>_</b>
+		</td><td class="no chr43"><b>+</b>
+		</td></tr>
+	<tr class="mode modei"><th>insert mode<small>: numeric row </small></th>
+		<td class="no chr96"><b>`</b>
+		</td><td class="no chr49"><b>1</b>
+		</td><td class="no chr50"><b>2</b>
+		</td><td class="no chr51"><b>3</b>
+		</td><td class="no chr52"><b>4</b>
+		</td><td class="no chr53"><b>5</b>
+		</td><td class="no chr54"><b>6</b>
+		</td><td class="no chr55"><b>7</b>
+		</td><td class="no chr56"><b>8</b>
+		</td><td class="no chr57"><b>9</b>
+		</td><td class="no chr48"><b>0</b>
+		</td><td class="no chr45"><b>-</b>
+		</td><td class="no chr61"><b>=</b>
+		</td></tr>
+	<tr class="mode modei_cg lead ctrl"><th>extended insert commands (i ctrl-g)<small>: numeric row ctrl</small></th>
+		<td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr64"><b>ĝ<small>^</small>@</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="no chr94"><b>ĝ<small>^</small>^</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="ni"><b><b><b><b></b></b></b></b>
+		</td><td class="no chr95"><b>ĝ<small>^</small>_</b>
+		</td><td class="ni"><b></b>
+		</td></tr>
+	<tr class="mode modei_cg lead shift"><th>extended insert commands (i ctrl-g)<small>: numeric row shift</small></th>
+		<td class="no chr126"><b>ĝ~</b>
+		</td><td class="no chr33"><b>ĝ!</b>
+		</td><td class="no chr64"><b>ĝ@</b>
+		</td><td class="no chr35"><b>ĝ#</b>
+		</td><td class="no chr36"><b>ĝ$</b>
+		</td><td class="no chr37"><b>ĝ%</b>
+		</td><td class="no chr94"><b>ĝ^</b>
+		</td><td class="no chr38"><b>ĝ&amp;</b>
+		</td><td class="no chr42"><b>ĝ*</b>
+		</td><td class="no chr40"><b>ĝ(</b>
+		</td><td class="no chr41"><b>ĝ)</b>
+		</td><td class="no chr95"><b>ĝ_</b>
+		</td><td class="no chr43"><b>ĝ+</b>
+		</td></tr>
+	<tr class="mode modei_cg lead"><th>extended insert commands (i ctrl-g)<small>: numeric row </small></th>
+		<td class="no chr96"><b>ĝ`</b>
+		</td><td class="no chr49"><b>ĝ1</b>
+		</td><td class="no chr50"><b>ĝ2</b>
+		</td><td class="no chr51"><b>ĝ3</b>
+		</td><td class="no chr52"><b>ĝ4</b>
+		</td><td class="no chr53"><b>ĝ5</b>
+		</td><td class="no chr54"><b>ĝ6</b>
+		</td><td class="no chr55"><b>ĝ7</b>
+		</td><td class="no chr56"><b>ĝ8</b>
+		</td><td class="no chr57"><b>ĝ9</b>
+		</td><td class="no chr48"><b>ĝ0</b>
+		</td><td class="no chr45"><b>ĝ-</b>
+		</td><td class="no chr61"><b>ĝ=</b>
+		</td></tr>
+	<tr class="mode modei_cx lead ctrl"><th>insert completion commands (i ctrl-x)<small>: numeric row ctrl</small></th>
+		<td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr64"><b>x̂<small>^</small>@</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="no chr94"><b>x̂<small>^</small>^</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="ni"><b><b><b><b></b></b></b></b>
+		</td><td class="no chr95"><b>x̂<small>^</small>_</b>
+		</td><td class="ni"><b></b>
+		</td></tr>
+	<tr class="mode modei_cx lead shift"><th>insert completion commands (i ctrl-x)<small>: numeric row shift</small></th>
+		<td class="no chr126"><b>x̂~</b>
+		</td><td class="no chr33"><b>x̂!</b>
+		</td><td class="no chr64"><b>x̂@</b>
+		</td><td class="no chr35"><b>x̂#</b>
+		</td><td class="no chr36"><b>x̂$</b>
+		</td><td class="no chr37"><b>x̂%</b>
+		</td><td class="no chr94"><b>x̂^</b>
+		</td><td class="no chr38"><b>x̂&amp;</b>
+		</td><td class="no chr42"><b>x̂*</b>
+		</td><td class="no chr40"><b>x̂(</b>
+		</td><td class="no chr41"><b>x̂)</b>
+		</td><td class="no chr95"><b>x̂_</b>
+		</td><td class="no chr43"><b>x̂+</b>
+		</td></tr>
+	<tr class="mode modei_cx lead"><th>insert completion commands (i ctrl-x)<small>: numeric row </small></th>
+		<td class="no chr96"><b>x̂`</b>
+		</td><td class="no chr49"><b>x̂1</b>
+		</td><td class="no chr50"><b>x̂2</b>
+		</td><td class="no chr51"><b>x̂3</b>
+		</td><td class="no chr52"><b>x̂4</b>
+		</td><td class="no chr53"><b>x̂5</b>
+		</td><td class="no chr54"><b>x̂6</b>
+		</td><td class="no chr55"><b>x̂7</b>
+		</td><td class="no chr56"><b>x̂8</b>
+		</td><td class="no chr57"><b>x̂9</b>
+		</td><td class="no chr48"><b>x̂0</b>
+		</td><td class="no chr45"><b>x̂-</b>
+		</td><td class="no chr61"><b>x̂=</b>
+		</td></tr>
+	<tr class="mode modev ctrl"><th>visual mode<small>: numeric row ctrl</small></th>
+		<td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr64"><b><small>^</small>@</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="no chr94"><b><small>^</small>^</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="ni"><b><b><b><b></b></b></b></b>
+		</td><td class="no chr95"><b><small>^</small>_</b>
+		</td><td class="ni"><b></b>
+		</td></tr>
+	<tr class="mode modev shift"><th>visual mode<small>: numeric row shift</small></th>
+		<td class="co ext vim6 chr126"><b>~</b> toggle case
+		</td><td class="co chr33"><b>!</b> external filter
+		</td><td class="no chr64"><b>@</b>
+		</td><td class="pm ext vim6 alias chr35"><b>#</b> »#
+		</td><td class="pm alias chr36"><b>$</b> »$
+		</td><td class="pm alias chr37"><b>%</b> »%
+		</td><td class="pm alias chr94"><b>^</b> »^
+		</td><td class="no chr38"><b>&amp;</b>
+		</td><td class="pm ext vim6 alias chr42"><b>*</b> »*
+		</td><td class="pm alias chr40"><b>(</b> »(
+		</td><td class="pm alias chr41"><b>)</b> »)
+		</td><td class="pm alias chr95"><b>_</b> »_
+		</td><td class="pm alias chr43"><b>+</b> »+
+		</td></tr>
+	<tr class="mode modev"><th>visual mode<small>: numeric row </small></th>
+		<td class="pm alias chr96"><b>`·</b> »`
+		</td><td class="no chr49"><b>1</b>
+		</td><td class="no chr50"><b>2</b>
+		</td><td class="no chr51"><b>3</b>
+		</td><td class="no chr52"><b>4</b>
+		</td><td class="no chr53"><b>5</b>
+		</td><td class="no chr54"><b>6</b>
+		</td><td class="no chr55"><b>7</b>
+		</td><td class="no chr56"><b>8</b>
+		</td><td class="no chr57"><b>9</b>
+		</td><td class="pm alias chr48"><b>0</b> »0
+		</td><td class="pm alias chr45"><b>-</b> »-
+		</td><td class="co undo chr61"><b>=</b> re<wbr>ind<wbr>ent
+		</td></tr>
+	<tr class="mode modeva ctrl"><th>text object selection (v a/i)<small>: numeric row ctrl</small></th>
+		<td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr64"><b><small>^</small>@</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="no chr94"><b><small>^</small>^</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="ni"><b><b><b><b></b></b></b></b>
+		</td><td class="no chr95"><b><small>^</small>_</b>
+		</td><td class="ni"><b></b>
+		</td></tr>
+	<tr class="mode modeva shift"><th>text object selection (v a/i)<small>: numeric row shift</small></th>
+		<td class="no chr126"><b>~</b>
+		</td><td class="no chr33"><b>!</b>
+		</td><td class="no chr64"><b>@</b>
+		</td><td class="no chr35"><b>#</b>
+		</td><td class="no chr36"><b>$</b>
+		</td><td class="no chr37"><b>%</b>
+		</td><td class="no chr94"><b>^</b>
+		</td><td class="no chr38"><b>&amp;</b>
+		</td><td class="no chr42"><b>*</b>
+		</td><td class="pm ext vim6 alias chr40"><b>(</b> »vab
+		</td><td class="pm ext vim6 alias chr41"><b>)</b> »vab
+		</td><td class="no chr95"><b>_</b>
+		</td><td class="no chr43"><b>+</b>
+		</td></tr>
+	<tr class="mode modeva"><th>text object selection (v a/i)<small>: numeric row </small></th>
+		<td class="pm ext vim7 new alias chr96"><b>`</b> »va'
+		</td><td class="no chr49"><b>1</b>
+		</td><td class="no chr50"><b>2</b>
+		</td><td class="no chr51"><b>3</b>
+		</td><td class="no chr52"><b>4</b>
+		</td><td class="no chr53"><b>5</b>
+		</td><td class="no chr54"><b>6</b>
+		</td><td class="no chr55"><b>7</b>
+		</td><td class="no chr56"><b>8</b>
+		</td><td class="no chr57"><b>9</b>
+		</td><td class="no chr48"><b>0</b>
+		</td><td class="no chr45"><b>-</b>
+		</td><td class="no chr61"><b>=</b>
+		</td></tr>
+	<tr class="mode modevg lead ctrl"><th>extended visual commands (v g)<small>: numeric row ctrl</small></th>
+		<td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr64"><b>g<small>^</small>@</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="no chr94"><b>g<small>^</small>^</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="ni"><b><b><b><b></b></b></b></b>
+		</td><td class="no chr95"><b>g<small>^</small>_</b>
+		</td><td class="ni"><b></b>
+		</td></tr>
+	<tr class="mode modevg lead shift"><th>extended visual commands (v g)<small>: numeric row shift</small></th>
+		<td class="no chr126"><b>g~</b>
+		</td><td class="no chr33"><b>g!</b>
+		</td><td class="no chr64"><b>g@</b>
+		</td><td class="no chr35"><b>g#</b>
+		</td><td class="no chr36"><b>g$</b>
+		</td><td class="no chr37"><b>g%</b>
+		</td><td class="no chr94"><b>g^</b>
+		</td><td class="no chr38"><b>g&amp;</b>
+		</td><td class="no chr42"><b>g*</b>
+		</td><td class="no chr40"><b>g(</b>
+		</td><td class="no chr41"><b>g)</b>
+		</td><td class="no chr95"><b>g_</b>
+		</td><td class="no chr43"><b>g+</b>
+		</td></tr>
+	<tr class="mode modevg lead"><th>extended visual commands (v g)<small>: numeric row </small></th>
+		<td class="no chr96"><b>g`</b>
+		</td><td class="no chr49"><b>g1</b>
+		</td><td class="no chr50"><b>g2</b>
+		</td><td class="no chr51"><b>g3</b>
+		</td><td class="no chr52"><b>g4</b>
+		</td><td class="no chr53"><b>g5</b>
+		</td><td class="no chr54"><b>g6</b>
+		</td><td class="no chr55"><b>g7</b>
+		</td><td class="no chr56"><b>g8</b>
+		</td><td class="no chr57"><b>g9</b>
+		</td><td class="no chr48"><b>g0</b>
+		</td><td class="no chr45"><b>g-</b>
+		</td><td class="no chr61"><b>g=</b>
+		</td></tr>
+	<tr class="mode modez lead ctrl"><th>additional commands (z)<small>: numeric row ctrl</small></th>
+		<td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr64"><b>z<small>^</small>@</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="no chr94"><b>z<small>^</small>^</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="ni"><b><b><b></b></b></b>
+		</td><td class="ni"><b><b><b><b></b></b></b></b>
+		</td><td class="no chr95"><b>z<small>^</small>_</b>
+		</td><td class="ni"><b></b>
+		</td></tr>
+	<tr class="mode modez lead shift"><th>additional commands (z)<small>: numeric row shift</small></th>
+		<td class="no chr126"><b>z~</b>
+		</td><td class="no chr33"><b>z!</b>
+		</td><td class="no chr64"><b>z@</b>
+		</td><td class="no chr35"><b>z#</b>
+		</td><td class="no chr36"><b>z$</b>
+		</td><td class="no chr37"><b>z%</b>
+		</td><td class="po chr94"><b>z^</b> page above
+		</td><td class="no chr38"><b>z&amp;</b>
+		</td><td class="no chr42"><b>z*</b>
+		</td><td class="no chr40"><b>z(</b>
+		</td><td class="no chr41"><b>z)</b>
+		</td><td class="no chr95"><b>z_</b>
+		</td><td class="po chr43"><b>z+</b> page below
+		</td></tr>
+	<tr class="mode modez lead"><th>additional commands (z)<small>: numeric row </small></th>
+		<td class="no chr96"><b>z`</b>
+		</td><td class="no chr49"><b>z1</b>
+		</td><td class="no chr50"><b>z2</b>
+		</td><td class="no chr51"><b>z3</b>
+		</td><td class="no chr52"><b>z4</b>
+		</td><td class="no chr53"><b>z5</b>
+		</td><td class="no chr54"><b>z6</b>
+		</td><td class="no chr55"><b>z7</b>
+		</td><td class="no chr56"><b>z8</b>
+		</td><td class="no chr57"><b>z9</b>
+		</td><td class="no chr48"><b>z0</b>
+		</td><td class="po chr45"><b title="don&#39;t (-) see any further">z-</b> line at bottom bol
+		</td><td class="co ext vim7 new chr61"><b>z=</b> sug<wbr>gest spell<wbr>ing
+		</td></tr>
+	</tbody>
+<tbody class="row row2">
+	<tr class="ctrl"><th>normal mode<small>: top row ctrl</small></th>
+		<td class="ci chr113"><b title="Qome back"><small>^</small>q</b> (xon)
+		</td><td class="me chr119" onclick="setmode(&#39;mode_cw&#39;)"><b><small>^</small>w·</b> win<wbr>dow cmds
+		</td><td class="po chr101"><b title="Extra line"><small>^</small>e</b> window down
+		</td><td class="co undo ext vim6 chr114"><b><small>^</small>r</b> redo
+		</td><td class="po chr116"><b><small>^</small>t</b> back tag
+		</td><td class="po chr121"><b title="Yield"><small>^</small>y</b> window up
+		</td><td class="po chr117"><b><small>^</small>u</b> scroll up
+		</td><td class="pm ext vim6 chr105"><b title="Increase position"><small>^</small>i</b> jump to newer
+		</td><td class="pm ext vim6 chr111"><b><small>^</small>o</b> jump to older
+		</td><td class="pm alias chr112"><b><small>^</small>p</b> »k
+		</td><td class="no chr91"><b><small>^</small>[</b>
+		</td><td class="po chr93"><b><small>^</small>]</b> go to tag
+		</td></tr>
+	<tr class="shift"><th>normal mode<small>: top row shift</small></th>
+		<td class="mo chr81"><b>Q</b> ex mode
+		</td><td class="pm chr87"><b>W</b> next <span style="font-variant:small-caps">word</span>
+		</td><td class="pm chr69"><b>E</b> end <span style="font-variant:small-caps">word</span>
+		</td><td class="mi undo chr82" onclick="setmode(&#39;modei&#39;)"><b>R</b> repl<wbr>ace mode
+		</td><td class="pm chr84"><b>T</b> back till char
+		</td><td class="co chr89"><b>Y</b> yank line
+		</td><td class="co undo chr85"><b>U</b> undo line
+		</td><td class="mi undo chr73" onclick="setmode(&#39;modei&#39;)"><b>I</b> insert at bol
+		</td><td class="mi undo chr79" onclick="setmode(&#39;modei&#39;)"><b>O</b> line above
+		</td><td class="co undo chr80"><b>P</b> paste before
+		</td><td class="pm chr123"><b>{</b> begin parag.
+		</td><td class="pm chr125"><b>}</b> end parag.
+		</td></tr>
+	<tr><th>normal mode<small>: top row </small></th>
+		<td class="mo chr113"><b title="Queue seQuence">q·</b> rec<wbr>ord macro
+		</td><td class="pm chr119"><b>w</b> next word
+		</td><td class="pm chr101"><b>e</b> end word
+		</td><td class="co undo chr114"><b>r·</b> repl<wbr>ace char
+		</td><td class="pm chr116"><b>t·</b> till char
+		</td><td class="co chr121"><b title="(copy)">y<small>↕</small></b> yank
+		</td><td class="co undo chr117"><b>u</b> undo
+		</td><td class="mi undo chr105" onclick="setmode(&#39;modei&#39;)"><b>i</b> insert mode
+		</td><td class="mi undo chr111" onclick="setmode(&#39;modei&#39;)"><b title="Open">o</b> line below
+		</td><td class="co undo chr112"><b>p</b> paste after
+		</td><td class="me chr91" onclick="setmode(&#39;mode_sbo&#39;)"><b>[·</b> move back<wbr>ward<wbr>s
+		</td><td class="me chr93" onclick="setmode(&#39;mode_sbc&#39;)"><b>]·</b> move forw<wbr>ard
+		</td></tr>
+	<tr class="mode modeZ lead ctrl"><th>quit commands<small>: top row ctrl</small></th>
+		<td class="no chr113"><b>Z<small>^</small>q</b>
+		</td><td class="no chr119"><b>Z<small>^</small>w</b>
+		</td><td class="no chr101"><b>Z<small>^</small>e</b>
+		</td><td class="no chr114"><b>Z<small>^</small>r</b>
+		</td><td class="no chr116"><b>Z<small>^</small>t</b>
+		</td><td class="no chr121"><b>Z<small>^</small>y</b>
+		</td><td class="no chr117"><b>Z<small>^</small>u</b>
+		</td><td class="no chr105"><b>Z<small>^</small>i</b>
+		</td><td class="no chr111"><b>Z<small>^</small>o</b>
+		</td><td class="no chr112"><b>Z<small>^</small>p</b>
+		</td><td class=" alias chr91"><b>Z<small>^</small>[</b> »esc
+		</td><td class="no chr93"><b>Z<small>^</small>]</b>
+		</td></tr>
+	<tr class="mode modeZ lead shift"><th>quit commands<small>: top row shift</small></th>
+		<td class="co ext vim6 chr81"><b>ZQ</b>  :q! (force)
+		</td><td class="no chr87"><b>ZW</b>
+		</td><td class="no chr69"><b>ZE</b>
+		</td><td class="no chr82"><b>ZR</b>
+		</td><td class="no chr84"><b>ZT</b>
+		</td><td class="no chr89"><b>ZY</b>
+		</td><td class="no chr85"><b>ZU</b>
+		</td><td class="no chr73"><b>ZI</b>
+		</td><td class="no chr79"><b>ZO</b>
+		</td><td class="no chr80"><b>ZP</b>
+		</td><td class="no chr123"><b>Z{</b>
+		</td><td class="no chr125"><b>Z}</b>
+		</td></tr>
+	<tr class="mode modeZ lead"><th>quit commands<small>: top row </small></th>
+		<td class="no chr113"><b>Zq</b>
+		</td><td class="no chr119"><b>Zw</b>
+		</td><td class="no chr101"><b>Ze</b>
+		</td><td class="no chr114"><b>Zr</b>
+		</td><td class="no chr116"><b>Zt</b>
+		</td><td class="no chr121"><b>Zy</b>
+		</td><td class="no chr117"><b>Zu</b>
+		</td><td class="no chr105"><b>Zi</b>
+		</td><td class="no chr111"><b>Zo</b>
+		</td><td class="no chr112"><b>Zp</b>
+		</td><td class="no chr91"><b>Z[</b>
+		</td><td class="no chr93"><b>Z]</b>
+		</td></tr>
+	<tr class="mode mode_sbo lead ctrl"><th>backward search commands ([)<small>: top row ctrl</small></th>
+		<td class="no chr113"><b>[<small>^</small>q</b>
+		</td><td class="no chr119"><b>[<small>^</small>w</b>
+		</td><td class="no chr101"><b>[<small>^</small>e</b>
+		</td><td class="no chr114"><b>[<small>^</small>r</b>
+		</td><td class="no chr116"><b>[<small>^</small>t</b>
+		</td><td class="no chr121"><b>[<small>^</small>y</b>
+		</td><td class="no chr117"><b>[<small>^</small>u</b>
+		</td><td class="po chr105"><b>[<small>^</small>i</b> to first occur<wbr>renc<wbr>e
+		</td><td class="no chr111"><b>[<small>^</small>o</b>
+		</td><td class="no chr112"><b>[<small>^</small>p</b>
+		</td><td class=" alias chr91"><b>[<small>^</small>[</b> »esc
+		</td><td class="no chr93"><b>[<small>^</small>]</b>
+		</td></tr>
+	<tr class="mode mode_sbo lead shift"><th>backward search commands ([)<small>: top row shift</small></th>
+		<td class="no chr81"><b>[Q</b>
+		</td><td class="no chr87"><b>[W</b>
+		</td><td class="no chr69"><b>[E</b>
+		</td><td class="no chr82"><b>[R</b>
+		</td><td class="no chr84"><b>[T</b>
+		</td><td class="no chr89"><b>[Y</b>
+		</td><td class="no chr85"><b>[U</b>
+		</td><td class="co chr73"><b>[I</b> first occur<wbr>renc<wbr>e
+		</td><td class="no chr79"><b>[O</b>
+		</td><td class="co chr80"><b>[P</b> [p
+		</td><td class="pm chr123"><b>[{</b> previous open {
+		</td><td class="no chr125"><b>[}</b>
+		</td></tr>
+	<tr class="mode mode_sbo lead"><th>backward search commands ([)<small>: top row </small></th>
+		<td class="no chr113"><b>[q</b>
+		</td><td class="no chr119"><b>[w</b>
+		</td><td class="no chr101"><b>[e</b>
+		</td><td class="no chr114"><b>[r</b>
+		</td><td class="no chr116"><b>[t</b>
+		</td><td class="no chr121"><b>[y</b>
+		</td><td class="no chr117"><b>[u</b>
+		</td><td class="ci chr105"><b>[i</b> first occur<wbr>renc<wbr>e line
+		</td><td class="no chr111"><b>[o</b>
+		</td><td class="co chr112"><b>[p</b> P reind<wbr>ent<wbr>ed
+		</td><td class="pm chr91"><b>[[</b> section back<wbr>ward<wbr>s
+		</td><td class="pm chr93"><b>[]</b> <span style="font-variant:small-caps">section</span> back<wbr>ward<wbr>s
+		</td></tr>
+	<tr class="mode mode_sbc lead ctrl"><th>forward search commands (])<small>: top row ctrl</small></th>
+		<td class="no chr113"><b>]<small>^</small>q</b>
+		</td><td class="no chr119"><b>]<small>^</small>w</b>
+		</td><td class="no chr101"><b>]<small>^</small>e</b>
+		</td><td class="no chr114"><b>]<small>^</small>r</b>
+		</td><td class="no chr116"><b>]<small>^</small>t</b>
+		</td><td class="no chr121"><b>]<small>^</small>y</b>
+		</td><td class="no chr117"><b>]<small>^</small>u</b>
+		</td><td class="po chr105"><b>]<small>^</small>i</b> to occur<wbr>renc<wbr>e
+		</td><td class="no chr111"><b>]<small>^</small>o</b>
+		</td><td class="no chr112"><b>]<small>^</small>p</b>
+		</td><td class=" alias chr91"><b>]<small>^</small>[</b> »esc
+		</td><td class="no chr93"><b>]<small>^</small>]</b>
+		</td></tr>
+	<tr class="mode mode_sbc lead shift"><th>forward search commands (])<small>: top row shift</small></th>
+		<td class="no chr81"><b>]Q</b>
+		</td><td class="no chr87"><b>]W</b>
+		</td><td class="no chr69"><b>]E</b>
+		</td><td class="no chr82"><b>]R</b>
+		</td><td class="no chr84"><b>]T</b>
+		</td><td class="no chr89"><b>]Y</b>
+		</td><td class="no chr85"><b>]U</b>
+		</td><td class="co chr73"><b>]I</b> next occur<wbr>renc<wbr>e
+		</td><td class="no chr79"><b>]O</b>
+		</td><td class="co alias chr80"><b>]P</b> »[p
+		</td><td class="no chr123"><b>]{</b>
+		</td><td class="pm chr125"><b>]}</b> next open }
+		</td></tr>
+	<tr class="mode mode_sbc lead"><th>forward search commands (])<small>: top row </small></th>
+		<td class="no chr113"><b>]q</b>
+		</td><td class="no chr119"><b>]w</b>
+		</td><td class="no chr101"><b>]e</b>
+		</td><td class="no chr114"><b>]r</b>
+		</td><td class="no chr116"><b>]t</b>
+		</td><td class="no chr121"><b>]y</b>
+		</td><td class="no chr117"><b>]u</b>
+		</td><td class="ci chr105"><b>]i</b> next occur<wbr>renc<wbr>e line
+		</td><td class="no chr111"><b>]o</b>
+		</td><td class="co chr112"><b>]p</b> p reind<wbr>ent<wbr>ed
+		</td><td class="pm chr91"><b>][</b> <span style="font-variant:small-caps">section</span> forw<wbr>ard
+		</td><td class="pm chr93"><b>]]</b> section forw<wbr>ard
+		</td></tr>
+	<tr class="mode mode_cw lead ctrl"><th>window commands (ctrl-w)<small>: top row ctrl</small></th>
+		<td class="no chr113"><b>ŵ<small>^</small>q</b>
+		</td><td class="no chr119"><b>ŵ<small>^</small>w</b>
+		</td><td class="no chr101"><b>ŵ<small>^</small>e</b>
+		</td><td class="no chr114"><b>ŵ<small>^</small>r</b>
+		</td><td class="no chr116"><b>ŵ<small>^</small>t</b>
+		</td><td class="no chr121"><b>ŵ<small>^</small>y</b>
+		</td><td class="no chr117"><b>ŵ<small>^</small>u</b>
+		</td><td class="no chr105"><b>ŵ<small>^</small>i</b>
+		</td><td class="no chr111"><b>ŵ<small>^</small>o</b>
+		</td><td class="no chr112"><b>ŵ<small>^</small>p</b>
+		</td><td class=" alias chr91"><b>ŵ<small>^</small>[</b> »esc
+		</td><td class="no chr93"><b>ŵ<small>^</small>]</b>
+		</td></tr>
+	<tr class="mode mode_cw lead shift"><th>window commands (ctrl-w)<small>: top row shift</small></th>
+		<td class="no chr81"><b>ŵQ</b>
+		</td><td class="po chr87"><b>ŵW</b> go above<wbr>/left
+		</td><td class="no chr69"><b>ŵE</b>
+		</td><td class="po chr82"><b>ŵR</b> rotate up<wbr>ward<wbr>s
+		</td><td class="no chr84"><b>ŵT</b>
+		</td><td class="no chr89"><b>ŵY</b>
+		</td><td class="no chr85"><b>ŵU</b>
+		</td><td class="no chr73"><b>ŵI</b>
+		</td><td class="no chr79"><b>ŵO</b>
+		</td><td class="po chr80"><b>ŵP</b> go to pre<wbr>view
+		</td><td class="no chr123"><b>ŵ{</b>
+		</td><td class="po chr125"><b>ŵ}</b> pre<wbr>view tag
+		</td></tr>
+	<tr class="mode mode_cw lead"><th>window commands (ctrl-w)<small>: top row </small></th>
+		<td class="co chr113"><b>ŵq</b> :quit current
+		</td><td class="po chr119"><b title="Wrap around">ŵw</b> go to next
+		</td><td class="no chr101"><b>ŵe</b>
+		</td><td class="po chr114"><b>ŵr</b> rotate down<wbr>ward<wbr>s
+		</td><td class="po chr116"><b>ŵt</b> go to top
+		</td><td class="no chr121"><b>ŵy</b>
+		</td><td class="no chr117"><b>ŵu</b>
+		</td><td class="po chr105"><b>ŵi</b> split, to decl of id<wbr>ent<wbr>ifier
+		</td><td class="po chr111"><b>ŵo</b> :only current
+		</td><td class="po chr112"><b>ŵp</b> go to prev<wbr>ious
+		</td><td class="no chr91"><b>ŵ[</b>
+		</td><td class="po chr93"><b>ŵ]</b> split, to tag
+		</td></tr>
+	<tr class="mode mode_cwg lead ctrl"><th>extended window commands (ctrl-w g)<small>: top row ctrl</small></th>
+		<td class="no chr113"><b>ŵg<small>^</small>q</b>
+		</td><td class="no chr119"><b>ŵg<small>^</small>w</b>
+		</td><td class="no chr101"><b>ŵg<small>^</small>e</b>
+		</td><td class="no chr114"><b>ŵg<small>^</small>r</b>
+		</td><td class="no chr116"><b>ŵg<small>^</small>t</b>
+		</td><td class="no chr121"><b>ŵg<small>^</small>y</b>
+		</td><td class="no chr117"><b>ŵg<small>^</small>u</b>
+		</td><td class="no chr105"><b>ŵg<small>^</small>i</b>
+		</td><td class="no chr111"><b>ŵg<small>^</small>o</b>
+		</td><td class="no chr112"><b>ŵg<small>^</small>p</b>
+		</td><td class=" alias chr91"><b>ŵg<small>^</small>[</b> »esc
+		</td><td class="po chr93"><b>ŵg<small>^</small>]</b> split, :tj<wbr>ump
+		</td></tr>
+	<tr class="mode mode_cwg lead shift"><th>extended window commands (ctrl-w g)<small>: top row shift</small></th>
+		<td class="no chr81"><b>ŵgQ</b>
+		</td><td class="no chr87"><b>ŵgW</b>
+		</td><td class="no chr69"><b>ŵgE</b>
+		</td><td class="no chr82"><b>ŵgR</b>
+		</td><td class="no chr84"><b>ŵgT</b>
+		</td><td class="no chr89"><b>ŵgY</b>
+		</td><td class="no chr85"><b>ŵgU</b>
+		</td><td class="no chr73"><b>ŵgI</b>
+		</td><td class="no chr79"><b>ŵgO</b>
+		</td><td class="no chr80"><b>ŵgP</b>
+		</td><td class="no chr123"><b>ŵg{</b>
+		</td><td class="po chr125"><b>ŵg}</b> :ptj<wbr>ump to tag
+		</td></tr>
+	<tr class="mode mode_cwg lead"><th>extended window commands (ctrl-w g)<small>: top row </small></th>
+		<td class="no chr113"><b>ŵgq</b>
+		</td><td class="no chr119"><b>ŵgw</b>
+		</td><td class="no chr101"><b>ŵge</b>
+		</td><td class="no chr114"><b>ŵgr</b>
+		</td><td class="no chr116"><b>ŵgt</b>
+		</td><td class="no chr121"><b>ŵgy</b>
+		</td><td class="no chr117"><b>ŵgu</b>
+		</td><td class="no chr105"><b>ŵgi</b>
+		</td><td class="no chr111"><b>ŵgo</b>
+		</td><td class="no chr112"><b>ŵgp</b>
+		</td><td class="no chr91"><b>ŵg[</b>
+		</td><td class="po chr93"><b>ŵg]</b> split, :ts<wbr>elect
+		</td></tr>
+	<tr class="mode modeg lead ctrl"><th>extended commands (g)<small>: top row ctrl</small></th>
+		<td class="no chr113"><b>g<small>^</small>q</b>
+		</td><td class="no chr119"><b>g<small>^</small>w</b>
+		</td><td class="no chr101"><b>g<small>^</small>e</b>
+		</td><td class="no chr114"><b>g<small>^</small>r</b>
+		</td><td class="no chr116"><b>g<small>^</small>t</b>
+		</td><td class="no chr121"><b>g<small>^</small>y</b>
+		</td><td class="no chr117"><b>g<small>^</small>u</b>
+		</td><td class="no chr105"><b>g<small>^</small>i</b>
+		</td><td class="no chr111"><b>g<small>^</small>o</b>
+		</td><td class="no chr112"><b>g<small>^</small>p</b>
+		</td><td class="mo chr91" onclick="setmode()"><b>g<small>^</small>[</b>
+		</td><td class="po chr93"><b>g<small>^</small>]</b> go to tjump
+		</td></tr>
+	<tr class="mode modeg lead shift"><th>extended commands (g)<small>: top row shift</small></th>
+		<td class="mo ext vim6 chr81"><b>gQ</b> ex mode manual :
+		</td><td class="no chr87"><b>gW</b>
+		</td><td class="pm chr69"><b>gE</b> back to <span style="font-variant:small-caps">word</span> end
+		</td><td class="mi undo chr82" onclick="setmode(&#39;modei&#39;)"><b>gR</b> virt. repl<wbr>ace mode
+		</td><td class="po ext vim7 new chr84"><b>gT</b> tab back
+		</td><td class="no chr89"><b>gY</b>
+		</td><td class="co undo ext vim6 chr85"><b>gU<small>↕</small></b> up<wbr>per<wbr>case
+		</td><td class="mi undo chr73" onclick="setmode(&#39;modei&#39;)"><b>gI</b> insert at soft bol
+		</td><td class="no chr79"><b>gO</b>
+		</td><td class="co chr80"><b>gP</b> paste before still
+		</td><td class="no chr123"><b>g{</b>
+		</td><td class="no chr125"><b>g}</b>
+		</td></tr>
+	<tr class="mode modeg lead"><th>extended commands (g)<small>: top row </small></th>
+		<td class="co chr113"><b>gq<small>↕</small></b> for<wbr>mat
+		</td><td class="co ext vim7 new chr119"><b>gw<small>↕</small></b> for<wbr>mat still
+		</td><td class="pm chr101"><b>ge</b> back to word end
+		</td><td class="co chr114"><b>gr·</b> virt. repl<wbr>ace char
+		</td><td class="po ext vim7 new chr116"><b title="Goto Tab">gt</b> next tab
+		</td><td class="no chr121"><b>gy</b>
+		</td><td class="co ext vim6 chr117"><b>gu<small>↕</small></b> lower<wbr>case
+		</td><td class="mi undo chr105" onclick="setmode(&#39;modei&#39;)"><b>gi</b> insert at last pos
+		</td><td class="pm chr111"><b>go</b> :goto (byte)
+		</td><td class="co undo chr112"><b>gp</b> paste still
+		</td><td class="no chr91"><b>g[</b>
+		</td><td class="po chr93"><b>g]</b> go to tselect
+		</td></tr>
+	<tr class="mode modei ctrl"><th>insert mode<small>: top row ctrl</small></th>
+		<td class="ci alias chr113"><b><small>^</small>q</b> »^q
+		</td><td class="co chr119"><b><small>^</small>w</b> delete word back
+		</td><td class="co ext vim6 chr101"><b><small>^</small>e</b> ins char below
+		</td><td class="co ext vim6 chr114"><b><small>^</small>r·</b> insert reg<wbr>ister
+		</td><td class="co chr116"><b><small>^</small>t</b> indent
+		</td><td class="co ext vim6 chr121"><b><small>^</small>y</b> ins char above
+		</td><td class="co chr117"><b><small>^</small>u</b> delete line
+		</td><td class="co chr105"><b><small>^</small>i</b> tab
+		</td><td class="co chr111"><b><small>^</small>o</b> exec<wbr>ute cmd
+		</td><td class="pm ext vim6 chr112"><b><small>^</small>p</b> find prev keyword
+		</td><td class=" alias chr91"><b><small>^</small>[</b> »esc
+		</td><td class="co ext vim6 chr93"><b><small>^</small>]</b> abbrev<wbr>iate
+		</td></tr>
+	<tr class="mode modei shift"><th>insert mode<small>: top row shift</small></th>
+		<td class="no chr81"><b>Q</b>
+		</td><td class="no chr87"><b>W</b>
+		</td><td class="no chr69"><b>E</b>
+		</td><td class="no chr82"><b>R</b>
+		</td><td class="no chr84"><b>T</b>
+		</td><td class="no chr89"><b>Y</b>
+		</td><td class="no chr85"><b>U</b>
+		</td><td class="no chr73"><b>I</b>
+		</td><td class="no chr79"><b>O</b>
+		</td><td class="no chr80"><b>P</b>
+		</td><td class="no chr123"><b>{</b>
+		</td><td class="no chr125"><b>}</b>
+		</td></tr>
+	<tr class="mode modei"><th>insert mode<small>: top row </small></th>
+		<td class="no chr113"><b>q</b>
+		</td><td class="no chr119"><b>w</b>
+		</td><td class="no chr101"><b>e</b>
+		</td><td class="no chr114"><b>r</b>
+		</td><td class="no chr116"><b>t</b>
+		</td><td class="no chr121"><b>y</b>
+		</td><td class="no chr117"><b>u</b>
+		</td><td class="no chr105"><b>i</b>
+		</td><td class="no chr111"><b>o</b>
+		</td><td class="no chr112"><b>p</b>
+		</td><td class="no chr91"><b>[</b>
+		</td><td class="no chr93"><b>]</b>
+		</td></tr>
+	<tr class="mode modei_cg lead ctrl"><th>extended insert commands (i ctrl-g)<small>: top row ctrl</small></th>
+		<td class="no chr113"><b>ĝ<small>^</small>q</b>
+		</td><td class="no chr119"><b>ĝ<small>^</small>w</b>
+		</td><td class="no chr101"><b>ĝ<small>^</small>e</b>
+		</td><td class="no chr114"><b>ĝ<small>^</small>r</b>
+		</td><td class="no chr116"><b>ĝ<small>^</small>t</b>
+		</td><td class="no chr121"><b>ĝ<small>^</small>y</b>
+		</td><td class="no chr117"><b>ĝ<small>^</small>u</b>
+		</td><td class="no chr105"><b>ĝ<small>^</small>i</b>
+		</td><td class="no chr111"><b>ĝ<small>^</small>o</b>
+		</td><td class="no chr112"><b>ĝ<small>^</small>p</b>
+		</td><td class="no chr91"><b>ĝ<small>^</small>[</b>
+		</td><td class="no chr93"><b>ĝ<small>^</small>]</b>
+		</td></tr>
+	<tr class="mode modei_cg lead shift"><th>extended insert commands (i ctrl-g)<small>: top row shift</small></th>
+		<td class="no chr81"><b>ĝQ</b>
+		</td><td class="no chr87"><b>ĝW</b>
+		</td><td class="no chr69"><b>ĝE</b>
+		</td><td class="no chr82"><b>ĝR</b>
+		</td><td class="no chr84"><b>ĝT</b>
+		</td><td class="no chr89"><b>ĝY</b>
+		</td><td class="no chr85"><b>ĝU</b>
+		</td><td class="no chr73"><b>ĝI</b>
+		</td><td class="no chr79"><b>ĝO</b>
+		</td><td class="no chr80"><b>ĝP</b>
+		</td><td class="no chr123"><b>ĝ{</b>
+		</td><td class="no chr125"><b>ĝ}</b>
+		</td></tr>
+	<tr class="mode modei_cg lead"><th>extended insert commands (i ctrl-g)<small>: top row </small></th>
+		<td class="no chr113"><b>ĝq</b>
+		</td><td class="no chr119"><b>ĝw</b>
+		</td><td class="no chr101"><b>ĝe</b>
+		</td><td class="no chr114"><b>ĝr</b>
+		</td><td class="no chr116"><b>ĝt</b>
+		</td><td class="no chr121"><b>ĝy</b>
+		</td><td class="co chr117"><b>ĝu</b> break undo seq<wbr>uence
+		</td><td class="no chr105"><b>ĝi</b>
+		</td><td class="no chr111"><b>ĝo</b>
+		</td><td class="no chr112"><b>ĝp</b>
+		</td><td class="no chr91"><b>ĝ[</b>
+		</td><td class="no chr93"><b>ĝ]</b>
+		</td></tr>
+	<tr class="mode modei_cx lead ctrl"><th>insert completion commands (i ctrl-x)<small>: top row ctrl</small></th>
+		<td class="no chr113"><b>x̂<small>^</small>q</b>
+		</td><td class="no chr119"><b>x̂<small>^</small>w</b>
+		</td><td class="po chr101"><b>x̂<small>^</small>e</b> window up
+		</td><td class="no chr114"><b>x̂<small>^</small>r</b>
+		</td><td class="co chr116"><b>x̂<small>^</small>t</b> thes<wbr>aur<wbr>us compl<wbr>et<wbr>e
+		</td><td class="po chr121"><b>x̂<small>^</small>y</b> window down
+		</td><td class="co ext vim7 new chr117"><b>x̂<small>^</small>u</b> cus<wbr>tom comp<wbr>l<wbr>et<wbr>e
+		</td><td class="co chr105"><b>x̂<small>^</small>i</b> ident comp<wbr>l<wbr>et<wbr>e
+		</td><td class="co ext vim7 new chr111"><b>x̂<small>^</small>o</b> omni comp<wbr>l<wbr>et<wbr>e
+		</td><td class="co chr112"><b>x̂<small>^</small>p</b> prev comp<wbr>l<wbr>ete
+		</td><td class=" alias chr91"><b>x̂<small>^</small>[</b> »esc
+		</td><td class="co chr93"><b>x̂<small>^</small>]</b> tag comp<wbr>l<wbr>et<wbr>e
+		</td></tr>
+	<tr class="mode modei_cx lead shift"><th>insert completion commands (i ctrl-x)<small>: top row shift</small></th>
+		<td class="no chr81"><b>x̂Q</b>
+		</td><td class="no chr87"><b>x̂W</b>
+		</td><td class="no chr69"><b>x̂E</b>
+		</td><td class="no chr82"><b>x̂R</b>
+		</td><td class="no chr84"><b>x̂T</b>
+		</td><td class="no chr89"><b>x̂Y</b>
+		</td><td class="no chr85"><b>x̂U</b>
+		</td><td class="no chr73"><b>x̂I</b>
+		</td><td class="no chr79"><b>x̂O</b>
+		</td><td class="no chr80"><b>x̂P</b>
+		</td><td class="no chr123"><b>x̂{</b>
+		</td><td class="no chr125"><b>x̂}</b>
+		</td></tr>
+	<tr class="mode modei_cx lead"><th>insert completion commands (i ctrl-x)<small>: top row </small></th>
+		<td class="no chr113"><b>x̂q</b>
+		</td><td class="no chr119"><b>x̂w</b>
+		</td><td class="no chr101"><b>x̂e</b>
+		</td><td class="no chr114"><b>x̂r</b>
+		</td><td class="no chr116"><b>x̂t</b>
+		</td><td class="no chr121"><b>x̂y</b>
+		</td><td class="no chr117"><b>x̂u</b>
+		</td><td class="no chr105"><b>x̂i</b>
+		</td><td class="no chr111"><b>x̂o</b>
+		</td><td class="no chr112"><b>x̂p</b>
+		</td><td class="no chr91"><b>x̂[</b>
+		</td><td class="no chr93"><b>x̂]</b>
+		</td></tr>
+	<tr class="mode modev ctrl"><th>visual mode<small>: top row ctrl</small></th>
+		<td class="ci alias chr113"><b><small>^</small>q</b> »^q
+		</td><td class="me alias chr119" onclick="setmode(&#39;mode_cw&#39;)"><b><small>^</small>w·</b> »^w
+		</td><td class="po alias chr101"><b><small>^</small>e</b> »^e
+		</td><td class="no chr114"><b><small>^</small>r</b>
+		</td><td class="no chr116"><b><small>^</small>t</b>
+		</td><td class="po alias chr121"><b><small>^</small>y</b> »^y
+		</td><td class="po alias chr117"><b><small>^</small>u</b> »^u
+		</td><td class="pm ext vim6 alias chr105"><b><small>^</small>i</b> »^i
+		</td><td class="mv chr111"><b><small>^</small>o</b> visual once
+		</td><td class="pm alias chr112"><b><small>^</small>p</b> »^p
+		</td><td class=" alias chr91"><b><small>^</small>[</b> »esc
+		</td><td class="po chr93"><b><small>^</small>]</b> jump to tag
+		</td></tr>
+	<tr class="mode modev shift"><th>visual mode<small>: top row shift</small></th>
+		<td class="no chr81"><b>Q</b>
+		</td><td class="pm alias chr87"><b>W</b> »W
+		</td><td class="pm alias chr69"><b>E</b> »E
+		</td><td class="mi ext vim6 alias chr82" onclick="setmode(&#39;modei&#39;)"><b>R</b> »vS
+		</td><td class="pm alias chr84"><b>T</b> »T
+		</td><td class="co chr89"><b>Y</b> yank lines
+		</td><td class="co ext vim6 chr85"><b>U</b> upper<wbr>case
+		</td><td class="mi ext vim6 chr73" onclick="setmode(&#39;modei&#39;)"><b>I</b> insert to block
+		</td><td class="pm chr79"><b>O</b> to other side
+		</td><td class="co chr80"><b>P</b> repl<wbr>ace w/ paste
+		</td><td class="pm alias chr123"><b>{</b> »{
+		</td><td class="pm alias chr125"><b>}</b> »}
+		</td></tr>
+	<tr class="mode modev"><th>visual mode<small>: top row </small></th>
+		<td class="mo alias chr113"><b>q·</b> »q
+		</td><td class="pm alias chr119"><b>w</b> »w
+		</td><td class="pm alias chr101"><b>e</b> »e
+		</td><td class="co chr114"><b>r·</b> fill up w/ ch<wbr>ar
+		</td><td class="pm alias chr116"><b>t·</b> »t
+		</td><td class="co chr121"><b>y</b> yank area
+		</td><td class="co ext vim6 chr117"><b>u</b> lower<wbr>case
+		</td><td class="me ext vim6 chr105" onclick="setmode(&#39;modeva&#39;)"><b>i·</b> extend inner a<wbr>r<wbr>ea
+		</td><td class="pm chr111"><b>o</b> to other corner
+		</td><td class="co chr112"><b>p</b> repl<wbr>ace w/ paste
+		</td><td class="me alias chr91" onclick="setmode(&#39;mode_sbo&#39;)"><b>[·</b> »[
+		</td><td class="me alias chr93" onclick="setmode(&#39;mode_sbc&#39;)"><b>]·</b> »]
+		</td></tr>
+	<tr class="mode modeva ctrl"><th>text object selection (v a/i)<small>: top row ctrl</small></th>
+		<td class="no chr113"><b><small>^</small>q</b>
+		</td><td class="no chr119"><b><small>^</small>w</b>
+		</td><td class="no chr101"><b><small>^</small>e</b>
+		</td><td class="no chr114"><b><small>^</small>r</b>
+		</td><td class="no chr116"><b><small>^</small>t</b>
+		</td><td class="no chr121"><b><small>^</small>y</b>
+		</td><td class="no chr117"><b><small>^</small>u</b>
+		</td><td class="no chr105"><b><small>^</small>i</b>
+		</td><td class="no chr111"><b><small>^</small>o</b>
+		</td><td class="no chr112"><b><small>^</small>p</b>
+		</td><td class=" alias chr91"><b><small>^</small>[</b> »esc
+		</td><td class="no chr93"><b><small>^</small>]</b>
+		</td></tr>
+	<tr class="mode modeva shift"><th>text object selection (v a/i)<small>: top row shift</small></th>
+		<td class="no chr81"><b>Q</b>
+		</td><td class="pm ext vim6 chr87"><b>W</b> <span style="font-variant:small-caps">word</span>
+		</td><td class="no chr69"><b>E</b>
+		</td><td class="no chr82"><b>R</b>
+		</td><td class="no chr84"><b>T</b>
+		</td><td class="no chr89"><b>Y</b>
+		</td><td class="no chr85"><b>U</b>
+		</td><td class="no chr73"><b>I</b>
+		</td><td class="no chr79"><b>O</b>
+		</td><td class="no chr80"><b>P</b>
+		</td><td class="pm ext vim6 alias chr123"><b>{</b> »vaB
+		</td><td class="pm ext vim6 alias chr125"><b>}</b> »vaB
+		</td></tr>
+	<tr class="mode modeva"><th>text object selection (v a/i)<small>: top row </small></th>
+		<td class="no chr113"><b>q</b>
+		</td><td class="pm ext vim6 chr119"><b>w</b> word
+		</td><td class="no chr101"><b>e</b>
+		</td><td class="no chr114"><b>r</b>
+		</td><td class="pm ext vim7 new chr116"><b>t</b> xml tag block
+		</td><td class="no chr121"><b>y</b>
+		</td><td class="no chr117"><b>u</b>
+		</td><td class="no chr105"><b>i</b>
+		</td><td class="no chr111"><b>o</b>
+		</td><td class="pm ext vim6 chr112"><b>p</b> para<wbr>graph
+		</td><td class="pm ext vim6 chr91"><b>[</b> [] block
+		</td><td class="pm ext vim6 alias chr93"><b>]</b> »va[
+		</td></tr>
+	<tr class="mode modevg lead ctrl"><th>extended visual commands (v g)<small>: top row ctrl</small></th>
+		<td class="no chr113"><b>g<small>^</small>q</b>
+		</td><td class="no chr119"><b>g<small>^</small>w</b>
+		</td><td class="no chr101"><b>g<small>^</small>e</b>
+		</td><td class="no chr114"><b>g<small>^</small>r</b>
+		</td><td class="no chr116"><b>g<small>^</small>t</b>
+		</td><td class="no chr121"><b>g<small>^</small>y</b>
+		</td><td class="no chr117"><b>g<small>^</small>u</b>
+		</td><td class="no chr105"><b>g<small>^</small>i</b>
+		</td><td class="no chr111"><b>g<small>^</small>o</b>
+		</td><td class="no chr112"><b>g<small>^</small>p</b>
+		</td><td class=" alias chr91"><b>g<small>^</small>[</b> »esc
+		</td><td class="no chr93"><b>g<small>^</small>]</b>
+		</td></tr>
+	<tr class="mode modevg lead shift"><th>extended visual commands (v g)<small>: top row shift</small></th>
+		<td class="no chr81"><b>gQ</b>
+		</td><td class="no chr87"><b>gW</b>
+		</td><td class="no chr69"><b>gE</b>
+		</td><td class="no chr82"><b>gR</b>
+		</td><td class="no chr84"><b>gT</b>
+		</td><td class="no chr89"><b>gY</b>
+		</td><td class="no chr85"><b>gU</b>
+		</td><td class="no chr73"><b>gI</b>
+		</td><td class="no chr79"><b>gO</b>
+		</td><td class="no chr80"><b>gP</b>
+		</td><td class="no chr123"><b>g{</b>
+		</td><td class="no chr125"><b>g}</b>
+		</td></tr>
+	<tr class="mode modevg lead"><th>extended visual commands (v g)<small>: top row </small></th>
+		<td class="co ext vim6 chr113"><b>gq</b> for<wbr>mat
+		</td><td class="co ext vim7 new chr119"><b>gw</b> for<wbr>mat still
+		</td><td class="no chr101"><b>ge</b>
+		</td><td class="no chr114"><b>gr</b>
+		</td><td class="no chr116"><b>gt</b>
+		</td><td class="no chr121"><b>gy</b>
+		</td><td class="no chr117"><b>gu</b>
+		</td><td class="no chr105"><b>gi</b>
+		</td><td class="no chr111"><b>go</b>
+		</td><td class="no chr112"><b>gp</b>
+		</td><td class="no chr91"><b>g[</b>
+		</td><td class="no chr93"><b>g]</b>
+		</td></tr>
+	<tr class="mode modez lead ctrl"><th>additional commands (z)<small>: top row ctrl</small></th>
+		<td class="no chr113"><b>z<small>^</small>q</b>
+		</td><td class="no chr119"><b>z<small>^</small>w</b>
+		</td><td class="no chr101"><b>z<small>^</small>e</b>
+		</td><td class="no chr114"><b>z<small>^</small>r</b>
+		</td><td class="no chr116"><b>z<small>^</small>t</b>
+		</td><td class="no chr121"><b>z<small>^</small>y</b>
+		</td><td class="no chr117"><b>z<small>^</small>u</b>
+		</td><td class="no chr105"><b>z<small>^</small>i</b>
+		</td><td class="no chr111"><b>z<small>^</small>o</b>
+		</td><td class="no chr112"><b>z<small>^</small>p</b>
+		</td><td class=" alias chr91"><b>z<small>^</small>[</b> »esc
+		</td><td class="no chr93"><b>z<small>^</small>]</b>
+		</td></tr>
+	<tr class="mode modez lead shift"><th>additional commands (z)<small>: top row shift</small></th>
+		<td class="no chr81"><b>zQ</b>
+		</td><td class="co ext vim7 new chr87"><b>zW</b> temp missp<wbr>ell<wbr>ing
+		</td><td class="co ext vim6 folding chr69"><b>zE</b> elimi<wbr>nate f<wbr>olds
+		</td><td class="co ext vim6 folding chr82"><b>zR</b> open all folds
+		</td><td class="no chr84"><b>zT</b>
+		</td><td class="no chr89"><b>zY</b>
+		</td><td class="no chr85"><b>zU</b>
+		</td><td class="no chr73"><b>zI</b>
+		</td><td class="co ext vim6 folding chr79"><b>zO</b> open folds rec<wbr>urs<wbr>ive<wbr>ly
+		</td><td class="no chr80"><b>zP</b>
+		</td><td class="no chr123"><b>z{</b>
+		</td><td class="no chr125"><b>z}</b>
+		</td></tr>
+	<tr class="mode modez lead"><th>additional commands (z)<small>: top row </small></th>
+		<td class="no chr113"><b>zq</b>
+		</td><td class="co ext vim7 new chr119"><b title="Wrong word">zw</b> add missp<wbr>ell<wbr>ing
+		</td><td class="po chr101"><b>ze</b> cursor at right side
+		</td><td class="co ext vim6 folding chr114"><b>zr</b> reduce folding
+		</td><td class="po chr116"><b>zt</b> line at top
+		</td><td class="no chr121"><b>zy</b>
+		</td><td class="co ext vim7 new chr117"><b>zu·</b> undo spell<wbr>ing
+		</td><td class="co ext vim6 folding chr105"><b>zi</b> toggle all folds
+		</td><td class="co ext vim6 folding chr111"><b>zo</b> open fold
+		</td><td class="no chr112"><b>zp</b>
+		</td><td class="no chr91"><b>z[</b>
+		</td><td class="no chr93"><b>z]</b>
+		</td></tr>
+	</tbody>
+<tbody class="row row3">
+	<tr class="ctrl"><th>normal mode<small>: home row ctrl</small></th>
+		<td class="co undo chr97"><b title="Add one"><small>^</small>a</b> incr<wbr>ement
+		</td><td class="ci chr115"><b title="Stop"><small>^</small>s</b> (xoff)
+		</td><td class="po chr100"><b><small>^</small>d</b> scroll down
+		</td><td class="pm chr102"><b title="page Forward"><small>^</small>f</b> page down
+		</td><td class="ci chr103"><b><small>^</small>g</b> :file (info)
+		</td><td class="pm alias chr104"><b><small>^</small>h</b> »h
+		</td><td class="pm alias chr106"><b><small>^</small>j</b> »j
+		</td><td class="no chr107"><b><small>^</small>k</b>
+		</td><td class="ci chr108"><b><small>^</small>l</b> redraw
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="mo chr92"><b><small>^</small>\·</b> to mode/<wbr>ext<wbr>ens<wbr>ion<wbr>s
+		</td></tr>
+	<tr class="shift"><th>normal mode<small>: home row shift</small></th>
+		<td class="mi undo chr65" onclick="setmode(&#39;modei&#39;)"><b>A</b> app<wbr>end to eol
+		</td><td class="mi undo chr83" onclick="setmode(&#39;modei&#39;)"><b>S</b> subst line
+		</td><td class="co undo chr68"><b>D</b> delete to eol
+		</td><td class="pm chr70"><b>F·</b> back<wbr>wd to char
+		</td><td class="pm chr71"><b>G</b> eof/<wbr>goto ln
+		</td><td class="pm chr72"><b title="Home row">H</b> screen top
+		</td><td class="co undo chr74"><b>J</b> join lines
+		</td><td class="co chr75"><b title="looKup Keyword">K</b> help
+		</td><td class="pm chr76"><b title="Lowermost Line">L</b> screen bottom
+		</td><td class="co chr58"><b>:</b> ex cmd line
+		</td><td class="co chr34"><b>"·</b> use reg<wbr>ister
+		</td><td class="pm chr124"><b>|</b> goto (1st) col
+		</td></tr>
+	<tr><th>normal mode<small>: home row </small></th>
+		<td class="mi undo chr97" onclick="setmode(&#39;modei&#39;)"><b>a</b> app<wbr>end
+		</td><td class="mi undo chr115" onclick="setmode(&#39;modei&#39;)"><b>s</b> subst char
+		</td><td class="co undo chr100"><b>d<small>↕</small></b> del<wbr>ete
+		</td><td class="pm chr102"><b>f·</b> fwd to char
+		</td><td class="me chr103" onclick="setmode(&#39;modeg&#39;)"><b>g·</b> extra cmds
+		</td><td class="pm chr104"><b>h</b> ◀
+		</td><td class="pm chr106"><b>j</b> ▼
+		</td><td class="pm chr107"><b>k</b> ▲
+		</td><td class="pm chr108"><b>l</b> ▶
+		</td><td class="pm chr59"><b>;</b> repeat t/f/T/F
+		</td><td class="pm chr39"><b>'·</b> goto mark bol
+		</td><td class="me chr92"><b>\·</b> reser<wbr>ved
+		</td></tr>
+	<tr class="mode modeZ lead ctrl"><th>quit commands<small>: home row ctrl</small></th>
+		<td class="no chr97"><b>Z<small>^</small>a</b>
+		</td><td class="no chr115"><b>Z<small>^</small>s</b>
+		</td><td class="no chr100"><b>Z<small>^</small>d</b>
+		</td><td class="no chr102"><b>Z<small>^</small>f</b>
+		</td><td class="no chr103"><b>Z<small>^</small>g</b>
+		</td><td class="no chr104"><b>Z<small>^</small>h</b>
+		</td><td class="no chr106"><b>Z<small>^</small>j</b>
+		</td><td class="no chr107"><b>Z<small>^</small>k</b>
+		</td><td class="no chr108"><b>Z<small>^</small>l</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr92"><b>Z<small>^</small>\</b>
+		</td></tr>
+	<tr class="mode modeZ lead shift"><th>quit commands<small>: home row shift</small></th>
+		<td class="no chr65"><b>ZA</b>
+		</td><td class="no chr83"><b>ZS</b>
+		</td><td class="no chr68"><b>ZD</b>
+		</td><td class="no chr70"><b>ZF</b>
+		</td><td class="no chr71"><b>ZG</b>
+		</td><td class="no chr72"><b>ZH</b>
+		</td><td class="no chr74"><b>ZJ</b>
+		</td><td class="no chr75"><b>ZK</b>
+		</td><td class="no chr76"><b>ZL</b>
+		</td><td class="no chr58"><b>Z:</b>
+		</td><td class="no chr34"><b>Z"</b>
+		</td><td class="no chr124"><b>Z|</b>
+		</td></tr>
+	<tr class="mode modeZ lead"><th>quit commands<small>: home row </small></th>
+		<td class="no chr97"><b>Za</b>
+		</td><td class="no chr115"><b>Zs</b>
+		</td><td class="no chr100"><b>Zd</b>
+		</td><td class="no chr102"><b>Zf</b>
+		</td><td class="no chr103"><b>Zg</b>
+		</td><td class="no chr104"><b>Zh</b>
+		</td><td class="no chr106"><b>Zj</b>
+		</td><td class="no chr107"><b>Zk</b>
+		</td><td class="no chr108"><b>Zl</b>
+		</td><td class="no chr59"><b>Z;</b>
+		</td><td class="no chr39"><b>Z'</b>
+		</td><td class="no chr92"><b>Z\</b>
+		</td></tr>
+	<tr class="mode mode_sbo lead ctrl"><th>backward search commands ([)<small>: home row ctrl</small></th>
+		<td class="no chr97"><b>[<small>^</small>a</b>
+		</td><td class="no chr115"><b>[<small>^</small>s</b>
+		</td><td class="po chr100"><b>[<small>^</small>d</b> to defin<wbr>it<wbr>ion
+		</td><td class="no chr102"><b>[<small>^</small>f</b>
+		</td><td class="no chr103"><b>[<small>^</small>g</b>
+		</td><td class="no chr104"><b>[<small>^</small>h</b>
+		</td><td class="no chr106"><b>[<small>^</small>j</b>
+		</td><td class="no chr107"><b>[<small>^</small>k</b>
+		</td><td class="no chr108"><b>[<small>^</small>l</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr92"><b>[<small>^</small>\</b>
+		</td></tr>
+	<tr class="mode mode_sbo lead shift"><th>backward search commands ([)<small>: home row shift</small></th>
+		<td class="no chr65"><b>[A</b>
+		</td><td class="po ext vim7 new chr83"><b>[S</b> last bad word
+		</td><td class="co chr68"><b>[D</b> defin<wbr>ition
+		</td><td class="no chr70"><b>[F</b>
+		</td><td class="no chr71"><b>[G</b>
+		</td><td class="no chr72"><b>[H</b>
+		</td><td class="no chr74"><b>[J</b>
+		</td><td class="no chr75"><b>[K</b>
+		</td><td class="no chr76"><b>[L</b>
+		</td><td class="no chr58"><b>[:</b>
+		</td><td class="no chr34"><b>["</b>
+		</td><td class="no chr124"><b>[|</b>
+		</td></tr>
+	<tr class="mode mode_sbo lead"><th>backward search commands ([)<small>: home row </small></th>
+		<td class="no chr97"><b>[a</b>
+		</td><td class="po ext vim7 new chr115"><b>[s</b> last missp<wbr>ell<wbr>ing
+		</td><td class="ci chr100"><b>[d</b> define line
+		</td><td class="co ext vim6 alias chr102"><b>[f</b> »gf
+		</td><td class="no chr103"><b>[g</b>
+		</td><td class="no chr104"><b>[h</b>
+		</td><td class="no chr106"><b>[j</b>
+		</td><td class="no chr107"><b>[k</b>
+		</td><td class="no chr108"><b>[l</b>
+		</td><td class="no chr59"><b>[;</b>
+		</td><td class="pm ext vim6 alias chr39"><b>['</b> »[` ^
+		</td><td class="no chr92"><b>[\</b>
+		</td></tr>
+	<tr class="mode mode_sbc lead ctrl"><th>forward search commands (])<small>: home row ctrl</small></th>
+		<td class="no chr97"><b>]<small>^</small>a</b>
+		</td><td class="no chr115"><b>]<small>^</small>s</b>
+		</td><td class="po chr100"><b>]<small>^</small>d</b> to next define
+		</td><td class="no chr102"><b>]<small>^</small>f</b>
+		</td><td class="no chr103"><b>]<small>^</small>g</b>
+		</td><td class="no chr104"><b>]<small>^</small>h</b>
+		</td><td class="no chr106"><b>]<small>^</small>j</b>
+		</td><td class="no chr107"><b>]<small>^</small>k</b>
+		</td><td class="no chr108"><b>]<small>^</small>l</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr92"><b>]<small>^</small>\</b>
+		</td></tr>
+	<tr class="mode mode_sbc lead shift"><th>forward search commands (])<small>: home row shift</small></th>
+		<td class="no chr65"><b>]A</b>
+		</td><td class="po ext vim7 new chr83"><b>]S</b> next bad word
+		</td><td class="co chr68"><b>]D</b> next define
+		</td><td class="no chr70"><b>]F</b>
+		</td><td class="no chr71"><b>]G</b>
+		</td><td class="no chr72"><b>]H</b>
+		</td><td class="no chr74"><b>]J</b>
+		</td><td class="no chr75"><b>]K</b>
+		</td><td class="no chr76"><b>]L</b>
+		</td><td class="no chr58"><b>]:</b>
+		</td><td class="no chr34"><b>]"</b>
+		</td><td class="no chr124"><b>]|</b>
+		</td></tr>
+	<tr class="mode mode_sbc lead"><th>forward search commands (])<small>: home row </small></th>
+		<td class="no chr97"><b>]a</b>
+		</td><td class="po ext vim7 new chr115"><b>]s</b> next missp<wbr>ell<wbr>ing
+		</td><td class="ci chr100"><b>]d</b> next define line
+		</td><td class="co ext vim6 alias chr102"><b>]f</b> »gf
+		</td><td class="no chr103"><b>]g</b>
+		</td><td class="no chr104"><b>]h</b>
+		</td><td class="no chr106"><b>]j</b>
+		</td><td class="no chr107"><b>]k</b>
+		</td><td class="no chr108"><b>]l</b>
+		</td><td class="no chr59"><b>];</b>
+		</td><td class="pm ext vim6 alias chr39"><b>]'</b> »]` ^
+		</td><td class="no chr92"><b>]\</b>
+		</td></tr>
+	<tr class="mode mode_cw lead ctrl"><th>window commands (ctrl-w)<small>: home row ctrl</small></th>
+		<td class="no chr97"><b>ŵ<small>^</small>a</b>
+		</td><td class="no chr115"><b>ŵ<small>^</small>s</b>
+		</td><td class="no chr100"><b>ŵ<small>^</small>d</b>
+		</td><td class="no chr102"><b>ŵ<small>^</small>f</b>
+		</td><td class="no chr103"><b>ŵ<small>^</small>g</b>
+		</td><td class="no chr104"><b>ŵ<small>^</small>h</b>
+		</td><td class="no chr106"><b>ŵ<small>^</small>j</b>
+		</td><td class="no chr107"><b>ŵ<small>^</small>k</b>
+		</td><td class="no chr108"><b>ŵ<small>^</small>l</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr92"><b>ŵ<small>^</small>\</b>
+		</td></tr>
+	<tr class="mode mode_cw lead shift"><th>window commands (ctrl-w)<small>: home row shift</small></th>
+		<td class="no chr65"><b>ŵA</b>
+		</td><td class="po alias chr83"><b>ŵS</b> »^ws
+		</td><td class="no chr68"><b>ŵD</b>
+		</td><td class="co ext vim7 new chr70"><b>ŵF</b> ^wf, jump to line
+		</td><td class="no chr71"><b>ŵG</b>
+		</td><td class="po chr72"><b>ŵH</b> move far left
+		</td><td class="po chr74"><b>ŵJ</b> move to bottom
+		</td><td class="po chr75"><b>ŵK</b> move to top
+		</td><td class="po chr76"><b>ŵL</b> move far right
+		</td><td class="no chr58"><b>ŵ:</b>
+		</td><td class="no chr34"><b>ŵ"</b>
+		</td><td class="po chr124"><b>ŵ|</b> set width
+		</td></tr>
+	<tr class="mode mode_cw lead"><th>window commands (ctrl-w)<small>: home row </small></th>
+		<td class="no chr97"><b>ŵa</b>
+		</td><td class="po chr115"><b>ŵs</b> split horiz<wbr>ont<wbr>al<wbr>ly
+		</td><td class="po chr100"><b>ŵd</b> split, to def<wbr>inition
+		</td><td class="co chr102"><b>ŵf</b> split, file edit
+		</td><td class="me chr103" onclick="setmode(&#39;mode_cwg&#39;)"><b>ŵg·</b> extra cmds
+		</td><td class="po chr104"><b>ŵh</b> go left
+		</td><td class="po chr106"><b>ŵj</b> go down
+		</td><td class="po chr107"><b>ŵk</b> go up
+		</td><td class="po chr108"><b>ŵl</b> go right
+		</td><td class="no chr59"><b>ŵ;</b>
+		</td><td class="no chr39"><b>ŵ'</b>
+		</td><td class="no chr92"><b>ŵ\</b>
+		</td></tr>
+	<tr class="mode mode_cwg lead ctrl"><th>extended window commands (ctrl-w g)<small>: home row ctrl</small></th>
+		<td class="no chr97"><b>ŵg<small>^</small>a</b>
+		</td><td class="no chr115"><b>ŵg<small>^</small>s</b>
+		</td><td class="no chr100"><b>ŵg<small>^</small>d</b>
+		</td><td class="no chr102"><b>ŵg<small>^</small>f</b>
+		</td><td class="no chr103"><b>ŵg<small>^</small>g</b>
+		</td><td class="no chr104"><b>ŵg<small>^</small>h</b>
+		</td><td class="no chr106"><b>ŵg<small>^</small>j</b>
+		</td><td class="no chr107"><b>ŵg<small>^</small>k</b>
+		</td><td class="no chr108"><b>ŵg<small>^</small>l</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr92"><b>ŵg<small>^</small>\</b>
+		</td></tr>
+	<tr class="mode mode_cwg lead shift"><th>extended window commands (ctrl-w g)<small>: home row shift</small></th>
+		<td class="no chr65"><b>ŵgA</b>
+		</td><td class="no chr83"><b>ŵgS</b>
+		</td><td class="no chr68"><b>ŵgD</b>
+		</td><td class="co ext vim7 new chr70"><b>ŵgF</b> ^wgf, to line<wbr>nr
+		</td><td class="no chr71"><b>ŵgG</b>
+		</td><td class="no chr72"><b>ŵgH</b>
+		</td><td class="no chr74"><b>ŵgJ</b>
+		</td><td class="no chr75"><b>ŵgK</b>
+		</td><td class="no chr76"><b>ŵgL</b>
+		</td><td class="no chr58"><b>ŵg:</b>
+		</td><td class="no chr34"><b>ŵg"</b>
+		</td><td class="no chr124"><b>ŵg|</b>
+		</td></tr>
+	<tr class="mode mode_cwg lead"><th>extended window commands (ctrl-w g)<small>: home row </small></th>
+		<td class="no chr97"><b>ŵga</b>
+		</td><td class="no chr115"><b>ŵgs</b>
+		</td><td class="no chr100"><b>ŵgd</b>
+		</td><td class="co ext vim7 new chr102"><b>ŵgf</b> file in tab
+		</td><td class="no chr103"><b>ŵgg</b>
+		</td><td class="no chr104"><b>ŵgh</b>
+		</td><td class="no chr106"><b>ŵgj</b>
+		</td><td class="no chr107"><b>ŵgk</b>
+		</td><td class="no chr108"><b>ŵgl</b>
+		</td><td class="no chr59"><b>ŵg;</b>
+		</td><td class="no chr39"><b>ŵg'</b>
+		</td><td class="no chr92"><b>ŵg\</b>
+		</td></tr>
+	<tr class="mode modeg lead ctrl"><th>extended commands (g)<small>: home row ctrl</small></th>
+		<td class="ci chr97"><b>g<small>^</small>a</b> mem usage stats
+		</td><td class="no chr115"><b>g<small>^</small>s</b>
+		</td><td class="no chr100"><b>g<small>^</small>d</b>
+		</td><td class="no chr102"><b>g<small>^</small>f</b>
+		</td><td class="ci chr103"><b>g<small>^</small>g</b> cur<wbr>sor pos info
+		</td><td class="mv ext vim6 chr104" onclick="setmode(&#39;modev&#39;)"><b title="Get Highlighted">g<small>^</small>h</b> select block
+		</td><td class="no chr106"><b>g<small>^</small>j</b>
+		</td><td class="no chr107"><b>g<small>^</small>k</b>
+		</td><td class="no chr108"><b>g<small>^</small>l</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr92"><b>g<small>^</small>\</b>
+		</td></tr>
+	<tr class="mode modeg lead shift"><th>extended commands (g)<small>: home row shift</small></th>
+		<td class="no chr65"><b>gA</b>
+		</td><td class="no chr83"><b>gS</b>
+		</td><td class="pm ext vim6 chr68"><b>gD</b> global declar<wbr>ation
+		</td><td class="co ext vim7 new chr70"><b>gF</b> edit file + jump
+		</td><td class="no chr71"><b>gG</b>
+		</td><td class="mv chr72" onclick="setmode(&#39;modev&#39;)"><b title="Get Highlighted">gH</b> select lines
+		</td><td class="co chr74"><b>gJ</b> join leave spac<wbr>ing
+		</td><td class="no chr75"><b>gK</b>
+		</td><td class="no chr76"><b>gL</b>
+		</td><td class="no chr58"><b>g:</b>
+		</td><td class="no chr34"><b>g"</b>
+		</td><td class="no chr124"><b>g|</b>
+		</td></tr>
+	<tr class="mode modeg lead"><th>extended commands (g)<small>: home row </small></th>
+		<td class="ci chr97"><b title="Get Ascii value">ga</b> char value
+		</td><td class="ci ext vim6 chr115"><b title="Go to Sleep">gs</b> sleep
+		</td><td class="pm ext vim6 chr100"><b>gd</b> local declar<wbr>ation
+		</td><td class="co ext vim6 chr102"><b title="Goto File">gf</b> edit file at cur<wbr>sor
+		</td><td class="pm chr103"><b>gg</b> first line
+		</td><td class="mv chr104" onclick="setmode(&#39;modev&#39;)"><b title="Get Highlighted">gh</b> select mode
+		</td><td class="pm ext vim6 chr106"><b>gj</b> ▼ screen
+		</td><td class="pm ext vim6 chr107"><b>gk</b> ▲ screen
+		</td><td class="no chr108"><b>gl</b>
+		</td><td class="pm chr59"><b>g;</b> to prev change pos
+		</td><td class="pm ext vim6 chr39"><b>g'·</b> to mark keepj<wbr>umps
+		</td><td class="no chr92"><b>g\</b>
+		</td></tr>
+	<tr class="mode modei ctrl"><th>insert mode<small>: home row ctrl</small></th>
+		<td class="co ext vim6 chr97"><b><small>^</small>a</b> insert prev<wbr>ious
+		</td><td class="ci alias chr115"><b><small>^</small>s</b> »^s
+		</td><td class="co chr100"><b><small>^</small>d</b> un<wbr>ind<wbr>ent
+		</td><td class="co chr102"><b><small>^</small>f</b> set indent<wbr>ation
+		</td><td class="me chr103" onclick="setmode(&#39;modei_cg&#39;)"><b><small>^</small>g·</b> extra cmds
+		</td><td class="co chr104"><b><small>^</small>h</b> back<wbr>space
+		</td><td class="co chr106"><b><small>^</small>j</b> enter
+		</td><td class="co ext vim6 chr107"><a href="http://sheet.shiar.nl/digraphs"><b title="Key code"><small>^</small>k··</b> di<wbr>graph</a>
+		</td><td class="mo ext vim6 chr108" onclick="setmode()"><b><small>^</small>l</b> <em>im</em> leave ins mode
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="mo alias chr92"><b><small>^</small>\·</b> »^\
+		</td></tr>
+	<tr class="mode modei shift"><th>insert mode<small>: home row shift</small></th>
+		<td class="no chr65"><b>A</b>
+		</td><td class="no chr83"><b>S</b>
+		</td><td class="no chr68"><b>D</b>
+		</td><td class="no chr70"><b>F</b>
+		</td><td class="no chr71"><b>G</b>
+		</td><td class="no chr72"><b>H</b>
+		</td><td class="no chr74"><b>J</b>
+		</td><td class="no chr75"><b>K</b>
+		</td><td class="no chr76"><b>L</b>
+		</td><td class="no chr58"><b>:</b>
+		</td><td class="no chr34"><b>"</b>
+		</td><td class="no chr124"><b>|</b>
+		</td></tr>
+	<tr class="mode modei"><th>insert mode<small>: home row </small></th>
+		<td class="no chr97"><b>a</b>
+		</td><td class="no chr115"><b>s</b>
+		</td><td class="no chr100"><b>d</b>
+		</td><td class="no chr102"><b>f</b>
+		</td><td class="no chr103"><b>g</b>
+		</td><td class="no chr104"><b>h</b>
+		</td><td class="no chr106"><b>j</b>
+		</td><td class="no chr107"><b>k</b>
+		</td><td class="no chr108"><b>l</b>
+		</td><td class="no chr59"><b>;</b>
+		</td><td class="no chr39"><b>'</b>
+		</td><td class="no chr92"><b>\</b>
+		</td></tr>
+	<tr class="mode modei_cg lead ctrl"><th>extended insert commands (i ctrl-g)<small>: home row ctrl</small></th>
+		<td class="no chr97"><b>ĝ<small>^</small>a</b>
+		</td><td class="no chr115"><b>ĝ<small>^</small>s</b>
+		</td><td class="no chr100"><b>ĝ<small>^</small>d</b>
+		</td><td class="no chr102"><b>ĝ<small>^</small>f</b>
+		</td><td class="no chr103"><b>ĝ<small>^</small>g</b>
+		</td><td class="no chr104"><b>ĝ<small>^</small>h</b>
+		</td><td class="no chr106"><b>ĝ<small>^</small>j</b>
+		</td><td class="no chr107"><b>ĝ<small>^</small>k</b>
+		</td><td class="no chr108"><b>ĝ<small>^</small>l</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr92"><b>ĝ<small>^</small>\</b>
+		</td></tr>
+	<tr class="mode modei_cg lead shift"><th>extended insert commands (i ctrl-g)<small>: home row shift</small></th>
+		<td class="no chr65"><b>ĝA</b>
+		</td><td class="no chr83"><b>ĝS</b>
+		</td><td class="no chr68"><b>ĝD</b>
+		</td><td class="no chr70"><b>ĝF</b>
+		</td><td class="no chr71"><b>ĝG</b>
+		</td><td class="no chr72"><b>ĝH</b>
+		</td><td class="no chr74"><b>ĝJ</b>
+		</td><td class="no chr75"><b>ĝK</b>
+		</td><td class="no chr76"><b>ĝL</b>
+		</td><td class="no chr58"><b>ĝ:</b>
+		</td><td class="no chr34"><b>ĝ"</b>
+		</td><td class="no chr124"><b>ĝ|</b>
+		</td></tr>
+	<tr class="mode modei_cg lead"><th>extended insert commands (i ctrl-g)<small>: home row </small></th>
+		<td class="no chr97"><b>ĝa</b>
+		</td><td class="no chr115"><b>ĝs</b>
+		</td><td class="no chr100"><b>ĝd</b>
+		</td><td class="no chr102"><b>ĝf</b>
+		</td><td class="no chr103"><b>ĝg</b>
+		</td><td class="no chr104"><b>ĝh</b>
+		</td><td class="pm chr106"><b>ĝj</b> ▼ start col<wbr>umn
+		</td><td class="pm chr107"><b>ĝk</b> ▲ start col<wbr>umn
+		</td><td class="no chr108"><b>ĝl</b>
+		</td><td class="no chr59"><b>ĝ;</b>
+		</td><td class="no chr39"><b>ĝ'</b>
+		</td><td class="no chr92"><b>ĝ\</b>
+		</td></tr>
+	<tr class="mode modei_cx lead ctrl"><th>insert completion commands (i ctrl-x)<small>: home row ctrl</small></th>
+		<td class="no chr97"><b>x̂<small>^</small>a</b>
+		</td><td class="co chr115"><b>x̂<small>^</small>s</b> spell sugg<wbr>est
+		</td><td class="co chr100"><b>x̂<small>^</small>d</b> def<wbr>ine compl<wbr>et<wbr>e
+		</td><td class="co chr102"><b>x̂<small>^</small>f</b> file comp<wbr>l<wbr>et<wbr>e
+		</td><td class="no chr103"><b>x̂<small>^</small>g</b>
+		</td><td class="no chr104"><b>x̂<small>^</small>h</b>
+		</td><td class="no chr106"><b>x̂<small>^</small>j</b>
+		</td><td class="co chr107"><b>x̂<small>^</small>k</b> dict comp<wbr>l<wbr>et<wbr>e
+		</td><td class="co chr108"><b>x̂<small>^</small>l</b> line comp<wbr>l<wbr>et<wbr>e
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr92"><b>x̂<small>^</small>\</b>
+		</td></tr>
+	<tr class="mode modei_cx lead shift"><th>insert completion commands (i ctrl-x)<small>: home row shift</small></th>
+		<td class="no chr65"><b>x̂A</b>
+		</td><td class="no chr83"><b>x̂S</b>
+		</td><td class="no chr68"><b>x̂D</b>
+		</td><td class="no chr70"><b>x̂F</b>
+		</td><td class="no chr71"><b>x̂G</b>
+		</td><td class="no chr72"><b>x̂H</b>
+		</td><td class="no chr74"><b>x̂J</b>
+		</td><td class="no chr75"><b>x̂K</b>
+		</td><td class="no chr76"><b>x̂L</b>
+		</td><td class="no chr58"><b>x̂:</b>
+		</td><td class="no chr34"><b>x̂"</b>
+		</td><td class="no chr124"><b>x̂|</b>
+		</td></tr>
+	<tr class="mode modei_cx lead"><th>insert completion commands (i ctrl-x)<small>: home row </small></th>
+		<td class="no chr97"><b>x̂a</b>
+		</td><td class="co alias chr115"><b>x̂s</b> »i^x^s
+		</td><td class="no chr100"><b>x̂d</b>
+		</td><td class="no chr102"><b>x̂f</b>
+		</td><td class="no chr103"><b>x̂g</b>
+		</td><td class="no chr104"><b>x̂h</b>
+		</td><td class="no chr106"><b>x̂j</b>
+		</td><td class="no chr107"><b>x̂k</b>
+		</td><td class="no chr108"><b>x̂l</b>
+		</td><td class="no chr59"><b>x̂;</b>
+		</td><td class="no chr39"><b>x̂'</b>
+		</td><td class="no chr92"><b>x̂\</b>
+		</td></tr>
+	<tr class="mode modev ctrl"><th>visual mode<small>: home row ctrl</small></th>
+		<td class="no chr97"><b><small>^</small>a</b>
+		</td><td class="ci alias chr115"><b><small>^</small>s</b> »^s
+		</td><td class="po alias chr100"><b><small>^</small>d</b> »^d
+		</td><td class="pm alias chr102"><b><small>^</small>f</b> »^f
+		</td><td class="mv chr103"><b><small>^</small>g</b> select mode
+		</td><td class="co chr104"><b><small>^</small>h</b> back<wbr>space
+		</td><td class="pm alias chr106"><b><small>^</small>j</b> »^j
+		</td><td class="no chr107"><b><small>^</small>k</b>
+		</td><td class="no chr108"><b><small>^</small>l</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="mo alias chr92"><b><small>^</small>\·</b> »^\
+		</td></tr>
+	<tr class="mode modev shift"><th>visual mode<small>: home row shift</small></th>
+		<td class="mi ext vim6 chr65" onclick="setmode(&#39;modei&#39;)"><b>A</b> ap<wbr>pend to block
+		</td><td class="mi ext vim6 chr83" onclick="setmode(&#39;modei&#39;)"><b>S</b> repl<wbr>ace lines
+		</td><td class="co ext vim6 chr68"><b>D</b> delete lines
+		</td><td class="pm alias chr70"><b>F·</b> »F
+		</td><td class="pm alias chr71"><b>G</b> »G
+		</td><td class="pm alias chr72"><b>H</b> »H
+		</td><td class="co chr74"><b>J</b> join lines
+		</td><td class="co chr75"><b>K</b> help sel<wbr>ect<wbr>ion
+		</td><td class="pm alias chr76"><b>L</b> »L
+		</td><td class="mo chr58"><b>:</b> cmd on range
+		</td><td class="no chr34"><b>"</b>
+		</td><td class="pm alias chr124"><b>|</b> »|
+		</td></tr>
+	<tr class="mode modev"><th>visual mode<small>: home row </small></th>
+		<td class="me ext vim6 chr97" onclick="setmode(&#39;modeva&#39;)"><b>a·</b> ex<wbr>tend area
+		</td><td class="mi ext vim6 alias chr115" onclick="setmode(&#39;modei&#39;)"><b>s</b> »vc
+		</td><td class="co ext vim6 chr100"><b>d</b> delete area
+		</td><td class="pm alias chr102"><b>f·</b> »f
+		</td><td class="me chr103" onclick="setmode(&#39;modevg&#39;)"><b>g·</b> extra cmds
+		</td><td class="pm alias chr104"><b>h</b> »h
+		</td><td class="pm alias chr106"><b>j</b> »j
+		</td><td class="pm alias chr107"><b>k</b> »k
+		</td><td class="pm alias chr108"><b>l</b> »l
+		</td><td class="pm alias chr59"><b>;</b> »;
+		</td><td class="no chr39"><b>'</b>
+		</td><td class="no chr92"><b>\</b>
+		</td></tr>
+	<tr class="mode modeva ctrl"><th>text object selection (v a/i)<small>: home row ctrl</small></th>
+		<td class="no chr97"><b><small>^</small>a</b>
+		</td><td class="no chr115"><b><small>^</small>s</b>
+		</td><td class="no chr100"><b><small>^</small>d</b>
+		</td><td class="no chr102"><b><small>^</small>f</b>
+		</td><td class="no chr103"><b><small>^</small>g</b>
+		</td><td class="no chr104"><b><small>^</small>h</b>
+		</td><td class="no chr106"><b><small>^</small>j</b>
+		</td><td class="no chr107"><b><small>^</small>k</b>
+		</td><td class="no chr108"><b><small>^</small>l</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr92"><b><small>^</small>\</b>
+		</td></tr>
+	<tr class="mode modeva shift"><th>text object selection (v a/i)<small>: home row shift</small></th>
+		<td class="no chr65"><b>A</b>
+		</td><td class="no chr83"><b>S</b>
+		</td><td class="no chr68"><b>D</b>
+		</td><td class="no chr70"><b>F</b>
+		</td><td class="no chr71"><b>G</b>
+		</td><td class="no chr72"><b>H</b>
+		</td><td class="no chr74"><b>J</b>
+		</td><td class="no chr75"><b>K</b>
+		</td><td class="no chr76"><b>L</b>
+		</td><td class="no chr58"><b>:</b>
+		</td><td class="pm ext vim7 new alias chr34"><b>"</b> »va'
+		</td><td class="no chr124"><b>|</b>
+		</td></tr>
+	<tr class="mode modeva"><th>text object selection (v a/i)<small>: home row </small></th>
+		<td class="no chr97"><b>a</b>
+		</td><td class="pm ext vim6 chr115"><b>s</b> senten<wbr>ce
+		</td><td class="no chr100"><b>d</b>
+		</td><td class="no chr102"><b>f</b>
+		</td><td class="no chr103"><b>g</b>
+		</td><td class="no chr104"><b>h</b>
+		</td><td class="no chr106"><b>j</b>
+		</td><td class="no chr107"><b>k</b>
+		</td><td class="no chr108"><b>l</b>
+		</td><td class="no chr59"><b>;</b>
+		</td><td class="pm ext vim7 new chr39"><b>'</b> quoted string
+		</td><td class="no chr92"><b>\</b>
+		</td></tr>
+	<tr class="mode modevg lead ctrl"><th>extended visual commands (v g)<small>: home row ctrl</small></th>
+		<td class="no chr97"><b>g<small>^</small>a</b>
+		</td><td class="no chr115"><b>g<small>^</small>s</b>
+		</td><td class="no chr100"><b>g<small>^</small>d</b>
+		</td><td class="no chr102"><b>g<small>^</small>f</b>
+		</td><td class="no chr103"><b>g<small>^</small>g</b>
+		</td><td class="no chr104"><b>g<small>^</small>h</b>
+		</td><td class="no chr106"><b>g<small>^</small>j</b>
+		</td><td class="no chr107"><b>g<small>^</small>k</b>
+		</td><td class="no chr108"><b>g<small>^</small>l</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr92"><b>g<small>^</small>\</b>
+		</td></tr>
+	<tr class="mode modevg lead shift"><th>extended visual commands (v g)<small>: home row shift</small></th>
+		<td class="no chr65"><b>gA</b>
+		</td><td class="no chr83"><b>gS</b>
+		</td><td class="no chr68"><b>gD</b>
+		</td><td class="no chr70"><b>gF</b>
+		</td><td class="no chr71"><b>gG</b>
+		</td><td class="no chr72"><b>gH</b>
+		</td><td class="co ext vim6 chr74"><b>gJ</b> join literal<wbr>ly
+		</td><td class="no chr75"><b>gK</b>
+		</td><td class="no chr76"><b>gL</b>
+		</td><td class="no chr58"><b>g:</b>
+		</td><td class="no chr34"><b>g"</b>
+		</td><td class="no chr124"><b>g|</b>
+		</td></tr>
+	<tr class="mode modevg lead"><th>extended visual commands (v g)<small>: home row </small></th>
+		<td class="no chr97"><b>ga</b>
+		</td><td class="no chr115"><b>gs</b>
+		</td><td class="no chr100"><b>gd</b>
+		</td><td class="no chr102"><b>gf</b>
+		</td><td class="no chr103"><b>gg</b>
+		</td><td class="no chr104"><b>gh</b>
+		</td><td class="no chr106"><b>gj</b>
+		</td><td class="no chr107"><b>gk</b>
+		</td><td class="no chr108"><b>gl</b>
+		</td><td class="no chr59"><b>g;</b>
+		</td><td class="no chr39"><b>g'</b>
+		</td><td class="no chr92"><b>g\</b>
+		</td></tr>
+	<tr class="mode modez lead ctrl"><th>additional commands (z)<small>: home row ctrl</small></th>
+		<td class="no chr97"><b>z<small>^</small>a</b>
+		</td><td class="no chr115"><b>z<small>^</small>s</b>
+		</td><td class="no chr100"><b>z<small>^</small>d</b>
+		</td><td class="no chr102"><b>z<small>^</small>f</b>
+		</td><td class="no chr103"><b>z<small>^</small>g</b>
+		</td><td class="no chr104"><b>z<small>^</small>h</b>
+		</td><td class="no chr106"><b>z<small>^</small>j</b>
+		</td><td class="no chr107"><b>z<small>^</small>k</b>
+		</td><td class="no chr108"><b>z<small>^</small>l</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr92"><b>z<small>^</small>\</b>
+		</td></tr>
+	<tr class="mode modez lead shift"><th>additional commands (z)<small>: home row shift</small></th>
+		<td class="co ext vim6 folding chr65"><b>zA</b> toggle fold rec<wbr>urs<wbr>ive<wbr>ly
+		</td><td class="no chr83"><b>zS</b>
+		</td><td class="co ext vim6 folding chr68"><b>zD</b> delete folds rec<wbr>urs<wbr>ive
+		</td><td class="co ext vim6 folding chr70"><b>zF</b> fold lines
+		</td><td class="co ext vim7 new chr71"><b>zG</b> temp spell<wbr>ing
+		</td><td class="po chr72"><b>zH</b> scroll ◀ half scr<wbr>een
+		</td><td class="no chr74"><b>zJ</b>
+		</td><td class="no chr75"><b>zK</b>
+		</td><td class="po chr76"><b>zL</b> scroll ▶ half scr<wbr>een
+		</td><td class="no chr58"><b>z:</b>
+		</td><td class="no chr34"><b>z"</b>
+		</td><td class="no chr124"><b>z|</b>
+		</td></tr>
+	<tr class="mode modez lead"><th>additional commands (z)<small>: home row </small></th>
+		<td class="co ext vim6 folding chr97"><b>za</b> toggle fold
+		</td><td class="po chr115"><b>zs</b> cursor at left side
+		</td><td class="co ext vim6 folding chr100"><b>zd</b> delete fold
+		</td><td class="co ext vim6 folding chr102"><b>zf<small>↕</small></b> create fold
+		</td><td class="co ext vim7 new chr103"><b title="Good word">zg</b> add spell<wbr>ing
+		</td><td class="po chr104"><b>zh</b> scroll ◀
+		</td><td class="pm ext vim6 folding chr106"><b>zj</b> next fold start
+		</td><td class="pm ext vim6 folding chr107"><b>zk</b> prev fold end
+		</td><td class="po chr108"><b>zl</b> scroll ▶
+		</td><td class="no chr59"><b>z;</b>
+		</td><td class="no chr39"><b>z'</b>
+		</td><td class="no chr92"><b>z\</b>
+		</td></tr>
+	</tbody>
+<tbody class="row row4">
+	<tr class="ctrl"><th>normal mode<small>: bottom row ctrl</small></th>
+		<td class="ci chr122"><b title="zzz (as in sleep)"><small>^</small>z</b> :sus<wbr>pend
+		</td><td class="co undo chr120"><b><small>^</small>x</b> subs<wbr>tract
+		</td><td class="co chr99"><b><small>^</small>c</b> abort
+		</td><td class="mv ext vim6 chr118" onclick="setmode(&#39;modev&#39;)"><b><small>^</small>v</b> visual block
+		</td><td class="pm chr98"><b><small>^</small>b</b> page up
+		</td><td class="pm alias chr110"><b><small>^</small>n</b> »j
+		</td><td class="pm alias chr109"><b><small>^</small>m</b> »+
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr63"><b><small>^</small>?</b>
+		</td></tr>
+	<tr class="shift"><th>normal mode<small>: bottom row shift</small></th>
+		<td class="me chr90" onclick="setmode(&#39;modeZ&#39;)"><b>Z·</b> quit
+		</td><td class="co undo chr88"><b>X</b> back<wbr>space
+		</td><td class="mi undo chr67" onclick="setmode(&#39;modei&#39;)"><b>C</b> chan<wbr>ge to eol
+		</td><td class="mv chr86" onclick="setmode(&#39;modev&#39;)"><b>V</b> visual lines
+		</td><td class="pm chr66"><b>B</b> prev <span style="font-variant:small-caps">word</span>
+		</td><td class="pm chr78"><b>N</b> prev find
+		</td><td class="pm chr77"><b>M</b> screen mid<wbr>dle
+		</td><td class="co undo chr60"><b>&lt;<small>↕</small></b> un<wbr>ind<wbr>ent
+		</td><td class="co undo chr62"><b>&gt;<small>↕</small></b> ind<wbr>ent
+		</td><td class="pm chr63"><b>?·</b> find rev.
+		</td></tr>
+	<tr><th>normal mode<small>: bottom row </small></th>
+		<td class="me chr122" onclick="setmode(&#39;modez&#39;)"><b>z·</b> extra cmds
+		</td><td class="co undo chr120"><b>x</b> delete char
+		</td><td class="mi undo chr99" onclick="setmode(&#39;modei&#39;)"><b>c<small>↕</small></b> chan<wbr>ge
+		</td><td class="mv chr118" onclick="setmode(&#39;modev&#39;)"><b>v</b> visual mode
+		</td><td class="pm chr98"><b title="Back">b</b> prev word
+		</td><td class="pm chr110"><b>n</b> next find
+		</td><td class="co chr109"><b>m·</b> set mark
+		</td><td class="pm chr44"><b>,</b> reverse t/T/f/F
+		</td><td class="co undo chr46"><b>.</b> repeat last cmd
+		</td><td class="pm chr47"><b>/·</b> find
+		</td></tr>
+	<tr class="mode modeZ lead ctrl"><th>quit commands<small>: bottom row ctrl</small></th>
+		<td class="no chr122"><b>Z<small>^</small>z</b>
+		</td><td class="no chr120"><b>Z<small>^</small>x</b>
+		</td><td class="no chr99"><b>Z<small>^</small>c</b>
+		</td><td class="no chr118"><b>Z<small>^</small>v</b>
+		</td><td class="no chr98"><b>Z<small>^</small>b</b>
+		</td><td class="no chr110"><b>Z<small>^</small>n</b>
+		</td><td class="no chr109"><b>Z<small>^</small>m</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr63"><b>Z<small>^</small>?</b>
+		</td></tr>
+	<tr class="mode modeZ lead shift"><th>quit commands<small>: bottom row shift</small></th>
+		<td class="co chr90"><b>ZZ</b>  :wq (write)
+		</td><td class="no chr88"><b>ZX</b>
+		</td><td class="no chr67"><b>ZC</b>
+		</td><td class="no chr86"><b>ZV</b>
+		</td><td class="no chr66"><b>ZB</b>
+		</td><td class="no chr78"><b>ZN</b>
+		</td><td class="no chr77"><b>ZM</b>
+		</td><td class="no chr60"><b>Z&lt;</b>
+		</td><td class="no chr62"><b>Z&gt;</b>
+		</td><td class="no chr63"><b>Z?</b>
+		</td></tr>
+	<tr class="mode modeZ lead"><th>quit commands<small>: bottom row </small></th>
+		<td class="no chr122"><b>Zz</b>
+		</td><td class="no chr120"><b>Zx</b>
+		</td><td class="no chr99"><b>Zc</b>
+		</td><td class="no chr118"><b>Zv</b>
+		</td><td class="no chr98"><b>Zb</b>
+		</td><td class="no chr110"><b>Zn</b>
+		</td><td class="no chr109"><b>Zm</b>
+		</td><td class="no chr44"><b>Z,</b>
+		</td><td class="no chr46"><b>Z.</b>
+		</td><td class="no chr47"><b>Z/</b>
+		</td></tr>
+	<tr class="mode mode_sbo lead ctrl"><th>backward search commands ([)<small>: bottom row ctrl</small></th>
+		<td class="no chr122"><b>[<small>^</small>z</b>
+		</td><td class="no chr120"><b>[<small>^</small>x</b>
+		</td><td class="no chr99"><b>[<small>^</small>c</b>
+		</td><td class="no chr118"><b>[<small>^</small>v</b>
+		</td><td class="no chr98"><b>[<small>^</small>b</b>
+		</td><td class="no chr110"><b>[<small>^</small>n</b>
+		</td><td class="no chr109"><b>[<small>^</small>m</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr63"><b>[<small>^</small>?</b>
+		</td></tr>
+	<tr class="mode mode_sbo lead shift"><th>backward search commands ([)<small>: bottom row shift</small></th>
+		<td class="no chr90"><b>[Z</b>
+		</td><td class="no chr88"><b>[X</b>
+		</td><td class="no chr67"><b>[C</b>
+		</td><td class="no chr86"><b>[V</b>
+		</td><td class="no chr66"><b>[B</b>
+		</td><td class="no chr78"><b>[N</b>
+		</td><td class="no chr77"><b>[M</b>
+		</td><td class="no chr60"><b>[&lt;</b>
+		</td><td class="no chr62"><b>[&gt;</b>
+		</td><td class="no chr63"><b>[?</b>
+		</td></tr>
+	<tr class="mode mode_sbo lead"><th>backward search commands ([)<small>: bottom row </small></th>
+		<td class="pm ext vim6 folding chr122"><b>[z</b> start of open fold
+		</td><td class="no chr120"><b>[x</b>
+		</td><td class="pm chr99"><b>[c</b> start of change backw<wbr>ards
+		</td><td class="no chr118"><b>[v</b>
+		</td><td class="no chr98"><b>[b</b>
+		</td><td class="no chr110"><b>[n</b>
+		</td><td class="pm chr109"><b>[m</b> start of funct<wbr>ion
+		</td><td class="no chr44"><b>[,</b>
+		</td><td class="no chr46"><b>[.</b>
+		</td><td class="pm chr47"><b>[/</b> start of C com<wbr>m<wbr>ent
+		</td></tr>
+	<tr class="mode mode_sbc lead ctrl"><th>forward search commands (])<small>: bottom row ctrl</small></th>
+		<td class="no chr122"><b>]<small>^</small>z</b>
+		</td><td class="no chr120"><b>]<small>^</small>x</b>
+		</td><td class="no chr99"><b>]<small>^</small>c</b>
+		</td><td class="no chr118"><b>]<small>^</small>v</b>
+		</td><td class="no chr98"><b>]<small>^</small>b</b>
+		</td><td class="no chr110"><b>]<small>^</small>n</b>
+		</td><td class="no chr109"><b>]<small>^</small>m</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr63"><b>]<small>^</small>?</b>
+		</td></tr>
+	<tr class="mode mode_sbc lead shift"><th>forward search commands (])<small>: bottom row shift</small></th>
+		<td class="no chr90"><b>]Z</b>
+		</td><td class="no chr88"><b>]X</b>
+		</td><td class="no chr67"><b>]C</b>
+		</td><td class="no chr86"><b>]V</b>
+		</td><td class="no chr66"><b>]B</b>
+		</td><td class="no chr78"><b>]N</b>
+		</td><td class="no chr77"><b>]M</b>
+		</td><td class="no chr60"><b>]&lt;</b>
+		</td><td class="no chr62"><b>]&gt;</b>
+		</td><td class="no chr63"><b>]?</b>
+		</td></tr>
+	<tr class="mode mode_sbc lead"><th>forward search commands (])<small>: bottom row </small></th>
+		<td class="pm ext vim6 folding chr122"><b>]z</b> end of open fold
+		</td><td class="no chr120"><b>]x</b>
+		</td><td class="pm chr99"><b>]c</b> start of change forw<wbr>ards
+		</td><td class="no chr118"><b>]v</b>
+		</td><td class="no chr98"><b>]b</b>
+		</td><td class="no chr110"><b>]n</b>
+		</td><td class="pm chr109"><b>]m</b> end of funct<wbr>ion
+		</td><td class="no chr44"><b>],</b>
+		</td><td class="no chr46"><b>].</b>
+		</td><td class="pm chr47"><b>]/</b> end of C com<wbr>m<wbr>ent
+		</td></tr>
+	<tr class="mode mode_cw lead ctrl"><th>window commands (ctrl-w)<small>: bottom row ctrl</small></th>
+		<td class="no chr122"><b>ŵ<small>^</small>z</b>
+		</td><td class="no chr120"><b>ŵ<small>^</small>x</b>
+		</td><td class="mo chr99" onclick="setmode()"><b>ŵ<small>^</small>c</b> abort
+		</td><td class="no chr118"><b>ŵ<small>^</small>v</b>
+		</td><td class="no chr98"><b>ŵ<small>^</small>b</b>
+		</td><td class="no chr110"><b>ŵ<small>^</small>n</b>
+		</td><td class="no chr109"><b>ŵ<small>^</small>m</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr63"><b>ŵ<small>^</small>?</b>
+		</td></tr>
+	<tr class="mode mode_cw lead shift"><th>window commands (ctrl-w)<small>: bottom row shift</small></th>
+		<td class="no chr90"><b>ŵZ</b>
+		</td><td class="no chr88"><b>ŵX</b>
+		</td><td class="no chr67"><b>ŵC</b>
+		</td><td class="no chr86"><b>ŵV</b>
+		</td><td class="no chr66"><b>ŵB</b>
+		</td><td class="no chr78"><b>ŵN</b>
+		</td><td class="no chr77"><b>ŵM</b>
+		</td><td class="po chr60"><b>ŵ&lt;</b> width decr<wbr>ease
+		</td><td class="po chr62"><b>ŵ&gt;</b> width incr<wbr>ease
+		</td><td class="no chr63"><b>ŵ?</b>
+		</td></tr>
+	<tr class="mode mode_cw lead"><th>window commands (ctrl-w)<small>: bottom row </small></th>
+		<td class="po chr122"><b>ŵz</b> close pre<wbr>view
+		</td><td class="po chr120"><b>ŵx</b> ex<wbr>chan<wbr>ge
+		</td><td class="po chr99"><b>ŵc</b> :close
+		</td><td class="po chr118"><b>ŵv</b> split vert<wbr>ic<wbr>al<wbr>ly
+		</td><td class="po chr98"><b>ŵb</b> go to bot<wbr>tom
+		</td><td class="co chr110"><b>ŵn</b> open new
+		</td><td class="no chr109"><b>ŵm</b>
+		</td><td class="no chr44"><b>ŵ,</b>
+		</td><td class="no chr46"><b>ŵ.</b>
+		</td><td class="no chr47"><b>ŵ/</b>
+		</td></tr>
+	<tr class="mode mode_cwg lead ctrl"><th>extended window commands (ctrl-w g)<small>: bottom row ctrl</small></th>
+		<td class="no chr122"><b>ŵg<small>^</small>z</b>
+		</td><td class="no chr120"><b>ŵg<small>^</small>x</b>
+		</td><td class="no chr99"><b>ŵg<small>^</small>c</b>
+		</td><td class="no chr118"><b>ŵg<small>^</small>v</b>
+		</td><td class="no chr98"><b>ŵg<small>^</small>b</b>
+		</td><td class="no chr110"><b>ŵg<small>^</small>n</b>
+		</td><td class="no chr109"><b>ŵg<small>^</small>m</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr63"><b>ŵg<small>^</small>?</b>
+		</td></tr>
+	<tr class="mode mode_cwg lead shift"><th>extended window commands (ctrl-w g)<small>: bottom row shift</small></th>
+		<td class="no chr90"><b>ŵgZ</b>
+		</td><td class="no chr88"><b>ŵgX</b>
+		</td><td class="no chr67"><b>ŵgC</b>
+		</td><td class="no chr86"><b>ŵgV</b>
+		</td><td class="no chr66"><b>ŵgB</b>
+		</td><td class="no chr78"><b>ŵgN</b>
+		</td><td class="no chr77"><b>ŵgM</b>
+		</td><td class="no chr60"><b>ŵg&lt;</b>
+		</td><td class="no chr62"><b>ŵg&gt;</b>
+		</td><td class="no chr63"><b>ŵg?</b>
+		</td></tr>
+	<tr class="mode mode_cwg lead"><th>extended window commands (ctrl-w g)<small>: bottom row </small></th>
+		<td class="no chr122"><b>ŵgz</b>
+		</td><td class="no chr120"><b>ŵgx</b>
+		</td><td class="no chr99"><b>ŵgc</b>
+		</td><td class="no chr118"><b>ŵgv</b>
+		</td><td class="no chr98"><b>ŵgb</b>
+		</td><td class="no chr110"><b>ŵgn</b>
+		</td><td class="no chr109"><b>ŵgm</b>
+		</td><td class="no chr44"><b>ŵg,</b>
+		</td><td class="no chr46"><b>ŵg.</b>
+		</td><td class="no chr47"><b>ŵg/</b>
+		</td></tr>
+	<tr class="mode modeg lead ctrl"><th>extended commands (g)<small>: bottom row ctrl</small></th>
+		<td class="no chr122"><b>g<small>^</small>z</b>
+		</td><td class="no chr120"><b>g<small>^</small>x</b>
+		</td><td class="no chr99"><b>g<small>^</small>c</b>
+		</td><td class="no chr118"><b>g<small>^</small>v</b>
+		</td><td class="no chr98"><b>g<small>^</small>b</b>
+		</td><td class="no chr110"><b>g<small>^</small>n</b>
+		</td><td class="no chr109"><b>g<small>^</small>m</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr63"><b>g<small>^</small>?</b>
+		</td></tr>
+	<tr class="mode modeg lead shift"><th>extended commands (g)<small>: bottom row shift</small></th>
+		<td class="no chr90"><b>gZ</b>
+		</td><td class="no chr88"><b>gX</b>
+		</td><td class="no chr67"><b>gC</b>
+		</td><td class="co chr86"><b>gV</b> avoid resel<wbr>ect<wbr>ion
+		</td><td class="no chr66"><b>gB</b>
+		</td><td class="no chr78"><b>gN</b>
+		</td><td class="no chr77"><b>gM</b>
+		</td><td class="co ext vim7 new chr60"><b>g&lt;</b> see prev cmd output
+		</td><td class="no chr62"><b>g&gt;</b>
+		</td><td class="co ext vim6 chr63"><b>g?<small>↕</small></b> rot13 encode
+		</td></tr>
+	<tr class="mode modeg lead"><th>extended commands (g)<small>: bottom row </small></th>
+		<td class="no chr122"><b>gz</b>
+		</td><td class="co ext vim7 new chr120"><b>gx</b> Netrw<wbr>BrowseX
+		</td><td class="no chr99"><b>gc</b>
+		</td><td class="mv chr118" onclick="setmode(&#39;modev&#39;)"><b title="precedinG Visual">gv</b> prev<wbr>ious highl<wbr>ight
+		</td><td class="no chr98"><b>gb</b>
+		</td><td class="no chr110"><b>gn</b>
+		</td><td class="pm ext vim6 chr109"><b>gm</b> cen<wbr>ter screen
+		</td><td class="pm chr44"><b>g,</b> to next change pos
+		</td><td class="no chr46"><b>g.</b>
+		</td><td class="no chr47"><b>g/</b>
+		</td></tr>
+	<tr class="mode modei ctrl"><th>insert mode<small>: bottom row ctrl</small></th>
+		<td class="ci ext vim6 chr122"><b><small>^</small>z</b> :sus<wbr>pend in <em>im</em>
+		</td><td class="me ext vim6 chr120" onclick="setmode(&#39;modei_cx&#39;)"><b><small>^</small>x·</b> ex<wbr>pand mode
+		</td><td class="mo chr99" onclick="setmode()"><b><small>^</small>c</b> abort, no abbr
+		</td><td class="co chr118"><a href="http://sheet.shiar.nl/charset"><b title="Verbatim or by Value"><small>^</small>v</b> literal or ch<wbr>ar<wbr>cod<wbr>e</a>
+		</td><td class="no ext vim6 chr98"><b><small>^</small>b</b> former i^_
+		</td><td class="pm ext vim6 chr110"><b><small>^</small>n</b> find next keyword
+		</td><td class="co chr109"><b><small>^</small>m</b> enter
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr63"><b><small>^</small>?</b>
+		</td></tr>
+	<tr class="mode modei shift"><th>insert mode<small>: bottom row shift</small></th>
+		<td class="no chr90"><b>Z</b>
+		</td><td class="no chr88"><b>X</b>
+		</td><td class="no chr67"><b>C</b>
+		</td><td class="no chr86"><b>V</b>
+		</td><td class="no chr66"><b>B</b>
+		</td><td class="no chr78"><b>N</b>
+		</td><td class="no chr77"><b>M</b>
+		</td><td class="no chr60"><b>&lt;</b>
+		</td><td class="no chr62"><b>&gt;</b>
+		</td><td class="no chr63"><b>?</b>
+		</td></tr>
+	<tr class="mode modei"><th>insert mode<small>: bottom row </small></th>
+		<td class="no chr122"><b>z</b>
+		</td><td class="no chr120"><b>x</b>
+		</td><td class="no chr99"><b>c</b>
+		</td><td class="no chr118"><b>v</b>
+		</td><td class="no chr98"><b>b</b>
+		</td><td class="no chr110"><b>n</b>
+		</td><td class="no chr109"><b>m</b>
+		</td><td class="no chr44"><b>,</b>
+		</td><td class="no chr46"><b>.</b>
+		</td><td class="no chr47"><b>/</b>
+		</td></tr>
+	<tr class="mode modei_cg lead ctrl"><th>extended insert commands (i ctrl-g)<small>: bottom row ctrl</small></th>
+		<td class="no chr122"><b>ĝ<small>^</small>z</b>
+		</td><td class="no chr120"><b>ĝ<small>^</small>x</b>
+		</td><td class="no chr99"><b>ĝ<small>^</small>c</b>
+		</td><td class="no chr118"><b>ĝ<small>^</small>v</b>
+		</td><td class="no chr98"><b>ĝ<small>^</small>b</b>
+		</td><td class="no chr110"><b>ĝ<small>^</small>n</b>
+		</td><td class="no chr109"><b>ĝ<small>^</small>m</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr63"><b>ĝ<small>^</small>?</b>
+		</td></tr>
+	<tr class="mode modei_cg lead shift"><th>extended insert commands (i ctrl-g)<small>: bottom row shift</small></th>
+		<td class="no chr90"><b>ĝZ</b>
+		</td><td class="no chr88"><b>ĝX</b>
+		</td><td class="no chr67"><b>ĝC</b>
+		</td><td class="no chr86"><b>ĝV</b>
+		</td><td class="no chr66"><b>ĝB</b>
+		</td><td class="no chr78"><b>ĝN</b>
+		</td><td class="no chr77"><b>ĝM</b>
+		</td><td class="no chr60"><b>ĝ&lt;</b>
+		</td><td class="no chr62"><b>ĝ&gt;</b>
+		</td><td class="no chr63"><b>ĝ?</b>
+		</td></tr>
+	<tr class="mode modei_cg lead"><th>extended insert commands (i ctrl-g)<small>: bottom row </small></th>
+		<td class="no chr122"><b>ĝz</b>
+		</td><td class="no chr120"><b>ĝx</b>
+		</td><td class="no chr99"><b>ĝc</b>
+		</td><td class="no chr118"><b>ĝv</b>
+		</td><td class="no chr98"><b>ĝb</b>
+		</td><td class="no chr110"><b>ĝn</b>
+		</td><td class="no chr109"><b>ĝm</b>
+		</td><td class="no chr44"><b>ĝ,</b>
+		</td><td class="no chr46"><b>ĝ.</b>
+		</td><td class="no chr47"><b>ĝ/</b>
+		</td></tr>
+	<tr class="mode modei_cx lead ctrl"><th>insert completion commands (i ctrl-x)<small>: bottom row ctrl</small></th>
+		<td class="no chr122"><b>x̂<small>^</small>z</b>
+		</td><td class="no chr120"><b>x̂<small>^</small>x</b>
+		</td><td class="no chr99"><b>x̂<small>^</small>c</b>
+		</td><td class="co chr118"><b>x̂<small>^</small>v</b> ex cmd compl<wbr>et<wbr>e
+		</td><td class="no chr98"><b>x̂<small>^</small>b</b>
+		</td><td class="co chr110"><b>x̂<small>^</small>n</b> next comp<wbr>l<wbr>et<wbr>e
+		</td><td class="no chr109"><b>x̂<small>^</small>m</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr63"><b>x̂<small>^</small>?</b>
+		</td></tr>
+	<tr class="mode modei_cx lead shift"><th>insert completion commands (i ctrl-x)<small>: bottom row shift</small></th>
+		<td class="no chr90"><b>x̂Z</b>
+		</td><td class="no chr88"><b>x̂X</b>
+		</td><td class="no chr67"><b>x̂C</b>
+		</td><td class="no chr86"><b>x̂V</b>
+		</td><td class="no chr66"><b>x̂B</b>
+		</td><td class="no chr78"><b>x̂N</b>
+		</td><td class="no chr77"><b>x̂M</b>
+		</td><td class="no chr60"><b>x̂&lt;</b>
+		</td><td class="no chr62"><b>x̂&gt;</b>
+		</td><td class="no chr63"><b>x̂?</b>
+		</td></tr>
+	<tr class="mode modei_cx lead"><th>insert completion commands (i ctrl-x)<small>: bottom row </small></th>
+		<td class="no chr122"><b>x̂z</b>
+		</td><td class="no chr120"><b>x̂x</b>
+		</td><td class="no chr99"><b>x̂c</b>
+		</td><td class="no chr118"><b>x̂v</b>
+		</td><td class="no chr98"><b>x̂b</b>
+		</td><td class="no chr110"><b>x̂n</b>
+		</td><td class="no chr109"><b>x̂m</b>
+		</td><td class="no chr44"><b>x̂,</b>
+		</td><td class="no chr46"><b>x̂.</b>
+		</td><td class="no chr47"><b>x̂/</b>
+		</td></tr>
+	<tr class="mode modev ctrl"><th>visual mode<small>: bottom row ctrl</small></th>
+		<td class="ci alias chr122"><b><small>^</small>z</b> »^z
+		</td><td class="no chr120"><b><small>^</small>x</b>
+		</td><td class="mo chr99" onclick="setmode()"><b><small>^</small>c</b> abort
+		</td><td class="mv ext vim6 chr118"><b><small>^</small>v</b> block<wbr>wise
+		</td><td class="pm alias chr98"><b><small>^</small>b</b> »^b
+		</td><td class="pm alias chr110"><b><small>^</small>n</b> »^n
+		</td><td class="pm alias chr109"><b><small>^</small>m</b> »^m
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr63"><b><small>^</small>?</b>
+		</td></tr>
+	<tr class="mode modev shift"><th>visual mode<small>: bottom row shift</small></th>
+		<td class="no chr90"><b>Z</b>
+		</td><td class="co ext vim6 alias chr88"><b>X</b> »vD
+		</td><td class="mi ext vim6 chr67" onclick="setmode(&#39;modei&#39;)"><b>C</b> repl<wbr>ace full lines
+		</td><td class="mv chr86"><b>V</b> line<wbr>wise
+		</td><td class="pm alias chr66"><b>B</b> »B
+		</td><td class="pm alias chr78"><b>N</b> »N
+		</td><td class="pm alias chr77"><b>M</b> »M
+		</td><td class="co chr60"><b>&lt;</b> un<wbr>indent
+		</td><td class="co chr62"><b>&gt;</b> ind<wbr>ent
+		</td><td class="pm alias chr63"><b>?·</b> »?
+		</td></tr>
+	<tr class="mode modev"><th>visual mode<small>: bottom row </small></th>
+		<td class="me alias chr122" onclick="setmode(&#39;modez&#39;)"><b>z·</b> »z
+		</td><td class="co ext vim6 alias chr120"><b>x</b> »vd
+		</td><td class="mi ext vim6 chr99" onclick="setmode(&#39;modei&#39;)"><b>c</b> repl<wbr>ace area
+		</td><td class="mv chr118"><b>v</b> char<wbr>wise
+		</td><td class="pm alias chr98"><b>b</b> »b
+		</td><td class="pm alias chr110"><b>n</b> »n
+		</td><td class="co alias chr109"><b>m·</b> »m
+		</td><td class="no chr44"><b>,</b>
+		</td><td class="no chr46"><b>.</b>
+		</td><td class="pm alias chr47"><b>/·</b> »/
+		</td></tr>
+	<tr class="mode modeva ctrl"><th>text object selection (v a/i)<small>: bottom row ctrl</small></th>
+		<td class="no chr122"><b><small>^</small>z</b>
+		</td><td class="no chr120"><b><small>^</small>x</b>
+		</td><td class="no chr99"><b><small>^</small>c</b>
+		</td><td class="no chr118"><b><small>^</small>v</b>
+		</td><td class="no chr98"><b><small>^</small>b</b>
+		</td><td class="no chr110"><b><small>^</small>n</b>
+		</td><td class="no chr109"><b><small>^</small>m</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr63"><b><small>^</small>?</b>
+		</td></tr>
+	<tr class="mode modeva shift"><th>text object selection (v a/i)<small>: bottom row shift</small></th>
+		<td class="no chr90"><b>Z</b>
+		</td><td class="no chr88"><b>X</b>
+		</td><td class="no chr67"><b>C</b>
+		</td><td class="no chr86"><b>V</b>
+		</td><td class="pm ext vim6 chr66"><b>B</b> {} Block
+		</td><td class="no chr78"><b>N</b>
+		</td><td class="no chr77"><b>M</b>
+		</td><td class="pm ext vim6 chr60"><b>&lt;</b> &lt;&gt; block
+		</td><td class=" alias chr62"><b>&gt;</b> »va&lt;
+		</td><td class="no chr63"><b>?</b>
+		</td></tr>
+	<tr class="mode modeva"><th>text object selection (v a/i)<small>: bottom row </small></th>
+		<td class="no chr122"><b>z</b>
+		</td><td class="no chr120"><b>x</b>
+		</td><td class="no chr99"><b>c</b>
+		</td><td class="no chr118"><b>v</b>
+		</td><td class="pm ext vim6 chr98"><b>b</b> () block
+		</td><td class="no chr110"><b>n</b>
+		</td><td class="no chr109"><b>m</b>
+		</td><td class="no chr44"><b>,</b>
+		</td><td class="no chr46"><b>.</b>
+		</td><td class="no chr47"><b>/</b>
+		</td></tr>
+	<tr class="mode modevg lead ctrl"><th>extended visual commands (v g)<small>: bottom row ctrl</small></th>
+		<td class="no chr122"><b>g<small>^</small>z</b>
+		</td><td class="no chr120"><b>g<small>^</small>x</b>
+		</td><td class="no chr99"><b>g<small>^</small>c</b>
+		</td><td class="no chr118"><b>g<small>^</small>v</b>
+		</td><td class="no chr98"><b>g<small>^</small>b</b>
+		</td><td class="no chr110"><b>g<small>^</small>n</b>
+		</td><td class="no chr109"><b>g<small>^</small>m</b>
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr63"><b>g<small>^</small>?</b>
+		</td></tr>
+	<tr class="mode modevg lead shift"><th>extended visual commands (v g)<small>: bottom row shift</small></th>
+		<td class="no chr90"><b>gZ</b>
+		</td><td class="no chr88"><b>gX</b>
+		</td><td class="no chr67"><b>gC</b>
+		</td><td class="no chr86"><b>gV</b>
+		</td><td class="no chr66"><b>gB</b>
+		</td><td class="no chr78"><b>gN</b>
+		</td><td class="no chr77"><b>gM</b>
+		</td><td class="no chr60"><b>g&lt;</b>
+		</td><td class="no chr62"><b>g&gt;</b>
+		</td><td class="co ext vim6 chr63"><b>g?</b> rot13 encode
+		</td></tr>
+	<tr class="mode modevg lead"><th>extended visual commands (v g)<small>: bottom row </small></th>
+		<td class="no chr122"><b>gz</b>
+		</td><td class="no chr120"><b>gx</b>
+		</td><td class="no chr99"><b>gc</b>
+		</td><td class="mv alias chr118" onclick="setmode(&#39;modev&#39;)"><b>gv</b> »gv
+		</td><td class="no chr98"><b>gb</b>
+		</td><td class="no chr110"><b>gn</b>
+		</td><td class="no chr109"><b>gm</b>
+		</td><td class="no chr44"><b>g,</b>
+		</td><td class="no chr46"><b>g.</b>
+		</td><td class="no chr47"><b>g/</b>
+		</td></tr>
+	<tr class="mode modez lead ctrl"><th>additional commands (z)<small>: bottom row ctrl</small></th>
+		<td class="no chr122"><b>z<small>^</small>z</b>
+		</td><td class="no chr120"><b>z<small>^</small>x</b>
+		</td><td class="no chr99"><b>z<small>^</small>c</b>
+		</td><td class="no chr118"><b>z<small>^</small>v</b>
+		</td><td class="no chr98"><b>z<small>^</small>b</b>
+		</td><td class="no chr110"><b>z<small>^</small>n</b>
+		</td><td class="po chr109"><b>z<small>^</small>m</b> line at top bol
+		</td><td class="ni"><b></b>
+		</td><td class="ni"><b><b></b></b>
+		</td><td class="no chr63"><b>z<small>^</small>?</b>
+		</td></tr>
+	<tr class="mode modez lead shift"><th>additional commands (z)<small>: bottom row shift</small></th>
+		<td class="no chr90"><b>zZ</b>
+		</td><td class="co ext vim6 folding chr88"><b>zX</b> re<wbr>apply f<wbr>olds
+		</td><td class="co ext vim6 folding chr67"><b>zC</b> close folds rec<wbr>curs<wbr>ive<wbr>ly
+		</td><td class="no chr86"><b>zV</b>
+		</td><td class="no chr66"><b>zB</b>
+		</td><td class="co ext vim6 folding chr78"><b>zN</b> fold norm<wbr>al
+		</td><td class="co ext vim6 folding chr77"><b>zM</b> close all folds
+		</td><td class="no chr60"><b>z&lt;</b>
+		</td><td class="no chr62"><b>z&gt;</b>
+		</td><td class="no chr63"><b>z?</b>
+		</td></tr>
+	<tr class="mode modez lead"><th>additional commands (z)<small>: bottom row </small></th>
+		<td class="po chr122"><b title="Zee Zenter (with a funny accent)">zz</b> line at center
+		</td><td class="co ext vim6 folding chr120"><b>zx</b> update folds
+		</td><td class="co ext vim6 folding chr99"><b>zc</b> close fold
+		</td><td class="co ext vim6 folding chr118"><b>zv</b> unfold cursor line
+		</td><td class="po chr98"><b>zb</b> line at bot. bol
+		</td><td class="co ext vim6 folding chr110"><b>zn</b> fold none
+		</td><td class="co ext vim6 folding chr109"><b>zm</b> fold more
+		</td><td class="no chr44"><b>z,</b>
+		</td><td class="po chr46"><b>z.</b> line at center bol
+		</td><td class="no chr47"><b>z/</b>
+		</td></tr>
+	</tbody>
+</table>
+
+
+<hr>
+
+<div class="help">
+	<div class="left">
+		<dl class="legend legend-types">
+		<dt class="ci">info
+			</dt><dd>Info command: shows/does something without altering anything.
+		</dd><dt class="pm">motion
+			</dt><dd>Moves the cursor, or defines the range for an operator (↕).
+		</dd><dt class="po">positioning
+			</dt><dd>Other movement (jumps, window (re)positioning).
+		</dd><dt class="co">command
+			</dt><dd>Direct action command.
+		</dd><dt class="mi">ins mode
+			</dt><dd>Enters Insert or Replace mode.
+		</dd><dt class="mo">mode
+			</dt><dd>Enters a different mode.
+		</dd><dt class="mv">vis mode
+			</dt><dd>Enters Visual or Select mode.
+		</dd><dt class="me">key cmd
+			</dt><dd>Additional key commands (click for overview).
+		</dd></dl>
+	</div>
+
+	<div class="right">
+		<dl class="legend legend-options">
+		<dt class="arg">key·
+			</dt><dd>Commands with a dot need a char argument afterwards.
+		</dd><dt class="motion">key↕
+			</dt><dd>Requires a motion afterwards, operates between cursor and destination.
+		</dd><dt class="ext vim6">vim
+			</dt><dd>Not in original Vi (assessment incomplete).
+		</dd><dt class="ext new vim7">vim7
+			</dt><dd>New in vim version 7.x.
+		</dd></dl>
+
+		<ul class="legend legend-set">
+		<li>keyboard <strong>map</strong> is
+			<em>qwerty</em>
+		</li><li><strong>keys</strong> are
+			<em>hidden if unassigned</em> by default
+		</li><li>default <strong>style</strong> is
+			<em>light</em>
+		</li></ul>
+	</div>
+</div>
+
+<p class="footer">
+	<a href="http://sheet.shiar.nl/" rel="start">sheet.shiar.nl</a>/vi.<a href="http://sheet.shiar.nl/source/vi.plp" rel="source" title="Written in Perl">plp</a>
+	<a href="http://git.shiar.nl/sheet.git/history/HEAD:/vi.plp" rel="vcs-git" title="Git repository">v1.3</a>
+	created by <a href="http://shiar.nl/" rel="author">Shiar</a> •
+	<a href="http://www.fsf.org/licensing/licenses/agpl-3.0.html" rel="license copyright" title="Licensed under the GNU Affero General Public License, version 3">AGPLv3</a>
+</p>
+
+
+</body></html>

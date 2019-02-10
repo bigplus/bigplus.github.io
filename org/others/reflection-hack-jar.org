@@ -1,0 +1,79 @@
+#+TITLE: 通过反射处理第三方bug
+
+#+BEGIN_SRC
+
+在使用第三方jar的时候，难免会碰到bug和第三方策略不符合我们要求的，比如说，poi等
+通过反射，获取jar内部变量，然后我们直接使用。。。(或者下载源码，修改，打包)
+记录大概的使用方式
+#+END_SRC
+
+以下为一个demo
+#+BEGIN_SRC java
+package com.yeepay.bigdata.eql.parser.xls;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+
+class Bean {
+    private static final Integer VALUE = 521;
+    private String hello = "jerry";
+
+
+    public static void main(String[] args) throws NoSuchFieldException, IllegalAccessException {
+
+        // 普通反射演示
+//        Bean bean = new Bean();
+//        Field filed = (Field) bean.getClass().getDeclaredField("hello");
+//        filed.setAccessible(true);
+//        String var1 = (String) filed.get(bean);
+//        System.out.println("e : " + var1);
+
+        //  修改静态常量
+        //获取Bean类的INT_VALUE字段
+
+        System.out.println(Bean.VALUE);
+        //获取Bean类的INT_VALUE字段
+        Field field = Bean.class.getDeclaredField("VALUE");
+        //将字段的访问权限设为true：即去除private修饰符的影响
+        field.setAccessible(true);
+    /*去除final修饰符的影响，将字段设为可修改的*/
+        Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.setAccessible(true);
+        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+        //把字段值设为200
+        field.set(null, 200);
+        System.out.println(Bean.VALUE);
+
+    }
+}
+
+#+END_SRC
+
+#+BEGIN_SRC
+
+
+注意到上述代码的中的静态常量类型是Integer——但是我们项目中实际需要修改的字段类型并不是包装类型Integer，而是java的基本类型int。
+
+原因
+经过一系列的研究、推测、搜索等过程，终于发现了原因：
+对于基本类型的静态常量，JAVA在编译的时候就会把代码中对此常量中引用的地方替换成相应常量值。
+参考：Modifying final fields in Java
+即对于常量 public static final int maxFormatRecordsIndex = 100 ,代码
+
+if( index > maxFormatRecordsIndex   ){  
+    index  =  maxFormatRecordsIndex ;  
+}       
+这段代码在编译的时候已经被java自动优化成这样的：
+
+if( index > 100){  
+    index = 100;  
+}  
+所以在INT_VALUE是int类型的时候
+
+System.out.println(Bean.INT_VALUE);  
+//编译时会被优化成下面这样：  
+System.out.println(100);  
+所以，自然，无论怎么修改Boolean.INT_VALUE，System.out.println(Bean.INT_VALUE)都还是会依然固执地输出100了。
+——这本身是JVM的优化代码提高运行效率的一个行为，但是就会导致我们在用反射改变此常量值时出现类似不生效的错觉。
+这大概是JAVA反射的一个局限吧——修改基本类型的常量时，不是太可靠。
+#+END_SRC

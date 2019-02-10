@@ -1,0 +1,26 @@
+===========================================
+报表
+git地址:http://172.17.103.2/git/dp/cactus
+文档位置:cactus/doc/new report交接文档.md
+===========================================
+sql实时计算
+git地址:http://172.17.103.2/git/dp/husky
+文档地址:husky/doc/husky-streamsql文档.md
+===========================================
+rest api:
+git地址:http://172.17.103.2/git/dp/cactus
+文档位置:cactus/doc/doggiex-service交接文档.md
+===========================================
+其他数据同步:
+包括(db22hbase,db22kafka,kafka2hbase,ycp-fix)
+git地址:http://172.17.103.2/git/dp/databus
+文档位置:databus/doc
+===========================================
+kafka部署:
+10.149.154.36(yp-mq01)
+10.149.154.37(yp-mq02)
+10.149.154.38(yp-mq03)
+
+目录:/opt/confluent-3.0.0
+在sbin中有我们写的启动脚本
+

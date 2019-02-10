@@ -1,0 +1,686 @@
+老是重新启动 emacs ，
+效率很低，其实可以不用重启Emacs就可以让新的配置生效
+用 emacs 打开 .emacs 文件，C-x C-e 光标前面的运行一条语句。立即生效。
+选择一个 region , M-x eval-region
+M-x load-file ~/.emacs
+M-x eval-buffer
+
+
+org
+过时了，但是可以参考
+http://www.linuxdiyf.com/viewarticle.php?id=189639
+http://blog.waterlin.org/articles/emacs-yasnippet-basic-usage.html
+
+官方
+http://joaotavora.github.io/yasnippet/snippet-development.html
+
+基本教程 video
+https://www.youtube.com/watch?v=-4O-ZYjQxks
+
+* 基本操作
+** 关于行操作
+   http://mp.weixin.qq.com/s?__biz=MzAwOTIxMjg0NQ==&mid=2654974011&idx=1&sn=6b7e125af3d888bc6a9f6cf015f853bc&chksm=80a816f9b7df9fef5b5fad2b847ee74ada889959701901bd05c74eaf878875b43af4a2b14401&mpshare=1&scene=23&srcid=1107vNbbIIwkZtQtqATV9WT7#rd
+** key-bindings basic
+   emacs idea
+   Porting some great extensions of emacs to Intellij IDEA. such as AceJump, CopyWithoutSelectAction.
+
+   AceJump
+
+   C-L 't' 'm' : Basic Word Jump | Type C-L, then type target char (eg. 't') to jump to, then type marker char (eg. 'm') to move caret.
+   C-J 't' 'm' : Basic Char Jump
+
+   AceJump, jump to special place
+
+   C-L ' ' 'm' : Jump to line end or start. | To show marker on line end and line start, type space ' ' as target char
+   C-L ',' 'm' : Jump to symbol key | Show markers on .{}(|`/\;.{}()[]?_=-+'"!@#$%^&*)_=
+
+   Copy without selection:
+
+   C-c w : Copy word
+   C-c s : Copy string
+   C-c l : Copy line
+   C-c b : Copy block between balanced { and }
+   C-c q : Copy quoted, such as abcd in "abcd"
+   C-c a : Copy to line beginning
+   C-c A : Copy to file beginning
+   C-c e : Copy to line end
+   C-c E : Copy to file end
+   C-c p : Copy paragraph
+   C-c u : Copy to paragraph begining
+   C-c d : Copy to paragraph end
+   C-c ' ' (w | s | l | q | a | A | e | E | p | u | d | b) : Type one space to cut related area
+   C-c ' ' ' ' (w | s | l | q | a | A | e | E | p | u | d | b) : Type two space to select related area
+
+   Replace target (word | line | paragraph) with text at current caret:
+
+   C-i C-w 't' 'm' : replace target word
+   C-i C-s 't' 'm' : replace target string
+   C-i C-l 't' 'm' : replace target line
+   C-i C-b 't' 'm' : replace target block
+   C-i C-q 't' 'm' : replace target quote
+   C-i C-a 't' 'm' : replace target to line begining
+   C-i C-e 't' 'm' : replace target char to line end
+   C-i C-p 't' 'm' : replace target paragraph
+   C-i C-u 't' 'm' : replace target to paragraph beginning
+   C-i C-d 't' 'm' : replace target to paragraph end
+
+   Obtain target (word | line | paragraph), then replace text at current caret:
+
+   C-o C-w 't' 'm' : obtain target word, then replace current word
+   C-o C-s 't' 'm' : obtain target string, then replace current string
+   C-o C-l 't' 'm' : obtain target line, then replace current line
+   C-o C-b 't' 'm' : obtain target block
+   C-o C-q 't' 'm' : obtain target quote
+   C-o C-a 't' 'm' : obtain target to line beginning
+   C-o C-e 't' 'm' : obtain target char to line end
+   C-o C-p 't' 'm' : obtain target paragraph
+   C-o C-u 't' 'm' : obtain target to paragraph beginning
+   C-o C-d 't' 'm' : obtain target to paragraph end
+
+   Copy target (word | line | paragraph), then insert text at current caret:
+
+   C-w C-w 't' 'm' : Copy target word, then insert at current caret
+   C-w C-s 't' 'm' : Copy target string, then insert at current caret
+   C-w C-l 't' 'm' : Copy target line, then insert at current caret
+   C-w C-b 't' 'm' : Copy target block
+   C-w C-q 't' 'm' : Copy target quote
+   C-w C-a 't' 'm' : Copy target to line beginning
+   C-w C-e 't' 'm' : Copy target char to line end
+   C-w C-p 't' 'm' : Copy target paragraph
+   C-w C-u 't' 'm' : Copy target to paragraph beginning
+   C-w C-d 't' 'm' : Copy target to paragraph end
+
+   Cut target (word | line | paragraph), then insert text at current caret:
+
+   C-x C-w 't' 'm' : Cut target word, then insert at current caret
+   C-x C-s 't' 'm' : Cut target string, then insert at current caret
+   C-x C-l 't' 'm' : Cut target line, then insert at current caret
+   C-x C-b 't' 'm' : Cut target block
+   C-x C-q 't' 'm' : Cut target quote
+   C-x C-a 't' 'm' : Cut target to line beginning
+   C-x C-e 't' 'm' : Cut target char to line end
+   C-x C-p 't' 'm' : Cut target paragraph
+   C-x C-u 't' 'm' : Cut target to paragraph beginning
+   C-x C-d 't' 'm' : Cut target to paragraph end
+
+
+   Highlight symbol:
+
+   C-, : hightlight-symbol-prev | Jump to prev occurrence of symbol that around caret
+   C-. : hightlight-symbol-next | Jump to next occurrence of symbol that around caret
+
+   Just one space:
+
+   C-M-Space : Make just one space around caret by Ctrl-Cmd-Space.
+
+   Separate AceJump copy,cut,select command:
+
+   C-i C-c 't' 'm' : Copy jump area
+   | C-i C-c means type C-i then continue type C-c
+   C-i C-x 't' 'm' : Cut jump area
+   C-i C-i 't' 'm' : Select jump area
+   C-i C-f 't' 'm' : Basic Jump alias
+
+   Copy and Replace:
+
+   C-I C-R (w | s | l | q | a | A | e | E | p | u | d) 't' 'm' : copy current word/line/paragraph, jump, then replace target word/line/paragraph
+   Change Notes
+
+   1.3.2
+1. fix wrong selection issue after "Cut target paragraph" command. C-x C-p 't' 'm'
+1.3.0
+1. C-i C-s 't' 'm': Select jump area ---changed_to----> C-i C-i 't' 'm'
+2. Add obtain(copy) remote target(w,l,e,p,b) and replace current(w,l,e,p,b) command:
+C-o C-(w | s | l | q | a | e | p | u | d | b) 3. extend C-i C-(w|l|p) to C-I C-(w | s | l | q | a | e | p | u | d | b)
+1.2.0
+1. Remove support for command: C-L 't' (c, x, p, P, s) 'm'
+instead using the command: C-i C-(c,x,s) 't' 'm'
+1.1.9
+Add action to copy current word | line | paragraph, jump, then replace target word/line/paragraph.
+C-I C-R (w | s | l | q | a | A | e | E | p | u | d) 't' 'm'
+1.1.8
+Add hightlight-symbol-prev and hightlight-symbol-next
+1.1.7
+Let cut to paragraph end(C-c ' ' d) and cut paragraph (C-c ' ' p) skip ending brackets.
+1.1.6
+Add Jump Word Action, and assigned to C-L. Jump Char Action assigned to C-J.
+1.1.5
+Changed AceJump's keymap to be more intuitive one. such as "C-L C-s" for select jump area.
+1.1.0
+Add copy without selection
+1.0
+Add basic AceJump function
+Vendor
+
+whunmr@gmail.com
+Size
+
+85.3 K
+
+
+--------------------------------------------------------------------------------
+** emacs基础
+   Emacs基础：字母大小写转换 2011-04-29 11:34:19
+   分类： LINUX
+
+   从光标位置开始，处理单词后半部分
+   capitalize-word (M-c) ;; 单词首字母转为大写
+   upcase-word (M-u)     ;; 整个单词转为大写
+   downcase-word (M-l)   ;; 整个单词转为小写（注意，这里是 META － l(* 小写字母 L)）
+   从光标位置开始，处理单词前半部分
+   negtive-argument; capitalize-word (M-- M-c) ;; 单词首字母转为大写
+   negtive-argument; upcase-word (M-- M-u)     ;; 整个单词转为大写
+   negtive-argument; downcase-word (M-- M-l)   ;; 整个单词转为小写
+   改变选定区域的大小写
+
+   downcase-region (C-x C-l) ;; 选定区域全部改为小写
+   upcase-region (C-x C-u)   ;; 选定区域全部改为大写
+   emacs
+
+   C-del     删除到行首
+
+
+* guide key
+  http://everet.org/guide-key.html
+* org
+  org
+  https://ogbe.net/blog/blogging_with_org.html
+  http://www.draketo.de/proj/orgmode-single-file/
+  http://www.john2x.com/blog/blogging-with-orgmode.html
+  http://orgmode.org/worg/org-glossary.html
+  http://bastibe.de/2013-11-13-blogging-with-emacs.html
+  C-c C-x C-v可以在orgmode里面直接预览图片
+  http://elvestar.com/notes/org-mode/
+* yasnippet
+** create a snippt
+** M-x yas-new-snippet
+** write ....
+** C-c C-c
+*** select mode
+*** select file
+** Test
+*** key
+*** tab/C-i
+
+* (global-set-key (kbd "C-o") #'aya-open-line)
+
+* 自动完成
+  company
+  auto-company
+
+  helm
+
+  ivy
+
+  ido
+
+  hippie expand
+
+* dired
+http://blog.csdn.net/bigmarco/article/details/6997159
+
+* projectile
+http://blog.csdn.net/bbeikke/article/details/8644011
+
+
+
+--------------------------------------------------------------------------------
+* auto-yasnippet
+http://jr0cket.co.uk/2016/07/spacemacs-adding-your-own-yasnippets.html
+http://oremacs.com/2015/01/30/auto-yasnippet/
+
+http://oremacs.com/2015/01/30/auto-yasnippet/
+* package manual
+http://blog.sina.com.cn/s/blog_569c4e040101es4w.html
+
+* mac key for emacs
+http://ergoemacs.org/emacs/emacs_hyper_super_keys.html
+
+
+
+
+* company-mode
+  https://www.emacswiki.org/emacs/CompanyMode
+  http://company-mode.github.io/
+** write simplest emacs company mode backend
+   http://sixty-north.com/blog/writing-the-simplest-emacs-company-mode-backend
+
+* auto-complete
+  https://github.com/auto-complete/auto-complete/blob/master/doc/manual.md
+
+  auto-complete文档
+
+  http://auto-complete.org/doc/manual.html
+  http://auto-complete.org/
+  http://emacswiki.org/emacs/AutoComplete
+
+  http://emacser.com/auto-complete.htm
+
+  ----------------------- ido vs ivy vs helm ----------------------------------
+* ido
+Interactive DO things => ido
+https://www.masteringemacs.org/article/introduction-to-ido-mode
+
+* helm
+  helm使用(注：高手博客)
+  http://tuhdo.github.io/helm-intro.html
+
+  http://tuhdo.github.io/
+
+* paste
+http://stackoverflow.com/questions/18691973/is-there-a-set-paste-option-in-emacs-to-paste-paste-from-external-clipboard
+* ivy
+----------------------- end --------------------------------------------------
+
+
+* 可以参考 http://xiaohanyu.me/oh-my-emacs/core/ome-completion.html
+
+* tutorial https://segmentfault.com/a/1190000003811296
+  http://elvestar.com/notes/org-mode/
+
+  --------------------------------------------------------------------------------
+* emacs python
+  http://codingpy.com/article/emacs-the-best-python-editor/
+  https://realpython.com/blog/python/emacs-the-best-python-editor/
+
+* summary 总结
+1. https://www.reddit.com/r/emacs/comments/3o36sc/what_do_you_prefer_ido_or_helm/
+2. 7 个高效的 eamcs 习惯
+http://www.lupaworld.com/article-228456-1.html
+3. 有用的emacs key-bingding
+https://www.zhihu.com/question/22149184
+4. 简单介绍emacs
+http://book.emacs-china.org/
+5. emacs 中国论坛
+https://emacs-china.org/t/multiple-cursors/665
+6. emacs 技术， 有elisp教程
+http://ergoemacs.org/emacs/emacs_templates.html
+7. emacs 国外技术博客
+http://oremacs.com/archive/
+8. emacs中国
+http://emacser.com/auto-complete_yasnippet.htm
+9. emacs minor
+emacs镜像
+https://mirrors.tuna.tsinghua.edu.cn/help/elpa/
+http://www.4gamers.cn/
+https://github.com/emacs-china/elpa
+10. emacs Japan
+https://github.com/emacs-jp
+11. sumarry
+emacs tuicool
+http://www.tuicool.com/articles/J7RRBbe
+12. emacs git repo
+http://savannah.gnu.org/git/?group=emacs
+
+* tutorial
+  http://smacs.github.io/elisp/14-file.html
+** elisp
+   https://www.gnu.org/software/emacs/manual/html_node/eintr/
+
+* emacs config
+  emacs 配置first入门：
+  https://www.zybuluo.com/qqiseeu/note/17692
+  https://www.zybuluo.com/qqiseeu/note/17692
+
+  http://floss.zoomquiet.io/data/20080520105737/index.html
+
+  实用emacs配置
+  http://blog.jobbole.com/47027/
+
+  http://my.oschina.net/freeblues/blog/89783
+
+  http://www.emacswiki.org/emacs/%E5%AE%89%E8%A3%85%E8%BD%AF%E4%BB%B6%E5%8C%85
+
+
+  还不错的配置https://github.com/lunaryorn
+  emacs 高手以及高手配置
+  主要有3个人
+
+  https://github.com/technomancy
+
+  purcell
+  https://github.com/purcell/emacs.d
+  个人博客http://www.sanityinc.com/articles/swimming-in-code/
+
+  prelude
+  https://github.com/bbatsov/prelude
+
+  https://www.zybuluo.com/qqiseeu/note/17692
+
+  小技巧 http://yuyang.farbox.com/notes/emacs.html#sec-1-13-1
+
+  不错的入门
+  http://ergoemacs.org/misc/list_of_emacs_starter_kits.html
+
+  简单配置
+  http://blog.csdn.net/zhuyingqingfen/article/details/8006675
+  http://www.thinksaas.cn/group/topic/262574/
+  https://www.zybuluo.com/qqiseeu/note/17692
+
+  国人高手
+  http://everet.org/thinking-of-emacs.html?utm_source=tuicool#toc6
+  http://everet.org/guide-key.html
+
+  缩进线的配置：
+  http://zhidao.baidu.com/link?url=HJBriEuvJtZRUdo-ThAk--rOcaDTowp-Hf5frXM8b6eUmgrO07ljYCVVQyeMAhiiG7iudWsz-qWH3qQ6csTEXK
+
+  *
+
+
+
+* emacs 启动慢
+  http://blog.chinaunix.net/uid-29985154-id-5002198.html
+
+  *
+
+* emacs ide
+  emacs ide
+  http://www.jesshamrick.com/2012/09/18/emacs-as-a-python-ide/
+
+  http://clojure-doc.org/articles/tutorials/emacs.html
+
+  快捷键
+
+  C-c j aceJumpMode
+  C-c J aceJumpMode
+
+
+  heml
+  M-y      show kill ring
+  M-x      helm-M-x
+
+  看看 duplicate插件
+
+  C-M down 复制当前行到下一行
+
+
+
+
+  --------------------------------------------------------------------------------
+  明天 emacs
+  http://tuhdo.github.io/emacs-tutor.html
+  http://tuhdo.github.io/emacs-tutor.html
+
+  https://www.zybuluo.com/qqiseeu/note/17692
+
+
+  http://emacser.com/dea.htm
+
+
+  http://everet.org/customize-emacs-gud-many-windows.html
+
+  http://emacser.com/some-elisp-fun.htm
+
+  http://www.tuicool.com/articles/J7RRBbe
+
+  http://blog.csdn.net/wangyihust/article/details/382859
+
+  国内教程：还不错：
+  http://www.cnblogs.com/robertzml/archive/2010/03/24/1692737.html#3013427
+
+  http://emacswiki.org/emacs/CopyingWholeLines
+
+  http://sachachua.com/blog/2015/01/thinking-make-better-use-yasnippet-emacs-workflow/
+
+  0x10 有趣的Emacs知识分享
+
+  http://whattheemacsd.com/
+  http://emacsrocks.com/
+  http://planet.emacsen.org/
+  https://github.com/emacs-tw/awesome-emacs
+  当然还有我的Blog：http://everet.org/tag/emacs/
+  https://github.com/emacs-tw/awesome-emacs
+
+
+
+
+
+
+
+
+  Prelude - Prelude is an enhanced Emacs 24 distribution that should make your experience with Emacs both more pleasant and more powerful.
+  Emacs-live - M-x start-hacking http://overtone.github.com/emacs-live/ .
+  Purcell’s .emacs.d - An Emacs configuration bundle with batteries included.
+  Emacs24 Starter Kit - A cleaner version of the literate starter kit based on Emacs24http://eschulte.github.com/emacs24-starter-kit/ .
+  Oh-My-Emacs - Provide an awesome, out-of-box, literate dotemacs for both newbies and nerds.http://xiaohanyu.github.io/oh-my-emacs .
+  Cabbage - Get the maximum out of emacs http://senny.github.com/cabbage/ .
+  Spacemacs - A slick Evil focused starter kit: do not fear RSI anymore.
+  Graphene - A set of defaults for Emacs, for refugees from GUI text editors.
+
+
+  --------------------------------------------------------------------------------
+  emacs
+  当前文件的路径
+
+
+  http://yuyang.farbox.com/notes/emacs.html#sec-1-13-1
+
+
+
+
+* share clip board
+  http://blog.csdn.net/nicekwell/article/details/40063817
+* emacs diff
+  emacs 对比
+  http://my.oschina.net/u/565856/blog/377429
+* emacs
+  http://emacsist.com/
+* emacs rock
+  https://github.com/emacs-china/Spacemacs-rocks/issues/5
+* emacs shell
+  http://www.howardism.org/Technical/Emacs/eshell-fun.html
+* emacs cheat
+  http://blog.jobbole.com/87872/
+http://www.rgrjr.com/emacs/emacs_cheat.html
+
+  http://blog.jobbole.com/tag/emacs/
+* emacs need
+  emacs need
+
+  直接mark set到多少行
+
+  删除空白
+
+  鼠标放大
+
+  mobile phone
+  popup function definition information when writing elisp
+
+  依据这个配置
+  http://blog.csdn.net/superwen_go/article/details/8235185
+
+  和我很像
+  http://kelvinh.github.io/wiki/emacs/
+
+  矩形操作
+  google emacs 矩形操作
+
+  windowsize 模式
+
+  emacs需求
+
+  emacs 格式化
+  选择多行
+  前向删除  C-k
+  http://www.jesshamrick.com/2012/09/18/emacs-as-a-python-ide/
+
+  http://emacser.com/some-elisp-fun.htm
+
+  http://ygc.name/
+
+* emacs plugins
+  emacs优秀插件
+
+  优秀插件：
+  https://github.com/flycheck/flycheck
+
+  dired模式(emacs文件管理器)
+  中文介绍http://blog.csdn.net/bigmarco/article/details/6997159
+  增强http://lifegoo.pluskid.org/wiki/EnhanceDired.html
+
+
+  高手扩展：http://tapoueh.org/emacs/cssh
+
+  有时间看看
+  http://wenku.baidu.com/link?url=yXjqWSsDyJfahBvt5o9Nq3so9PnpcF7i4zPH4fSqaLQD5Q043RfgYkqBEa5j7BZMVtuY9LocKGOdZ0UJJJMHN2FH3AsavAoqlNbLfATXFjW
+
+  emacs
+  superuser.com/questions/374799/emacs-like-meta-option-alt-key-functionality-in-os-x-lion ylzh web xz
+  http://easior.is-programmer.com/posts/43547.html?utm_source=tuicool&utm_medium=referral
+  http://blog.galeo.me/post/23467503436/path-environment-variable-on-mac-os-x-emacs-app
+  http://www.tuicool.com/articles/nUBzaa
+
+  --------------------------------------------------------------------------------
+  (require 'package)
+
+  (add-to-list 'package-archives
+  '("popkit" . "http://elpa.popkit.org/packages/"))
+
+  (package-initialize)
+
+  ;; Load plugin with `use-package`
+  (unless (package-installed-p 'use-package)
+  (progn
+  ;; If there's no use-package, this should be the first launch
+  ;; So, refresh the package list
+  ;; (package-refresh-contents)
+  (package-install 'use-package)))
+  (require 'use-package)
+  已婚的{ 狗好看 }  11:24:09
+  这个elpa可以换群里那哥们提供的popkit
+  已婚的{ 狗好看 }  11:24:19
+  就是这个
+  hyphen   11:25:53
+  http://elpa.codefalling.com/
+  hyphen   11:25:57
+  试试这个
+  太原-咧威  11:37:09
+  http://elpa.emacs-china.org/
+
+* emacs elisp
+  elisp
+  http://blog.jobbole.com/30614/
+
+  http://docs.huihoo.com/homepage/shredderyin/emacs_elisp.html
+
+  http://www.woola.net/bloglist
+
+  http://ergoemacs.org/emacs/elisp_buffer_file_functions.html
+
+
+
+  script
+  http://blog.csdn.net/loveaborn/article/details/18669351
+
+* emacs introduction
+  很酷的 emacs 介绍
+  http://www.tuicool.com/articles/J7RRBbe
+
+  牛逼到家了，必须实现。
+
+  向这个学习
+  http://www.iplaysoft.com/sublimetext.html
+
+
+  --------------------------------------------------------------------------------
+  Emacs 不重启，生效配置
+
+  C-x C-e 执行光标前面的一条语句
+
+  选择一个 region, M-x eval-region
+
+  M-x load-file ~/.emacs
+  M-x eval-buffer
+
+  以上方法都是立即生效。
+
+  例：在任何一个文件中，输入以下语句：
+
+  (setq frame-title-format "emacs@%b")
+
+  把光标停在在这条语句后面， C-x C-e ，即可看到 Emacs 的标题栏上发生了变化。
+
+  这种方法非常适合调试小的配置
+
+* emacs version
+emacs版本
+Emacs 是我在 Ubuntu 下最主要的开发工具，在我去年开始的从 Ubuntu 往 Mac OS X 迁移的过程中，找不到一款真正好用的 Emacs for Mac 是我完成迁移的最大困扰。
+
+其实，Emacs for Mac 各种版本也不少，但似乎都不是基于最新的 23.x 版本的（或者说不是纯粹的 Emacs），而我恰恰需要的就是 Emacs CVS 中的最新版本。
+
+目前我所找到的 Emacs for Mac:
+
+Emacs for Mac OS X : 基于2009-07-30的 Emacs 23.1 版本，号称“Pure Emacs, No Extras, No Nonsense”；
+atomized.org Cocoa Emacs 23 nightly CVS builds : 每天都会编译新的 CVS 版本，和原生 Emacs 极其接近；
+Aquamacs : 基于 Emacs 22.x 版本，附带大量扩展包；（2009-07-30他们发布了一个基于 Emacs 23.1 + Cocoa 的预览版，不过我也不想再次试用了）
+CarbonEmacsPackage : Emacs 22.x 版本的 Carbon 编译包；
+Emacs for MacOS X : 基于Emacs 21.x 版本；
+
+
+
+rm /usr/bin/emacs
+rm -rf /usr/share/emacs
+brew install --cocoa emacs
+ln -s /usr/local/Cellar/emacs/24.3/Emacs.app /Applications/
+—use-git-head —HEAD
+rm /usr/bin/emacs
+rm -rf /usr/share/emacs
+brew install --cocoa emacs
+ln -s /usr/local/Cellar/emacs/24.3/Emacs.app /Applications/
+
+* emacs clojure
+clojure配置emacs
+http://clojure-doc.org/articles/tutorials/emacs.html
+
+https://github.com/technomancy
+
+* emacs command line
+Running Emacs.app from the command line
+
+主要：http://emacsformacosx.com/tips
+
+http://stackoverflow.com/questions/10171280/how-to-launch-gui-emacs-from-command-line-in-osx
+
+emacs启动
+主要：http://emacser.com/daemon.htm
+ec -c
+
+不重要
+http://blog.chinaunix.net/uid-26185912-id-3317800.html
+
+开机启动
+http://blog.chinaunix.net/uid-26185912-id-3317800.html
+
+
+在emacs中启动server(m-x server-start)
+在其他地方用emacsclient打开文件
+emacsclient 文件 的方式打开文件的话，需要在开启server的emacs窗口进行编辑，编辑完成保存之后使用 c-x #退出，并通知client端编辑结束。
+emacsclient -t 文件 方式的话，则在当前终端开启emacs窗口进行编辑。
+http://blog.csdn.net/yinchao27/article/details/8899911
+
+--------------------------------------------------------------------------------
+waketime
+https://wakatime.com/help/plugins/emacs
+
+* emacs neotree
+https://github.com/jaypei/emacs-neotree
+简单的说：neotree是emacs的一个插件，这个插件实现的功能是在emacs左侧显示文件导航树
+http://blog.csdn.net/yums467/article/details/50396900
+http://blog.csdn.net/sjhuangx/article/details/5128868
+* cmd log
+http://stackoverflow.com/questions/9602640/how-to-view-history-of-various-commands-in-emacs
+
+* 
+
+<!DOCTYPE html>
+<html>
+  <head><title>Practitle Vim</title></head>
+  <body><h1>vim</hi></body>
+</html>
+
+* emacs config
+http://coldnew.github.io/coldnew-emacs/#orgheadline154
+
+https://github.com/coldnew
+
+http://blog.binchen.org/posts/emacs-speed-up-1000.html

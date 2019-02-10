@@ -1,0 +1,82 @@
+@import url(base.css);
+@import url(terse.css) all and (max-width: 79em);
+
+a:active, a:visited:active,
+a:hover,  a:visited:hover {color: inherit}
+
+body dl.legend-options dt {background: #EEE}
+
+td,
+.X  {background: #EEE}
+.l0 a, .l0 a:visited,
+.l0 {background: #BBB; color: #FFF; text-shadow: 0 0 4px #000}
+.l1 a, .l1 a:visited,
+.l1 {background: #000; color: #FFF}
+.l2 a, .l2 a:visited,
+.l2 {background: #444; color: #FFF}
+.l3 {background: #AAA; color: #000}
+.l4 {background: #DDD; color: #000}
+.l5 {background: #EEE; color: #000}
+
+.p0:not(.p)           {color: #888; opacity: 1}
+.p0:not(.p).l0        {color: #DDD}
+   .p::after {color: #444}
+.l0.p::after,
+.l2.p::after,
+.l1.p::after {color: #CCC}
+   .p::after {content: '‼'}
+.p1.p::after,
+.p0.p::after {content: '!'}
+
+.pm, .g1 {background: #FFF}   /* motion */
+.po, .g2 {background: #DDD}   /* window */
+.co, .g3 {background: #AAA}   /* command */
+.ci, .g0 {background: #777}   /* info */
+.cp, .g4 {background: #AAA; color: #FFF}   /* open */
+.mi, .g5 {background: #888; color: #FFF}   /* insert mode */
+.mv, .g6 {background: #444; color: #FFF}   /* visual mode */
+.mo, .g7 {background: #000; color: #FFF}   /* mode */
+.me, .g8 {background: #000; color: #AAA}   /* key mode */
+
+.keys td[onclick]:hover,
+.keys td a:hover,
+.l:hover, .l:hover a, .l:hover a:visited,
+.X:hover {
+	background: #FFF;
+	color: #000;
+	border-color: #444;
+}
+.keys td[onclick]:hover,
+.keys td a:hover {
+	background: #888; /* command (.co) lookalike */
+}
+
+body dl.legend dt.new,
+body .keys td.new {
+	opacity: 1;
+	border-color: #888;
+}
+
+.Co {background: #FFF} /* private */
+
+/* code syntax */
+#source pre    { color: #444 }
+.sy-comment    { color: #888; text-shadow: #888 0 0 1em }
+.sy-constant   { color: inherit; font-style: italic }
+.sy-type,
+.sy-identifier { color: #000 }
+.sy-statement  { color: #000 }
+.sy-preProc    { color: #000 }
+.sy-special    { color: #000; font-style: italic }
+.sy-error      { font-weight: bold; background-color: #000; color: #FFF }
+.sy-todo       { background-color: #CCC }
+
+/* continents */
+.c-af {background: #000; color: #FFF} /* .g3 */
+.c-eu {background: #333; color: #FFF} /* .g4 */
+.c-as {background: #666; color: #FFF} /* .g6 */
+.c-an {background: #999; color: #FFF} /* .g7 */
+.c-oc {background: #BBB}              /* .g8 */
+.c-sa {background: #999}              /* .g0 */
+.c-na {background: #666}              /* .g1 */
+

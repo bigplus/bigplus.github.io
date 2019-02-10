@@ -1,0 +1,56 @@
+#+TITLE: 策略模式
+
+* 基本定义与属性
+** 属于行为性
+
+* UML与类图关系
+
+* 优缺点
+
+* 使用场景
+
+* demo
+#+BEGIN_SRC java
+/**
+ * Caculator
+ *
+ * @author zhuyu_deng (zhuyu.deng@foxmail.com)
+ * @date 3/13/16
+ */
+public enum Caculator {
+
+    ADD("+") {
+
+        public int exec(int a, int b) {
+            return a + b;
+        }
+    },
+    SUB("-") {
+        @Override
+        public int exec(int a, int b) {
+            return a - b;
+        }
+    };
+
+    public String value;
+
+    private Caculator(String v) {
+        this.value = v;
+    }
+
+    public String getValue() {
+        return this.value;
+    }
+
+
+    public abstract int exec(int a, int b);
+
+    public static void main(String[] args) {
+        int x = Caculator.ADD.exec(10, 5);
+        System.out.println(x);
+    }
+
+
+}
+
+#+END_SRC

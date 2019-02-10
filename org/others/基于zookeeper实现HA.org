@@ -1,0 +1,74 @@
+#+TITLE: 基于zookeeper实现HA
+#+AUTHOR: Jerry
+#+OPTIONS: ^:nil
+
+* 问题描述
+我们所知道的多数分布式系统都采用了 *Master/Slavers* 这种典型的主从架构，少部分采用了去中心化的设计.如:Elasticsearch。\\
+凡是Master/Slavers这种架构，Master节点都会涉及到单点故障 _（SPOF：Single Point of Failure）_ 。\\
+已知的HBase， Spark， Yarn等都采用了基于Zookeeper实现主备切换，以此来避免单点故障。\\
+*在此我们希望理解并提取一个通用的框架出来为大家服务。*\\
+总结：为了避免单点故障，实现HA。\\
+
+* 实现方案
+** zookeeper基本理论
+ 回顾下什么是zookeeper
+  
+  /*经典定义* : ZooKeeper是一个分布式的，开放源码的分布式应用程序协调服务，它包含一个简单的原语集，分布式应用程序可以基于它实现同步服务，配置维护和命名服务等。在分布式应用中，由于工程师不能很好地使用锁机制，以及基于消息的协调机制不适合在某些应用中使用，因此需要有一种可靠的、可扩展的、分布式的、可配置的协调机制来统一系统的状态。Zookeeper的目的就在于此./  \\
+  +*PS:至于zookeeper的工作原理，不是本文讨论的重点，在此仅介绍和本文相关部分。其他具体信息请自行google之.*+
+
++ Zookeeper最基础的东西应该是Paxos算法，一个基于消息传递的一致性算法。ZK很巧妙的用目录树作为数据结构实现了Paxos算法。
++ Zookeeper=文件系统+通知机制（客户端注册监听它关心的目录节点，当目录节点发生变化（数据改变、被删除、子目录节点增加删除）时，zookeeper会通知客户端。）
++ Zookeeper内部数据模型：
+    #+CAPTION: zookeeper数据模型
+    [[./img/zk-dm.png]]
+    
++ 每个子目录项如 hadoop-ha 都被称作为 znode，并且其有一个唯一的路径标识，如/nameservice1节点的标识就为/hadoop-ha/nameservice1和文件系统一样，我们能够自由的增加、删除znode，在一个znode下增加、删除子znode，唯一的不同在于znode是可以存储数据的。(ps:但是EPHEMERAL类型的节点不能有子节点)\\
+    有四种类型的znode：\\
+    PERSISTENT-持久化目录节点,客户端与zookeeper断开连接后，该节点依旧存在\\
+    PERSISTENT_SEQUENTIAL-持久化顺序编号目录节点,客户端与zookeeper断开连接后，该节点依旧存在，只是Zookeeper给该节点名称进行顺序编号\\
+    EPHEMERAL-临时目录节点,客户端与zookeeper断开连接后，该节点被删除\\
+    EPHEMERAL_SEQUENTIAL-临时顺序编号目录节点,客户端与zookeeper断开连接后，该节点被删除，只是Zookeeper给该节点名称进行顺序编号\\
+
+- Zookeeper 的客户端和服务器通信采用长连接方式，每个客户端和  服务器通过心跳来保持连接，这个连接状态称为 session，如果 znode 是临时节点，这个 session 失效，znode 也就删除了
+- znode 可以被监控，包括这个目录节点中存储的数据的修改，子节点目录的变化等，一旦变化可以通知设置监控的客户端，这个功能是zookeeper对于应用最重要的特性，通过这个特性可以实现的功能包括配置的集中管理，集群管理，分布式锁等等。  
+
+** HA原理架构图
+#+BEGIN_SRC 
+Note:
+接下来要涉及到的在zookeeper实现HA中，必须用到znode的临时顺序编号目录节点。
+所以，总结起来如果做HA：所有机器创建临时顺序编号目录节点，每次选取编号最小的机器作为master就好。
+#+END_SRC
+
+    #+CAPTION: zookeeper实现HA原理图
+    [[./img/zookeeper-ha.png]]
+
+** HA实现流程图
+*接下来给出的流程图非常简单直观的表达了如何通过zookeeper实现热切*
+    
+    #+CAPTION: zookeeper实现HA流程图
+    [[./img/zkha.png]]
+
+#+BEGIN_SRC 
+
+1. 启动服务时时注册一个临时的有序的子节点（注意，一定要是临时有序的，即EPHEMERAL_SEQUENTIAL类型节点），将自己注册的子节点保存在一个全局变量中
+2. 获取父节点下所有的子节点，排序，然后将自己的节点与最小子节点比较，如果相等则成为主机，不相等则等待。
+3. 实现Watcher接口，当父节点发生变化时，执行 1、2
+    
+#+END_SRC
+
+至此，关于如何用zookeeper实现主备切换（HA）的设计思路已经完成。
+关于如何实现呢？\\
+我们可以利用Zookeeper原始API来实现。\\
+在此我们推荐Curator这个框架，它为我们很好的封装了Zookeeper的基本操作，同时屏蔽了繁琐的Zookeeper连接等操作。\\
+CuratorFramework简介\\
+CuratorFramework极大的简化了ZooKeeper的使用，它提供了high-level的API，并且基于ZooKeeper添加了很多特性，包括\\
+1.自动连接管理：连接到ZooKeeper的Client有可能会连接中断，Curator处理了这种情况，对于Client来说自动重连是透明的。\\
+2.简洁的API：简化了原生态的ZooKeeper的方法，事件等；提供了一个简单易用的接口。\\
+3.Recipe的实现（更多介绍请点击Recipes）：\\
+ - Leader的选择\\
+ - 共享锁\\
+ - 缓存和监控\\
+ - 分布式的队列\\
+ - 分布式的优先队列\\
+
+基于Curator实现HA，100行代码就可以搞定，在此不做代码描述，站在的巨人的肩膀上，谁又会去重复发明轮子呢？

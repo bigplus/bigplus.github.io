@@ -1,0 +1,5 @@
+* java.lang.OutOfMemoryError:
+  Unable to create new native thread
+  https://plumbr.eu/outofmemoryerror/unable-to-create-new-native-thread
+  
+* http://www.mastertheboss.com/jboss-server/jboss-monitoring/how-to-solve-javalangoutofmemoryerror-unable-to-create-new-native-thread

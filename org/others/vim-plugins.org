@@ -1,0 +1,8 @@
+vim shell
+http://www.cnblogs.com/wuchanming/p/4507428.html
+
+vim plugins
+"vim-surround"
+
+trailing-whitespace 
+tp://www.wklken.me/posts/2015/06/07/vim-plugin-trailing-whitespace.html 

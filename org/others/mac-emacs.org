@@ -1,0 +1,27 @@
+* exec-path
+  问题描述:
+  http://www.flycheck.org/en/latest/user/installation.html
+
+  在 emacs --daemon 的时候会报错
+  
+You appear to be setting environment variables ("PATH") in your .bashrc or .zshrc: those files are only read by interactive shells, so you should instead set environment variables in startup files like .profile, .bash_profile or .zshenv.  Refer to your shell’s man page for more info.  Customize ‘exec-path-from-shell-arguments’ to remove "-i" when done, or disable ‘exec-path-from-shell-check-startup-files’ to disable this message.
+
+Important
+For a GUI Emacs on MacOS we recommend to install and configure exec-path-from-shell to make Emacs use the proper $PATH and avoid a common setup issue on MacOS.
+
+answer
+
+https://github.com/syl20bnr/spacemacs/issues/3920
+具体就是把 .zshrc 中的PATH信息迁移到 .zshenv 
+
+* 安装 emacs 
+http://www.tuicool.com/articles/2M7zQzU
+https://emacsformacosx.com/
+
+* 使用 ispell : brew install ispell
+brew install aspell
+具体看 spacemacs 的文档
+
+Q
+1. 什么是ispell， aspell
+2. dictionary 是什么，怎么配置

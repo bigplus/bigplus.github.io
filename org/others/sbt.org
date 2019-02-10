@@ -1,0 +1,23 @@
+http://blog.csdn.net/cjuexuan/article/details/51148002
+
+发布
+publishM2
+http://stackoverflow.com/questions/29534082/how-to-use-command-publish-local-of-sbt-to-maven-repo
+
+使用本地m2
+http://stackoverflow.com/questions/40720618/sbt-local-m2-repository
+
+http://highscalability.com/blog/2014/2/26/the-whatsapp-architecture-facebook-bought-for-19-billion.html
+
+
+
+
+
+
+
+
+sbt publish
+
+http://blog.csdn.net/matrix_google/article/details/62891564
+
+https://www.afoo.me/posts/2014-07-11-publish-sbt-project-to-maven-repo.html

@@ -1,0 +1,63 @@
+#+TITLE:Longest Plateau
+#+AUTHOR: Jerry
+#+OPTIONS: ^:nil
+
+* problem about Longest Plateau
+  已知一个已经从小到大排序的数组，这个数组中得一个平台就是连续的值相同,写个程序，把数组中最长的平台找出来.
+举个例子：
+#+BEGIN_SRC
+1,2,2,3,3,3,4,5,5,6
+#+END_SRC
+有如下平台 \\
+1 \\
+2,2 \\
+3,3,3 \\
+4 \\
+5.5 \\
+6 \\
+---------------------------------
+3.3.3，就是最长平台。\\
+
+* source_code
+#+BEGIN_SRC java
+/**
+ * @author Jerry Deng
+ * @date 12/19/14.
+ */
+
+import static java.lang.System.out;
+
+public class LongPlateau {
+
+    private int[] x;
+    private int len;
+
+    public LongPlateau(int[] arr) {
+        this.x = arr;
+        this.len = arr.length;
+    }
+
+    protected int getLongestPlateau() {
+        int length = 1;         /* plateau length >= 1.     */
+        for (int i = 1; i < len; i++)
+            if (x[i] == x[i - length])
+                length++;
+        return length;
+    }
+
+    public static void main(String[] argsNN) {
+        int x[] = {3, 4, 4, 7, 8, 9, 9, 9, 9, 10};
+        int n = x.length;
+
+        LongPlateau longPlateau = new LongPlateau(x);
+
+        out.println("\nLongest Plateau Computation Program");
+        out.println("\n===================================");
+        out.println("\n\nThe Given Array :");
+        for (int i = 0; i < n; i++)
+            out.printf("%5d", x[i]);
+        out.printf("\n\nLength of the Longest Plateau is %d", longPlateau.getLongestPlateau());
+    }
+}
+
+#+END_SRC

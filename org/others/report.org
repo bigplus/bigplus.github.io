@@ -1,0 +1,5326 @@
+#+AUTHOR: Jerry
+#+TITLE: report
+
+* 项目说明
+  NewReport定位为：提供了给运营，产品，数据分析人员自主的，灵活的，多维度数据查询的服务。作为数据仓库顶层的一个应用，具有敏感数据行列级别权限控制，同比环比，以及自定义时间范围对比，用户偏好设置，自动邮件推送订阅，广播式权限授权，数据撰取，查询逻辑自定义等特点。
+* 设计说明
+** 总体架构设计
+   NewReport作为数据仓库之上的主要数据分析工具，对用户提供了直接操作说明。采用前后端分离web架构方式。
+#+CAPTION: 功能模块总览
+[[./img/report.png]]
++ 前端：采用纯html+css+js的方式，同时采用handerbars做前端模块抽象,是JavaScript一个语义模板库，通过对view和data的分离来快速构建Web模板.
+  + 查询下载模块，邮件模块，定时模块，数据撰取，偏好设置，同比环比，广播式权限设置 
++ 后端：采用Java研发report-core核心模块，report-core的核心抽象为底层数据定位，多维度查询，流式下载提供支持。
+  + report-core核心逻辑抽象：定义资源描述，解析sql，执行查询下载
+  + 行列级别权限控制
+** 模块设计
+*** 核心逻辑抽象
+   查询逻辑:
+#+CAPTION:查询逻辑展示
+[[./img/report-query-logic.png]] 
+*** 报表配置功能
+    每个报表在数据库记录基本信息,并使用一个xml文件进行详细的配置 
+配置内容主要包括
+
+***** 报表基本信息(报表中文名称,报表别名,报表的父级菜单,是否支持下载和对比功能等)
+***** 进行sql查询时的表关联方式
+***** 可查询的列(每一列包括执行sql使用的名称,中文名称和英文别名等)
+***** 可进行的过滤条件(每个过滤条件会在sql中增加一个where条件,过滤信息包括过滤的列,过滤的方式in,like,range等,以及页面提供的输入组件textarea,input等)
+配置文件保存在/etc/daportal/中 
+配置文件样例:
+#+BEGIN_SRC XML
+<report>
+  <tables factTable="CUSTOMERINFO" as="CU">
+    <lookup lookupTable="CUSTOMERRELATIONSHIP" as="REL" joinType="left">
+  </tables>
+  <allcolumns comp="0">
+    <columns name="维度1">
+      <column text="信用账户授信额度" sqlField="CU.CREDITLIMIT" type="sum" decimals="2" comp="dimen"/>
+      <column text="代理商类型" sqlField="CU.AGENTTYPE" type="group" comp="dimen"/>
+    </columns>
+    <columns name="维度2">
+      <column text="网址" sqlField="CU.WEBURL" type="group" comp="dimen"/>
+      <column text="省" sqlField="CU.PROVINCE" type="group" comp="dimen"/>
+    </columns>
+  </allcolumns>
+  <querys hideButton="4" download="1">
+    <query text="代理商编号" queryType="in" labelType="textarea" must="0">
+      <data key="limit" value="0"/>
+    </query>
+    <query text="商户编号" queryType="in" labelType="textarea" must="1">
+      <data key="limit" value="100"/>
+    </query>
+  </querys>
+</report>
+#+END_SRC
+*** 权限管理
+**** 报表系统权限主要分为用户-角色-功能
+
+***** 功能
++ 每个功能对应一个报表配置
++ 在前端,每个查询页面即为一个功能
++ 在系统后台,每个功能对应一个xml配置文件
+***** 角色
++ 每个角色可以分配多个功能的权限
++ 角色不但可以指定功能的权限,同时可以指定功能的列的权限和行的权限
+***** 用户
++ 每个用户可以分配多个角色的权限
++ 用户也可以定义行权限,用户的行权限将覆盖角色中定义的行权限
++ 每个用户有自己的登录账号和密码
+**** 报表系统中用户类型分为普通用户,管理员和超级管理员
+***** 普通用户
+只能查询数据
+***** 管理员
++ 可以查询数据
++ 可以创建角色,但是角色的权限范围在自己的查询权限以内
++ 只能创建普通用户,给用户分配角色只能使用自己创建的角色
+***** 超级管理员
++ 可以查询数据
++ 可以创建角色,角色权限任意给
++ 可以创建任意类型的用户(包括超级管理员),并使用和编辑任何人创建的角色
+*** 邮件推送
+    邮件推送主要包含了定时组件和邮件发送组件,这两个组件将迁移到基础设施中
++ 定时使用quartz定时器,将配置的定时内容转化为cron表达式进行定时任务
++ 定时触发时,读取报表查询的配置,调用查询功能下载文件到本地tmp目录下,然后调用邮件功能将文件发送到指定邮箱
+*** 偏好配置
+    为了方便数据分析人员的查询,可以将查询的条件进行保存,以后查询的时候可以便捷的加载查询条件
++ 每个偏好保存一个用户在一个功能页面进行的所有条件选择(包括选择的列和过滤条件)
++ 偏好配置保存在数据库中,加载的时候从数据库读取
++ 每次点击查询时会保存偏好配置到cookie中,打开页面初始化时使用cookie中的偏好配置
+*** 对比
+    将时间控件分割为多个时间控件,每次查询的时候都同时进行多次查询,然后将查询的数据结果中维度相同的数据进行组合,即可进行数据对比
+***** 配置对比功能
+使用对比功能需要再功能配置中打开对比功能,并配置每个列在对比中的类型,一共有一下4个类型
+
++ time,时间字段,有且只有一个,这个字段的时间选择控件将可以使用多个时间控件,从而选择多个时间段进行对比
++ demon,维度字段,对比的两次查询,维度相同的会合并成一行数据,如基础产品,商户名称等
++ num,数字或者度量字段,这个字段的值会进行对比,并计算差值以及差值的百分比,比如收入,交易笔数等
++ none,其他特殊字段,不是进行对比的度量,也不能像维度一样相同的合并成一行数据,比如在日统计中的月份,月份即使不同,但是任然是相同的维度,需要将数据进行合并成一行进行对比
+***** 对比查询
+在查询时,因为是流式输出,需要多个查询并行执行,按维度组合进行排序,所有查询中维度和最小的输出合并,并查询吓一跳,其他查询保持当前行
+*** 数据库设计
+    五.数据库设计
+
+1.权限部分
+
+1.1 auth_function(功能表)
+
+每行数据记录一个功能,功能的详细内容记录在xml文件中
+
++ id:主键(自增长)
++ reportid:报表id,对应xml文件的文件名
++ reportname:报表的中文名
++ view:报表如何显示(用来兼容以前的版本,在v3.x版中,这个字段固定为report)
++ pid:父菜单id,如果自己是父菜单,那么pid=null
+1.2 auth_role(角色表)
+
+每行数据记录一个角色信息
+
++ id:主键(自增长)
++ coment:角色的中文名称
++ createUid:创建这个角色的用户id
+1.3 auth_user(用户表)
+
+每行记录一个用户信息
+
++ id:主键(自增长)
++ username:用户名(用于登陆)
++ password:密码(密文存储)
++ fullname:用户的中文名字
++ parameter:在旧版本中以json格式存储用户的其他参数,现在固定用"{}"
+1.4 auth_r2f(关联角色可用的功能权限)
+
+关联角色可以操作的功能的权限
+
++ id:主键(自增长)
++ fid:功能id
++ rid:用户id
++ type:在旧版本中使用,现在固定为"function"
+1.5 auth_r2column(关联角色可用的列权限)
+
+关联角色可以查询的列的权限
+
++ id:主键(自增长)
++ rid:用户id
++ fid:功能id
++ name:列名
+1.6 auth_filter(关联用户的行权限,已没有使用)
+
+1.7 auth_parr(关联可用的行权限)
+
++ id:主键(自增长)
++ pid:关联的表的id
++ type:关联的表类型,可使用function,role,user
++ dataType:数据类型,可使用in,range
++ value:权限的值,in:逗号分割的多个值,range:逗号分割的两个值,表示范围
+1.8 auth_u2r(关联用户可用的角色权限)
+
++ id:主键(自增长)
++ rid:角色id
++ uid:用户id
+2.偏好配置
+
+2.1 preferrence
+
+每行记录一个偏好
+
++ id:主键(自增长)
++ userid:用户id
++ fid:功能id
++ name:偏好的名称
++ value:保存选择的列
++ filters:保存选择的过滤条件
+3.邮件推送
+
+3.1 pushmail
+
+每行记录一个需要推送邮件的任务
+
++ id:主键(自增长)
++ userid:用户id
++ formData:所有查询参数,在推送邮件时,使用formData中的参数作为查询条件进行查询
++ sendTime:发送邮件的时间
++ mailUrl:发送邮件的邮箱地址,多个用";"分割
++ mailName:邮件的主题
++ queryDataName:需要动态替换的时间字段(比如需要每次发送昨天的查询等情况)
++ queryDataType:时间字段具体替换的规则(昨天,前天,上个月等,可灵活配置)
+4.日志信息(保留所有的原始访问请求参数,保留生成的查询sql,每次查询时的系统内存等信息)
+
+4.1 log
+
++ id:主键(自增长)
++ userid:用户id
++ type:日志的中文说明分类(比如sql,内存等)
++ msg:日志的详细信息(具体的sql语句,具体的内存情况等)
++ error:如果有报错,保存Exception的堆栈信息
++ time:日志输出时间
++ level:日志级别(INFO,ERROR等)
+
+* 使用说明
+** 数据分析人员
+*** 概要
+下图从宏观上展示了整个报表引擎的使用
+#+CAPTION:报表功能区总览
+[[./img/report-all.png]]
+*** 查询
+登陆用户后即可进入报表进行查询
+**** 角色切换
+同一个用户可以使用多个角色,每个角色会有不同的查询权限
+#+CAPTION:报表角色切换
+[[./img/report-role.png]]
+**** 对比(同比环比)
+如果时间选择上又使用对比,那么这个功能可以进行对比查询
+可以自定义进行对比的个数,以及每个对比的时间范围
+
+#+CAPTION:报表对比1（同比环比）
+[[./img/report-cmp1.png]]
+#+CAPTION:报表对比2（同比环比）
+[[./img/report-cmp2.png]]
+**** 列的显示顺序和排序
+点击拖拽已选择的列,可以交换列的顺序
+查询结果前面的列会进行排序
+
+#+CAPTION:报表列的显示与排序
+[[./img/report-sort.png]]
+**** 数据下载
+支持将查询结果下载到文件,支持csv和excel的格式
+#+CAPTION:报表数据下载
+[[./img/report-download.png]]
+
+**** 数据钻取
+在已经查询的结果中,可以快速的增加查询条件,从而钻取数据
+
+#+CAPTION:报表数据钻取
+[[./img/report-drilldown.png]]
+*** 偏好设置
+可以将当前选择的字段和过滤条件进行保存,方便下次使用
+
+#+CAPTION:报表数据偏好设置
+[[./img/report-preference.png]]
+*** 邮件推送
+可以将当前的查询添加到邮件推送,在指定时间进行查询,并将结果保存为文件,发送到指定邮箱
+
+#+CAPTION:报表数据推送
+[[./img/report-push.png]]
+** 管理员
+*** 角色管理
+可以对角色进行增删改,并编辑角色的权限(角色的权限仅限于当前管理员的权限范围以内)
+
+#+CAPTION:报表角色管理
+[[./img/report-admin.png]]
+*** 用户管理
+可以对用户进行增删改,不同管理员之间的用户互相隔离
+用户也可以编辑行权限,用户的行权限会覆盖角色的行权限
+
+#+CAPTION:报表用户管理
+[[./img/report-user.png]]
+** 超级管理员
+*** 角色和用户管理
+超级管理员可以管理所有的角色和用户,并使用所有报表的权限
+
+#+CAPTION:报表用户添加
+[[./img/report-add.png]]
+*** 功能管理
+超级管理员可以对功能进行编辑
+**** 功能基本信息
+功能基本信息包括功能名,以及是否支持下载和对比等
+
+#+CAPTION:报表用户行功能添加
+[[./img/report-line.png]]
+#+CAPTION:报表用户管理
+[[./img/report-root.png]]
+**** 表关联设置
+生成查询sql时使用的表关联方式
+
+#+CAPTION:报表表关联
+[[./img/report-tbl-join.png]]
+**** 查询字段设置
+在查询手会查询的列,以及他们在界面显示的中文名称
+类型
+sum:度量类型,查询时会对字段进行sum操作
+group:维度类型,查询时会对字段group by操作
+none:其他类型,查询时候不做额外的操作
+对比类型,需要在基本信息中开启对比功能
+time:时间字段,有且仅有一个
+demon:维度字段
+num:度量字段
+
+#+CAPTION:报表查询列
+[[./img/report-column-join.png]]
+**** 查询条件设置
+中文名称
+查询类型:
+in:枚举查询
+like:模糊匹配
+时间(天和月)
+范围:数字范围
+页面类型
+in可以使用复选框和输入框
+like只能使用输入框
+时间天和月有专门的时间控件
+无:页面不显示,在配置权限的时候使用
+参数
+可以显示查询个数,时间范围等
+在复选框时,需要选择使用的字典表
+
+#+CAPTION:报表查询条件设置
+[[./img/report-condition.png]]
+**** 字典表
+超级管理员可以编辑字典表,在编辑复选框时使用
+
+#+CAPTION:报表字典信息1
+[[./img/report-dict1.png]]
+#+CAPTION:报表字典信息2
+[[./img/report-dict2.png]]
+* 源码
+  #+BEGIN_SRC Java
+
+ package com.yeepay.bigdata.core;
+
+
+/**
+ * NewReport回调接口
+ */
+public interface ReportCallbackHandler {
+
+	void processRow(List<String> row)throws Exception;
+	void processTitle(List<String> title)throws Exception;
+}
+
+
+
+package com.yeepay.bigdata.core;
+
+
+
+/**
+ * NewReport标准返回接口
+ */
+public interface ReportCompCallbackHandler {
+	/**
+	 * 行处理
+	 * @param row
+	 * @throws Exception
+     */
+	void processRow(List<CompCell> row)throws Exception;
+
+	/**
+	 * 标题处理
+	 * @param title
+	 * @throws Exception
+     */
+	void processTitle(List<CompCell> title)throws Exception;
+}
+
+
+
+package com.yeepay.bigdata.core;
+
+
+/**
+ *  NewReport 请求过滤接口
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@Documented
+public @interface RequestFilter {
+
+	String view();
+}
+
+
+
+package com.yeepay.bigdata.core;
+
+
+
+
+
+/**
+ * NewReport 请求回调回话
+ */
+@Aspect
+@Component
+public class RequestFilterContract {
+
+	@Autowired
+	private JdbcTemplate mysql;
+	@Autowired
+    private AuthDao dao;
+	@Autowired
+    private AuthModelDao mdao;
+
+	@Before("within(@org.springframework.stereotype.Controller *)&&@annotation(filter)&&args(request,..)")
+	public void filter(JoinPoint joinPoint, RequestFilter filter,HttpServletRequest request) {
+		int userId;
+        try{
+        	userId = (Integer) request.getSession().getAttribute("userId");
+        }catch(Exception e){
+        	throw new DaportalException("登陆超时,请重新登陆");
+        }
+		List<Integer> roles = dao.getRolesList(userId);
+		List<Integer> functions = dao.getFunctionsList(roles);
+		List<Function> list = mdao.getFunction(functions);
+		String view=filter.view();
+		for(Function f:list){
+			if(view.equals(f.getView())){
+				return ;
+			}
+		}
+		throw new DaportalException("没有操作权限");
+	}
+}
+
+
+
+package com.yeepay.bigdata.dao;
+
+
+
+/**
+ * NewReport 权限
+ */
+@Repository
+public class AuthBranchDao {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(SystemDao.class);
+
+    @Autowired
+    private JdbcTemplate mysqlReport;
+
+    /**
+     * 根据商户编号查询其分公司
+     */
+    public List<Map<String, Object>> getBranchByCN(String customerNo) {
+    	String cns = "";
+        if(customerNo.indexOf(",") != -1) {
+            String[] customerNos = customerNo.split(",");
+            for(int i=0; i<customerNos.length; i++) {
+                if(cns == "") {
+                    cns += "'"+customerNos[i]+"'";
+                } else {
+                    cns += ",'"+customerNos[i]+"'";
+                }
+            }
+        } else {
+            cns = "'"+customerNo+"'";
+        }
+        String sql="select cu.customer_number,cu.full_name,bi.code,bi.name from bigdata_report.customer_info cu left join cfg_branchcompany_info bi on cu.branch_company=bi.code where cu.customer_number in("+cns+")";
+        List<Map<String, Object>> rs = mysqlReport.queryForList(sql);
+        return rs;
+    }
+    /**
+     * 根据SN号查询其分公司
+     */
+    public List<Map<String, Object>> getBranchBySN(String possn) {
+    	String sns = "";
+        if(possn.indexOf(",") != -1) {
+            String[] possns = possn.split(",");
+            for(int i=0; i<possns.length; i++) {
+                if(sns == "") {
+                	sns += "'"+possns[i]+"'";
+                } else {
+                	sns += ",'"+possns[i]+"'";
+                }
+            }
+        } else {
+        	sns = "'"+possn+"'";
+        }
+        String sql="select  t.SERIAL_NUMBER ,t.POS_CATI ,cu.customer_number,cu.full_name,bi.code,bi.name from bigdata_report.POS_TERMINAL_INFO t"+
+                " left join bigdata_report.customer_info cu on t.customer_number=cu.customer_number"+
+                " left join bigdata_report.cfg_branchcompany_info bi on cu.branch_company=bi.code where serial_number in ("+sns+")";
+        List<Map<String, Object>> rs = mysqlReport.queryForList(sql);
+        return rs;
+    }
+    /**
+     * 根据终端号查询其分公司
+     */
+    public List<Map<String, Object>> getBranchByPC(String posNo) {
+    	String pcs = "";
+        if(posNo.indexOf(",") != -1) {
+            String[] posNos = posNo.split(",");
+            for(int i=0; i<posNos.length; i++) {
+                if(pcs == "") {
+                	pcs += "'"+posNos[i]+"'";
+                } else {
+                	pcs += ",'"+posNos[i]+"'";
+                }
+            }
+        } else {
+        	pcs = "'"+posNo+"'";
+        }
+        String sql="select  t.SERIAL_NUMBER ,t.POS_CATI ,cu.customer_number,cu.full_name,bi.code,bi.name from bigdata_report.POS_TERMINAL_INFO t"+
+                " left join bigdata_report.customer_info cu on t.customer_number=cu.customer_number"+
+                " left join bigdata_report.cfg_branchcompany_info bi on cu.branch_company=bi.code where pos_cati in ("+pcs+")";
+        List<Map<String, Object>> rs = mysqlReport.queryForList(sql);
+        return rs;
+    }
+    /**
+     * 根据代理商编号查询分公司
+     */
+    public List<Map<String, Object>> getBranchByAgentCode(String agentCode) {
+    	String acs = "";
+        if(agentCode.indexOf(",") != -1) {
+            String[] agentCodes = agentCode.split(",");
+            for(int i=0; i<agentCodes.length; i++) {
+                if(acs == "") {
+                	acs += "'"+agentCodes[i]+"'";
+                } else {
+                	acs += ",'"+agentCodes[i]+"'";
+                }
+            }
+        } else {
+        	acs = "'"+agentCode+"'";
+        }
+        String sql="select distinct cu.agent_code,cu.agent_name,bi.code,bi.name"+
+                " from bigdata_report.customer_info cu"+
+                " left join bigdata_report.cfg_branchcompany_info bi on cu.branch_company=bi.code where agent_code in ("+acs+")";
+        List<Map<String, Object>> rs = mysqlReport.queryForList(sql);
+        return rs;
+    }
+}
+
+
+
+package com.yeepay.bigdata.dao;
+
+
+
+/**
+ * @author chao.xie 用户权限操作
+ */
+@Repository
+public class AuthDao {
+
+    @Autowired
+    private JdbcTemplate mysql;
+    @Autowired
+    private AuthModelDao mdao;
+
+    public List<Integer> getRolesList(int userId) {
+        Set<Integer> rolesSet = new TreeSet<>();
+        Map<User, List<Role>> map = getRolesMap(userId);
+        for (User u : map.keySet()) {
+            List<Role> list = map.get(u);
+            for (int i = 0; i < list.size(); i++) {
+                rolesSet.add(list.get(i).getId());
+            }
+        }
+        List<Integer> rolesList = new ArrayList<>();
+        for (Integer role : rolesSet) {
+            rolesList.add(role);
+        }
+        return rolesList;
+    }
+
+    public List<Integer> getFunctionsList(List<Integer> roles) {
+        Set<Integer> functionsSet = new TreeSet<>();
+
+        //        fid    value
+        List<Map<String, Object>> list = mysql.queryForList(
+                "select fid from auth_r2f where rid in " + DaoUtil.getCollation(roles.size()) + " and type='function'", DaoUtil.add(new Object[]{}, roles));
+
+        for (int i = 0; i < list.size(); i++) {
+            functionsSet.add((Integer) (list.get(i).get("fid")));
+        }
+        List<Integer> functionsList = Lists.newArrayList(functionsSet);
+
+        return functionsList;
+    }
+
+    private Map<User, List<Role>> getRolesMap(int userId) {
+        List<User> users = new ArrayList<>();
+        users.add(mdao.getUser(userId));
+        // map<userid,list<roleid>>
+        Map<User, List<Role>> map = new HashMap<>();
+        while (users.size() > 0) {
+            User u = users.get(0);
+            users.remove(0);
+            List<User> children = getChildrenUser(u.getId());
+            for (int i = 0; i < children.size(); i++) {
+                users.add(children.get(i));
+            }
+            if (map.get(u) != null) {
+                throw new DaportalException("userId父子关系错误");
+            }
+            map.put(u, getSingleRolesList(u.getId()));
+        }
+        return map;
+    }
+
+    public Map<User, Map<Role, Function>> getFunctionsMap(int userId, int fid) {
+        Map<User, Map<Role, Function>> result = new HashMap<>();
+        Map<User, List<Role>> roles = getRolesMap(userId);
+        for (User u : roles.keySet()) {
+            for (int i = 0; i < roles.get(u).size(); i++) {
+                Role r = roles.get(u).get(i);
+                Function f = getFunctionByRole(r.getId(), fid);
+                if (f != null) {
+                    if (result.get(u) == null) {
+                        result.put(u, new HashMap<Role, Function>());
+                    }
+                    result.get(u).put(r, f);
+                }
+            }
+        }
+        return result;
+    }
+
+    private Function getFunctionByRole(int role, int fid) {
+        List<Map<String, Object>> rs = mysql
+                .queryForList(
+                        "select f.id,reportid,reportname,view from auth_function f,auth_r2f p "
+                                + "where p.type='function' and p.rid=? and p.fid=? and p.fid=f.id",
+                        new Object[]{role, fid});
+        if (rs.size() == 0) {
+            return null;
+        } else if (rs.size() > 1) {
+            throw new DaportalException("r2f配置错误:fid重复");
+        } else {
+            //function
+            Function f = new Function();
+            Map<String, Object> data = rs.get(0);
+            f.setId((Integer) data.get("id"));
+            f.setReportid((String) data.get("reportid"));
+            f.setReportname((String) data.get("reportname"));
+            f.setView((String) data.get("view"));
+            //columns
+            rs = mysql.queryForList(
+                    "select c.id,c.pid,c.comment,c.name,c.groupType from auth_columns c,auth_function f,auth_r2f p "
+                            + "where c.fid=f.id and f.id=? "
+                            + "and p.type='column' and p.rid=? and p.fid=c.id",
+                    new Object[]{fid, role});
+            f.setColumns(new ArrayList<Column>());
+            for (int i = 0; i < rs.size(); i++) {
+                data = rs.get(i);
+                Column c = new Column();
+                c.setGroupType((String) data.get("groupType"));
+                c.setId((Integer) data.get("id"));
+                if (data.get("pid") != null) {
+                    c.setPid((Integer) data.get("pid"));
+                }
+                c.setName((String) data.get("name"));
+                c.setComment((String) data.get("comment"));
+                if(c.getName()==null){
+                	c.setName(c.getComment());
+                }
+                f.getColumns().add(c);
+            }
+            //filter
+            rs = mysql.queryForList(
+                    "select c.comment,c.value,c.name from auth_filters c,auth_function f,auth_r2f p " +
+                            "where c.fid=f.id and f.id=? " +
+                            "and p.type='filter' and p.rid=? and p.fid=c.id",
+                    new Object[]{fid, role});
+            f.setFilters(new ArrayList<Filter>());
+            for (int i = 0; i < rs.size(); i++) {
+                data = rs.get(i);
+                Filter c = new Filter();
+                c.setComment((String) data.get("comment"));
+                c.setValue((String) data.get("value"));
+                c.setName((String) data.get("name"));
+                f.getFilters().add(c);
+            }
+            return f;
+        }
+    }
+
+    private List<Role> getSingleRolesList(int userId) {
+        List<Role> roles = new ArrayList<>();
+        List<Map<String, Object>> rs = mysql
+                .queryForList(
+                        "select rid,comment from auth_u2r p,auth_role r where uid=? and p.rid=r.id",
+                        new Object[]{userId});
+        for (int i = 0; i < rs.size(); i++) {
+            Map<String, Object> data = rs.get(i);
+            Role r = new Role();
+            r.setId((Integer) data.get("rid"));
+            r.setComment((String) data.get("comment"));
+            roles.add(r);
+        }
+        return roles;
+    }
+
+    private List<User> getChildrenUser(int userId) {
+        List<User> children = new ArrayList<>();
+        List<Map<String, Object>> rs = mysql.queryForList(
+                "select id,fullname,parameter,parent from auth_user where parent=?",
+                new Object[]{userId});
+        for (int i = 0; i < rs.size(); i++) {
+            Map<String, Object> data = rs.get(i);
+
+            children.add(new User(data));
+        }
+        return children;
+    }
+}
+
+
+
+package com.yeepay.bigdata.dao;
+
+
+
+
+@Repository
+public class AuthModelDao {
+
+    @Autowired
+    private JdbcTemplate mysql;
+
+    /**
+     * 通过role获取functions
+     *
+     * @param ids
+     * @return
+     */
+    public List<Function> getFunction(List<Integer> ids) {
+        List<Function> list = new ArrayList<>();
+        List<Map<String, Object>> rs = mysql.queryForList(
+                "select id,pid,reportid,reportname,view from auth_function where id in"
+                        + DaoUtil.getCollation(ids.size()),
+                DaoUtil.add(new Object[]{}, ids));
+        Set<Integer> sonid=new HashSet<>();//记录当前已有的菜单
+        for (int i = 0; i < rs.size(); i++) {
+            Map<String, Object> data = rs.get(i);
+            Function f = new Function();
+            f.setId((Integer) data.get("id"));
+            if (data.get("pid") != null) {
+                f.setPid((Integer) data.get("pid"));
+                f.setParentName(getReportNameById((Integer)data.get("pid")));
+            }
+            f.setReportid((String) data.get("reportid"));
+            f.setReportname((String) data.get("reportname"));
+            f.setView((String) data.get("view"));
+            list.add(f);
+            sonid.add(f.getId());
+        }
+        //自动加入父菜单权限
+        List<Function> listParents = new ArrayList<>();
+        for(Function fun:list){
+        	int pid=fun.getPid();
+        	if(!sonid.contains(pid)){
+        		List<Map<String, Object>> parents = mysql.queryForList("select id,pid,reportid,reportname,view from auth_function where id=?",new Object[]{pid});
+            	for(Map<String, Object> data:parents){
+                    Function f = new Function();
+                    f.setId((Integer) data.get("id"));
+                    if (data.get("pid") != null) {
+                        f.setPid((Integer) data.get("pid"));
+                        f.setParentName(getReportNameById((Integer)data.get("pid")));
+                    }
+                    f.setReportid((String) data.get("reportid"));
+                    f.setReportname((String) data.get("reportname"));
+                    f.setView((String) data.get("view"));
+                    listParents.add(f);
+                    sonid.add(f.getId());
+            	}
+        	}
+        }
+        list.addAll(listParents);
+        return list;
+    }
+
+    public User getUser(int id) {
+        Map<String, Object> data = mysql.queryForMap(
+                "select * from auth_user where id=?", new Object[]{id});
+
+        return new User(data);
+    }
+
+    public String getReportNameById(int id) {
+    	if(id==-1){
+    		return "";
+    	}
+    	 Map<String, Object> data = mysql.queryForMap(
+                 "select reportname from auth_function where id=?", new Object[]{id});
+    	 String reportname = (String) data.get("reportname");
+         return reportname;
+    }
+}
+
+
+
+package com.yeepay.bigdata.dao;
+
+
+
+@Repository
+public class LogDao {
+
+	@Autowired
+	private JdbcTemplate mysql;
+
+	public void log(String userid,String type,String msg,String level){
+		String sql="insert into log values(null,?,?,?,'',now(),?)";
+		mysql.update(sql,new Object[]{userid,type,msg,level});
+	}
+
+	public void log(String userid,String type,String msg,Exception e,String level){
+		String sql="insert into log values(null,?,?,?,?,now(),?)";
+		mysql.update(sql,new Object[]{userid,type,msg,getException(e),level});
+	}
+
+	private String getException(Exception e){
+		StringWriter sw = null;
+        PrintWriter pw = null;
+        try {
+            sw = new StringWriter();
+            pw =  new PrintWriter(sw);
+            //将出错的栈信息输出到printWriter中
+            e.printStackTrace(pw);
+            pw.flush();
+            sw.flush();
+        } finally {
+            if (sw != null) {
+                try {
+                    sw.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            if (pw != null) {
+                pw.close();
+            }
+        }
+        return sw.toString();
+	}
+}
+
+
+
+package com.yeepay.bigdata.dao;
+
+
+
+
+/**
+ * @author 杨明
+ *         邓瞩彧
+ */
+@Repository
+public class SystemDao {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SystemDao.class);
+
+    @Autowired
+    private JdbcTemplate mysql;
+
+    @Transactional(readOnly=true)
+    public List<Map<String, Object>> getFunction(String reportname, String menu_level, String pageno, String pagesize) {
+        String sql = "select bd1.id, bd1.pid, bd1.reportname, bd1.view, bd2.reportname as parentName from auth_function bd1 left join auth_function bd2 on bd1.pid = bd2.id where 1=1 ";
+        if ("" != reportname && null != reportname) {
+            sql += " and bd1.reportname = '" + reportname + "' ";
+        }
+        if ("" != menu_level && null != menu_level) {
+            if (Integer.parseInt(menu_level) == 1) {
+                sql += " and bd1.pid is null ";
+            } else {
+                sql += " and bd1.pid is not null ";
+            }
+        }
+        sql += " limit " + pageno + "," + pagesize;
+
+        LOGGER.info("getFunction Log : {}", sql);
+
+        List<Map<String, Object>> rs = mysql.queryForList(sql);
+        return rs;
+    }
+
+    @Transactional
+    public String addMenu(String menu_name,String reportid,String menu_level,String menu_url,String parentName,String Srccolumns,String Srcfilters) {
+    	int menuId = saveMenu(menu_name, reportid, menu_level, parentName, menu_url);
+
+    	LOGGER.info("addMenu Log menuId : {}", menuId);
+    	if(menuId > 0) {
+    		//auth_function插入成功,开始插入列
+    		saveColumns(Srccolumns, menuId);
+    		//插入filter
+    		saveFilter(Srcfilters, menuId);
+
+    	} else {
+    		throw new RuntimeException("auth_function表插入失败");
+    	}
+    	return String.valueOf(menuId);
+    }
+    @Transactional
+    public void updateMenu(String id,String menu_name,String reportid,String menu_level,String menu_url,String parentName) {
+    	String pid = null;
+    	if(menu_level.equals("2")) {
+    		pid = getIdByReportName(parentName);
+    		if(pid == null) {
+    			throw new RuntimeException("父菜单不存在");
+    		}
+    	}
+    	String sql = "update auth_function set reportid=?, reportname=?, view=?, pid=? where id=?";
+		mysql.update(sql, new Object[]{reportid, menu_name, menu_url, pid, id});
+
+    }
+    //保存菜单返回菜单id
+    public int saveMenu(final String menu_name,final String reportid,String menu_level,String parentName,final String menu_url) {
+    	KeyHolder keyHolder = new GeneratedKeyHolder();
+    	Object tmpPid = null;
+    	if(menu_level.equals("2")) {
+    		String pid = getIdByReportName(parentName);
+    		if(pid == null) {
+    			throw new RuntimeException("父菜单不存在");
+    		} else {
+    			tmpPid = pid;
+    		}
+
+    	}
+    	final Object pid = tmpPid;
+    	final String sqlMenu = "insert into auth_function (reportid, reportname, view, pid) values (?,?,?,?)";
+
+    	LOGGER.info("addMenu Log sqlMenu : {}", sqlMenu);
+    	//插入auth_function
+    	mysql.update(new PreparedStatementCreator() {
+			@Override
+			public PreparedStatement createPreparedStatement(Connection conn)
+					throws SQLException {
+				// TODO Auto-generated method stub
+				PreparedStatement ps = conn.prepareStatement(sqlMenu, new String[] {});
+                ps = conn.prepareStatement(sqlMenu, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, reportid);
+                ps.setString(2, menu_name);
+                ps.setString(3, menu_url);
+                ps.setString(4, (String) pid);
+				return ps;
+			}
+		},keyHolder);
+
+    	return keyHolder.getKey().intValue();
+    }
+
+    //插入Columns
+    public void saveColumns(String Srccolumns,int menuId) {
+    	KeyHolder keyHolder = new GeneratedKeyHolder();
+    	if(Srccolumns != null) {
+			JSONArray columns = new JSONArray(Srccolumns);
+			for(int i=0; i<columns.length();i++) {
+    			JSONObject column = columns.getJSONObject(i);
+    			Object fComment = column.get("comment");
+    			if(!fComment.equals("")  && !fComment.equals(null)) {
+    				final String sqlColumn = "insert into auth_columns (fid,comment) values ("+menuId+",'"+fComment+"')";
+        			//插入父列
+        			mysql.update(new PreparedStatementCreator() {
+    					@Override
+    					public PreparedStatement createPreparedStatement(Connection conn)
+    							throws SQLException {
+    						// TODO Auto-generated method stub
+    						PreparedStatement ps = conn.prepareStatement(sqlColumn, new String[] {});
+    		                ps = conn.prepareStatement(sqlColumn, Statement.RETURN_GENERATED_KEYS);
+    						return ps;
+    					}
+    				},keyHolder);
+
+        			int fColumnId = keyHolder.getKey().intValue();
+
+        			LOGGER.info("addMenu Log fColumnId : {}", fColumnId);
+
+        			if(fColumnId > 0) {
+        				//插入子列
+        				final String sqlChildColumn = "insert into auth_columns (fid,comment,name,pid,groupType) values (?,?,?,?,?)";
+
+        				JSONArray childColumns = column.getJSONArray("column");
+
+        				for(int j=0; j<childColumns.length(); j++) {
+        					JSONObject childColumn = childColumns.getJSONObject(j);
+        					String comment = (String) childColumn.get("comment");
+        					String name = (String) childColumn.get("name");
+        					String groupType = (String) childColumn.get("groupType");
+        					mysql.update(sqlChildColumn,new Object[]{menuId,comment,name,fColumnId,groupType});
+        				}
+        			} else {
+        				throw new RuntimeException("auth_columns表插父列失败");
+        			}
+    			}
+
+    		}
+		}
+    }
+    //插入filter
+    public void saveFilter(String Srcfilters,int menuId) {
+    	if(Srcfilters != null) {
+			JSONArray filters = new JSONArray(Srcfilters);
+			//插入filter
+        	String sqlFilter = "insert into auth_filters (fid, comment, value, name) values (?,?,?,?)";
+        	for(int k=0; k<filters.length(); k++) {
+        		JSONObject filter = filters.getJSONObject(k);
+        		if(!filter.toString().equals("{}")) {
+        			String comment = (String) filter.get("comment");
+        			String value = (String) filter.get("value");
+        			String name = (String) filter.get("name");
+        			mysql.update(sqlFilter,new Object[]{menuId,comment,value,name});
+        		}
+        	}
+		}
+    }
+
+    //根据菜单名称查询其id
+    public String getIdByReportName(String reportName) {
+    	List<Map<String, Object>> list = mysql.queryForList("select id from auth_function where reportname=?", new Object[]{reportName});
+    	if(list.size() > 0) {
+    		Map<String, Object> map = list.get(0);
+            String id =  map.get("id").toString();
+            return id;
+    	}
+    	return null;
+    }
+
+    //根据菜单名称查询其id
+    public String getIdByRoleName(String roleName) {
+    	List<Map<String, Object>> list = mysql.queryForList("select id from auth_role where comment=?", new Object[]{roleName});
+    	if(list.size() > 0) {
+    		Map<String, Object> map = list.get(0);
+            String id =  map.get("id").toString();
+            return id;
+    	}
+    	return null;
+    }
+    //根据用户名称查询其id
+    public String getIdByUserName(String username) {
+    	List<Map<String, Object>> list = mysql.queryForList("select id from auth_user where username=?", new Object[]{username});
+    	if(list.size() > 0) {
+    		Map<String, Object> map = list.get(0);
+            String id =  map.get("id").toString();
+            return id;
+    	}
+    	return null;
+    }
+    //根据parent查询其id
+    public String getIdByFullName(String fullname) {
+    	List<Map<String, Object>> list = mysql.queryForList("select id from auth_user where fullname=?", new Object[]{fullname});
+    	if(list.size() > 0) {
+    		Map<String, Object> map = list.get(0);
+            String id =  map.get("id").toString();
+            return id;
+    	}
+    	return null;
+    }
+    public List<Filter> getFilters(String fid) {
+        List<Filter> list = new ArrayList<>();
+        List<Map<String, Object>> rs = mysql.queryForList(
+                "select id,comment,value,name from auth_filters where fid="+fid);
+        for (int i = 0; i < rs.size(); i++) {
+            Map<String, Object> data = rs.get(i);
+            Filter f = new Filter();
+            f.setId((Integer) data.get("id"));
+            if(data.get("comment") != null) {
+            	f.setComment(data.get("comment").toString());
+            }
+            if(data.get("value") != null) {
+            	f.setValue(data.get("value").toString());
+            }
+            if(data.get("name") != null) {
+            	f.setName(data.get("name").toString());
+            }
+            list.add(f);
+        }
+        return list;
+    }
+
+    public List<Column> getColumn(String fid) {
+    	List<Column> columns = new ArrayList<Column>();
+    	List<Map<String, Object>> rs = mysql.queryForList(
+                "select id,comment,name,pid,groupType from auth_columns where fid="+fid);
+    	for(int i=0; i<rs.size(); i++) {
+    		Map<String, Object> data = rs.get(i);
+    		Column column = new Column();
+    		column.setId((Integer) data.get("id"));
+    		if(data.get("comment") != null) {
+    			column.setComment(data.get("comment").toString());
+            }
+            if(data.get("name") != null) {
+            	column.setName(data.get("name").toString());
+            }
+            if(data.get("pid") != null) {
+            	column.setPid((Integer) data.get("pid"));
+            }
+            if(data.get("groupType") != null) {
+            	column.setGroupType(data.get("groupType").toString());
+            }
+            columns.add(column);
+    	}
+    	return columns;
+    }
+
+	public void insertOrUpdateFilters(String fid, String comment, String value,
+			String name, String id) {
+		// TODO Auto-generated method stub
+		String sql = "";
+		if(id == "") {
+			sql = "insert into auth_filters (fid, comment, value, name) values (?,?,?,?)";
+			mysql.update(sql, new Object[]{fid,comment, value, name});
+		} else {
+			sql = "update auth_filters set comment=?, value=?, name=? where id=?";
+			mysql.update(sql, new Object[]{comment, value, name,id});
+		}
+	}
+
+	public void deleteFilters(String id, String type) {
+		// TODO Auto-generated method stub
+		mysql.update("delete from auth_filters where id = ?", new Object[]{id});
+
+		//删除auth_r2f表里对应的角色所拥有的这一Filter
+		mysql.update("delete from auth_r2f where fid = ? and type = ?", new Object[]{id,type});
+	}
+
+	public void deleteAllFilters(String fid) {
+		// TODO Auto-generated method stub
+		mysql.update("delete from auth_filters where fid = ?", new Object[]{fid});
+	}
+
+	public void insertOrUpdateColumns(String fid, String comment, String name,
+			String groupType, String id, String fColumnid) {
+		// TODO Auto-generated method stub
+		String sql = "";
+		if(name == "" || name == null) {
+			name = comment;
+		}
+		if(id == "") {
+			sql = "insert into auth_columns (fid,comment,name,pid,groupType) values (?,?,?,?,?)";
+			mysql.update(sql, new Object[]{fid,comment, name, fColumnid ,groupType});
+		} else {
+			sql = "update auth_columns set comment=?, name=?, groupType=? where id=?";
+			mysql.update(sql, new Object[]{comment, name, groupType, id});
+		}
+	}
+
+	/**
+	 * 删除列
+	 * @param id
+	 */
+	public void deleteColumns(String id, String type, String sids) {
+		if("" != sids && null != sids) {
+			//说明删除的是父列，这时id代表父列的id
+			mysql.update("delete from auth_columns where id = ? or pid = ?", new Object[]{id,id});
+			//删除auth_r2f表里对应的角色所拥有的这一列
+			mysql.update("delete from auth_r2f where fid = ? and type = ?", new Object[]{id,type});
+			//删除auth_r2f表里父列对应的子列
+			String[] sonids = sids.split(",");
+			for(int i=0; i<sonids.length; i++) {
+				String sid = sonids[i];
+				mysql.update("delete from auth_r2f where fid = ? and type = ?", new Object[]{sid,type});
+			}
+
+		} else {
+			//说明删除的是子列，这时id代表子列的id
+			mysql.update("delete from auth_columns where id = ?", new Object[]{id});
+			//删除auth_r2f表里对应的角色所拥有的这一列
+			mysql.update("delete from auth_r2f where fid = ? and type = ?", new Object[]{id,type});
+		}
+	}
+
+	public void deleteAllColumns(String fid) {
+		// TODO Auto-generated method stub
+		mysql.update("delete from auth_columns where fid = ?", new Object[]{fid});
+	}
+
+	@Transactional
+	public void deleteMenu(String fid) {
+		// TODO Auto-generated method stub
+		int state = mysql.update("delete from auth_function where id = ?", new Object[]{fid});
+
+		if(state > 0) {
+			//删除auth_r2f表对应function,column,filter
+			mysql.update("delete from auth_r2f where fid = ? and type = ?", new Object[]{fid,"function"});
+
+			//删除角色有的这些列－auth_r2f
+			List<Column> columns = getColumn(fid);
+			for(int i=0; i<columns.size(); i++) {
+				int cId = columns.get(i).getId();
+				System.out.println(cId);
+				mysql.update("delete from auth_r2f where fid = ? and type = ?", new Object[]{cId,"column"});
+			}
+
+			//删除菜单对应的Columns-auth_columns
+			deleteAllColumns(fid);
+
+			//删除角色有的这些Filter－auth_r2f
+			List<Filter> filters = getFilters(fid);
+			for(int i=0; i<filters.size(); i++) {
+				int fId = filters.get(i).getId();
+				System.out.println(fId);
+				mysql.update("delete from auth_r2f where fid = ? and type = ?", new Object[]{fId,"filter"});
+			}
+
+			//删除菜单对应的Filters-auth_filters
+			deleteAllFilters(fid);
+
+		}
+	}
+
+	@Transactional(readOnly=true)
+	public List<Map<String, Object>> getRole(String roleName, String pageno,
+			String pagesize) {
+		String sql = "select id,comment from auth_role where 1=1 ";
+		if ("" != roleName && null != roleName) {
+            sql += " and comment = '" + roleName + "' ";
+        }
+		sql += " limit " + pageno + "," + pagesize;
+
+        LOGGER.info("getFunction Log : {}", sql);
+
+        List<Map<String, Object>> rs = mysql.queryForList(sql);
+        return rs;
+	}
+	/**
+	 * 获取所有菜单
+	 * @return
+	 */
+	public List<Map<String, Object>> getAllMenu() {
+		List<Map<String, Object>> rs = mysql.queryForList("select id,reportname from auth_function");
+        return rs;
+	}
+	/**
+	 * 获取所有Columns
+	 * @return
+	 */
+	public List<Map<String, Object>> getAllColumns() {
+		List<Map<String, Object>> rs = mysql.queryForList("select id,comment from auth_columns");
+        return rs;
+	}
+
+	/**
+	 * 获取所有Filters
+	 * @return
+	 */
+	public List<Map<String, Object>> getAllFilters() {
+		List<Map<String, Object>> rs = mysql.queryForList("select id,comment from auth_filters");
+        return rs;
+	}
+
+	/**
+	 * 获取所有角色
+	 * @return
+	 */
+	public List<Map<String, Object>> getAllRole() {
+		List<Map<String, Object>> rs = mysql.queryForList("select id,comment from auth_role");
+        return rs;
+	}
+	@Transactional
+	public void addRole(final String roleName, String relateMenu, String relateColumn,String relateFilter) {
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+		//添加角色
+		final String sqlRole = "insert into auth_role (comment) values (?)";
+		LOGGER.info("addRole Log addRole : {}", sqlRole);
+    	//插入auth_function
+    	mysql.update(new PreparedStatementCreator() {
+			@Override
+			public PreparedStatement createPreparedStatement(Connection conn)
+					throws SQLException {
+				// TODO Auto-generated method stub
+				PreparedStatement ps = conn.prepareStatement(sqlRole, new String[] {});
+                ps = conn.prepareStatement(sqlRole, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, roleName);
+				return ps;
+			}
+		},keyHolder);
+
+    	int roleId = keyHolder.getKey().intValue();
+		if(roleId > 0) {
+			//角色添加成功，开始关联菜单
+			if("" != relateMenu && null != relateMenu) {
+				String[] menuIds = relateMenu.split(",");
+				//插入r2f
+	        	String sqlr2f = "insert into auth_r2f (fid, rid, type) values (?,?,?)";
+				for(int i=0; i<menuIds.length; i++) {
+					String menuId = menuIds[i];
+					mysql.update(sqlr2f, new Object[]{menuId,roleId,"function"});
+				}
+			}
+			//角色添加成功，开始关联Column
+			if("" != relateColumn && null != relateColumn) {
+				String[] cids = relateColumn.split(",");
+				//插入r2f
+	        	String sqlr2f = "insert into auth_r2f (fid, rid, type) values (?,?,?)";
+				for(int i=0; i<cids.length; i++) {
+					String columnId = cids[i];
+					mysql.update(sqlr2f, new Object[]{columnId,roleId,"column"});
+				}
+			}
+			//角色添加成功，开始关联Filter
+			if("" != relateFilter && null != relateFilter) {
+				String[] fids = relateFilter.split(",");
+				//插入r2f
+	        	String sqlr2f = "insert into auth_r2f (fid, rid, type) values (?,?,?)";
+				for(int i=0; i<fids.length; i++) {
+					String filterId = fids[i];
+					mysql.update(sqlr2f, new Object[]{filterId,roleId,"filter"});
+				}
+			}
+		}
+	}
+	/**
+	 * 根据角色id获取角色
+	 * @param rid
+	 * @return
+	 */
+	public List<Role> getRoleById(String rid) {
+		List<Role> list = new ArrayList<>();
+		List<Map<String, Object>> rs = mysql.queryForList("select comment from auth_role where id = ?",new Object[]{rid});
+
+        for (int i = 0; i < rs.size(); i++) {
+            Map<String, Object> data = rs.get(i);
+            Role r = new Role();
+            if(data.get("comment") != null) {
+            	r.setComment(data.get("comment").toString());
+            }
+            list.add(r);
+        }
+        return list;
+	}
+
+	/**
+	 * 根据角色id获取菜单
+	 * @param rid
+	 * @return
+	 */
+	public List<Function> getFunctionByRoleId(String rid) {
+		// TODO Auto-generated method stub
+		List<Function> list = new ArrayList<Function>();
+		List<Map<String, Object>> rs = mysql.queryForList("select fid from auth_r2f where rid = ? and type = ?",new Object[]{rid,"function"});
+		for(int i=0; i<rs.size(); i++) {
+			Map<String, Object> data = rs.get(i);
+			Function f = new Function();
+			if(data.get("fid") != null) {
+				f.setId((Integer)data.get("fid"));
+			}
+			list.add(f);
+		}
+		return list;
+	}
+	/**
+	 * 根据角色id获取Column
+	 * @param rid
+	 * @return
+	 */
+	public List<Column> getColumnByRoleId(String rid) {
+		List<Column> list = new ArrayList<Column>();
+		List<Map<String, Object>> rs = mysql.queryForList("select fid from auth_r2f where rid = ? and type = ?",new Object[]{rid,"column"});
+		for(int i=0; i<rs.size(); i++) {
+			Map<String, Object> data = rs.get(i);
+			Column c = new Column();
+			if(data.get("fid") != null) {
+				c.setId((Integer)data.get("fid"));
+			}
+			list.add(c);
+		}
+		return list;
+	}
+	/**
+	 * 根据角色id获取Filter
+	 * @param rid
+	 * @return
+	 */
+	public List<Filter> getFilterByRoleId(String rid) {
+		List<Filter> list = new ArrayList<Filter>();
+		List<Map<String, Object>> rs = mysql.queryForList("select fid from auth_r2f where rid = ? and type = ?",new Object[]{rid,"filter"});
+		for(int i=0; i<rs.size(); i++) {
+			Map<String, Object> data = rs.get(i);
+			Filter f = new Filter();
+			if(data.get("fid") != null) {
+				f.setId((Integer)data.get("fid"));
+			}
+			list.add(f);
+		}
+		return list;
+	}
+	/**
+	 * 插入r2f
+	 * @param fid
+	 * @param rid
+	 * @param type
+	 */
+	public void saver2f(String fid, String rid, String type) {
+		// TODO Auto-generated method stub
+		mysql.update("insert into auth_r2f(fid, rid, type) values (?,?,?)",new Object[]{fid,rid,type});
+	}
+	/**
+	 * 删除r2f记录
+	 * @param fid
+	 * @param rid
+	 * @param type
+	 */
+	public void delr2f(String fid, String rid, String type) {
+		// TODO Auto-generated method stub
+		mysql.update("delete from auth_r2f where fid = ? and rid = ? and type = ?",new Object[]{fid,rid,type});
+	}
+
+	/**
+	 * 更新角色
+	 * @param rid
+	 * @param roleName
+	 */
+	@Transactional
+	public void updateRole(String rid, String roleName) {
+		// TODO Auto-generated method stub
+		mysql.update("update auth_role set comment = ? where id = ?",new Object[]{roleName,rid});
+	}
+
+	/**
+	 * 删除角色及角色下的菜单和列
+	 * @param id
+	 */
+	@Transactional
+	public void deleteRole(String id) {
+		// TODO Auto-generated method stub
+		int state = mysql.update("delete from auth_role where id = ?", new Object[]{id});
+
+		if(state > 0) {
+			//删除该角色下对应的Function和Columns
+			mysql.update("delete from auth_r2f where rid = ?",new Object[]{id});
+			//删除用户对应的该角色
+			mysql.update("delete from auth_u2r where rid = ?",new Object[]{id});
+		}
+	}
+
+	@Transactional(readOnly=true)
+	public List<Map<String, Object>> getUser(String username, String fullname,
+			String user_level, String leadername, String pageno, String pagesize) {
+		String sql = "select u1.id,u1.username,u1.fullname,u1.parameter,u2.fullname as parentname "+
+					 "from `bigdata-daportal`.auth_user u1 "+
+					 "left join `bigdata-daportal`.auth_user u2 "+
+					 "on u1.parent = u2.id where 1=1 ";
+        if ("" != username && null != username) {
+            sql += " and u1.username = '" + username + "' ";
+        }
+        if ("" != fullname && null != fullname) {
+            sql += " and u1.fullname = '" + fullname + "' ";
+        }
+        if ("" != user_level && null != user_level) {
+            if (Integer.parseInt(user_level) == 1) {
+                sql += " and u1.parent is null ";
+            } else {
+                sql += " and u1.parent is not null ";
+            }
+        }
+        if ("" != leadername && null != leadername) {
+            sql += " and u2.fullname = '" + leadername + "' ";
+        }
+        sql += " limit " + pageno + "," + pagesize;
+
+        LOGGER.info("getUser Log sql: {}", sql);
+
+        List<Map<String, Object>> rs = mysql.queryForList(sql);
+        return rs;
+	}
+
+	@Transactional
+	public void addUser(String username, String password, String fullname,
+			String paramter, String leadername, String relateRole) {
+		// TODO Auto-generated method stub
+		//添加用户
+    	int userId = saveUser(username, password, fullname, paramter, leadername);
+
+		if(userId > 0) {
+			//用户添加成功，开始关联角色
+			if("" != relateRole && null != relateRole) {
+				String[] roleIds = relateRole.split(",");
+				//插入r2f
+	        	String sqlr2f = "insert into auth_u2r (rid, uid) values (?,?)";
+				for(int i=0; i<roleIds.length; i++) {
+					String roleId = roleIds[i];
+					mysql.update(sqlr2f, new Object[]{roleId,userId});
+				}
+			}
+		}
+	}
+
+	public int saveUser(final String username, final String password, final String fullname,
+			final String paramter, String leadername) {
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+
+		String tmpPid = null;
+    	if(leadername != "" && leadername != null) {
+    		String uid = getIdByFullName(leadername);
+    		if(uid == null) {
+    			throw new RuntimeException("没有该领导名称");
+    		} else {
+    			tmpPid = uid;
+    		}
+
+    	}
+    	final String pid = tmpPid;
+
+		//添加角色
+		final String sqlUser = "insert into auth_user (username, password, fullname, parameter, parent) values (?,?,?,?,?)";
+		LOGGER.info("addUser Log sqlUser : {}", sqlUser);
+    	//插入auth_function
+    	mysql.update(new PreparedStatementCreator() {
+			@Override
+			public PreparedStatement createPreparedStatement(Connection conn)
+					throws SQLException {
+				// TODO Auto-generated method stub
+				PreparedStatement ps = conn.prepareStatement(sqlUser, new String[] {});
+                ps = conn.prepareStatement(sqlUser, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, username);
+                ps.setString(2, password);
+                ps.setString(3, fullname);
+                ps.setString(4, paramter);
+                ps.setString(5, pid);
+				return ps;
+			}
+		},keyHolder);
+
+    	return keyHolder.getKey().intValue();
+	}
+
+	//根据id得到用户
+	public User getUserById(String uid) {
+		// TODO Auto-generated method stub
+		String sql = "select u1.id,u1.username,u1.password,u1.fullname,u1.parameter,u2.fullname as parentName "+
+					"from auth_user u1 "+
+					"left join auth_user u2 "+
+					"on u1.parent = u2.id where u1.id = ?";
+
+		//final Map<String,Object> map = new HashMap<String,Object>();
+		final User u = new User();
+		mysql.query(sql, new Object[]{uid},new RowCallbackHandler() {
+			@Override
+			public void processRow(ResultSet rs) throws SQLException {
+				// TODO Auto-generated method stub
+				u.setId(rs.getInt("id"));
+				u.setUsername(rs.getString("username"));
+				u.setPassword(rs.getString("password"));
+				u.setFullname(rs.getString("fullname"));
+				u.setParr(new JSONObject(rs.getString("parameter")));
+				u.setParentName(rs.getString("parentName"));
+			}
+		});
+		return u;
+	}
+
+	public List<Role> getRolesByUserId(String uid) {
+		// TODO Auto-generated method stub
+		String sql = "select rid from auth_u2r where uid = ?";
+		List<Map<String, Object>> rs = mysql.queryForList(sql, new Object[]{uid});
+		List<Role> roles = new ArrayList<Role>();
+		for(int i=0; i<rs.size(); i++) {
+			Map<String,Object> data = rs.get(i);
+			Role role = new Role();
+			if(data.get("rid") != null) {
+				role.setId((Integer)data.get("rid"));
+			}
+			roles.add(role);
+		}
+		return roles;
+	}
+
+	/**
+	 * 插入u2r
+	 * @param uid
+	 * @param rid
+	 */
+	public void saveu2r(String uid, String rid) {
+		// TODO Auto-generated method stub
+		String sql = "insert into auth_u2r (rid,uid) values (?,?)";
+		mysql.update(sql, new Object[]{rid,uid});
+	}
+
+	/**
+	 * 删除u2r
+	 * @param uid
+	 * @param rid
+	 */
+	public void delu2r(String uid, String rid) {
+		// TODO Auto-generated method stub
+		String sql = "delete from auth_u2r where rid = ? and uid = ?";
+		mysql.update(sql, new Object[]{rid,uid});
+	}
+
+	@Transactional
+	public void updateUser(String uid, String username, String password,
+			String fullname, String paramter, String leadername) {
+		// TODO Auto-generated method stub
+		String parent = null;
+		if(leadername != null && leadername != "") {
+			parent = getIdByFullName(leadername);
+		}
+		if(password != "") {
+			String sql = "update auth_user set username=?, password=?, fullname=?, parameter=?, parent=? where id = ?";
+			mysql.update(sql,new Object[]{username,password,fullname,paramter,parent,uid});
+		} else {
+			String sql = "update auth_user set username=?, fullname=?, parameter=?, parent=? where id = ?";
+			mysql.update(sql,new Object[]{username,fullname,paramter,parent,uid});
+		}
+	}
+
+	/**
+	 * 删除用户及角色
+	 * @param id
+	 */
+	@Transactional
+	public void deleteUser(String id) {
+		// TODO Auto-generated method stub
+		int state = mysql.update("delete from auth_user where id = ?", new Object[]{id});
+
+		if(state > 0) {
+			//删除该角色下对应的Function和Columns
+			mysql.update("delete from auth_u2r where uid = ?",new Object[]{id});
+		}
+	}
+
+	/**
+	 * 根据用户名查询其密码
+	 * @param uid
+	 * @return
+	 */
+	public String queryPwdById(String uid) {
+		// TODO Auto-generated method stub
+		List<Map<String, Object>> list = mysql.queryForList("select password from auth_user where id = ?",new Object[]{uid});
+		String pwd = list.get(0).get("password").toString();
+		System.out.println(pwd);
+		return pwd;
+	}
+
+	/**
+	 * 根据id修改密码
+	 * @param uid
+	 * @param password
+	 */
+	@Transactional
+	public String updatePwd(String uid, String password,String srcPwd) {
+		List<Map<String, Object>> list = mysql.queryForList("select id from auth_user where id=? and password=?",
+				new Object[]{uid,srcPwd});
+		if(list.size()==1){
+			String sql = "update auth_user set password = ? where id = ?";
+			mysql.update(sql,new Object[]{password,uid});
+			return "1";
+		}else{
+			return "0";
+		}
+
+	}
+
+}
+
+
+
+package com.yeepay.bigdata.exception;
+
+public class DaportalException extends RuntimeException {
+
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
+    public DaportalException(String msg) {
+        super(msg);
+    }
+}
+
+
+
+package com.yeepay.bigdata.exception;
+
+
+
+public class InvalidTypeException extends RuntimeException {
+
+	private static final long serialVersionUID = 1L;
+
+	public InvalidTypeException(int type){
+		super("无效的类型:"+type);
+	}
+}
+
+
+
+package com.yeepay.bigdata.intercepter;
+
+
+
+
+public class ErrorInterceptor extends HandlerInterceptorAdapter {
+
+    private static Logger LOG = LoggerFactory.getLogger(ErrorInterceptor.class);
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
+            throws Exception {
+        if (ex != null) {
+        	if(ex instanceof DaportalException){
+
+        	}else{
+        		LOG.error("normal exception", ex);
+        	}
+        }
+        super.afterCompletion(request, response, handler, ex);
+    }
+}
+
+
+
+package com.yeepay.bigdata.intercepter;
+
+
+
+
+public class LoggerInterceptor extends HandlerInterceptorAdapter {
+
+	@Autowired
+	private LogDao log;
+
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(LoggerInterceptor.class);
+
+	@Override
+	public boolean preHandle(HttpServletRequest request,
+			HttpServletResponse response, Object handler) throws Exception {
+
+		MDC.put("userid",
+				String.valueOf(request.getSession().getAttribute("userId")));
+		log.log(String.valueOf(MDC.get("userid")),
+				"地址请求",
+				"请求地址:" + request.getRequestURL() + ",用户ip:"
+						+ request.getRemoteAddr(), "INFO");
+		LOGGER.info("用户id:{},请求地址:{},用户ip:{},请求时间:{},", request.getSession()
+				.getAttribute("userId"), request.getRequestURL(), request
+				.getRemoteAddr(), System.currentTimeMillis());
+
+		return super.preHandle(request, response, handler);
+	}
+}
+
+
+
+package com.yeepay.bigdata.intercepter;
+
+
+
+
+
+public class LoginInterceptor extends HandlerInterceptorAdapter {
+
+	@Autowired
+	private AuthController auth;
+
+
+	@Autowired
+	private ReportAuthDao reportAuthDao;
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        if (request.getSession().getAttribute("userId") == null) {
+            response.sendRedirect(request.getServletContext().getContextPath()+"/index.jsp");
+            return false;
+        } else {
+        	JSONArray functions = new JSONArray(auth.getMenu(request, response));
+        	String v="/views/";
+        	String views=request.getServletPath().substring(v.length());
+        	for(int i=0;i<functions.length();i++){
+        		String viewData=functions.getJSONObject(i).getString("view");
+
+        		//新版,view字段固定report,由reportid确定配置文件的名字
+        		if("report".equals(viewData)){
+        			String fidData=String.valueOf(functions.getJSONObject(i).getInt("id"));
+        			if(fidData.equals(request.getParameter("fid"))){
+        				return true;
+        			}
+        		//修订版,view字段以.xml结尾,保存的配置文件名字
+        		}else if(viewData.length()>4&&".xml".equals(viewData.substring(viewData.length()-4))){
+            		if(viewData.equals(request.getParameter("xml"))){
+            			return true;
+            		}
+            	//老版本,view字段保存的jsp页面名称
+        		}else{
+        			if(views.equals(viewData)){
+        				return true;
+        			}
+        		}
+        	}
+        	if(views.equals("common/updatePwd")){
+        		return true;
+        	}else{
+        		return false;
+        	}
+
+        }
+    }
+}
+
+
+
+package com.yeepay.bigdata.model;
+
+public class Column {
+
+    /**
+     * id  是数据库自增长id?
+     */
+    private int id;
+    private int pid;
+    private String comment;
+    private String name;
+    private String groupType;
+
+    public Column() {
+    }
+
+    public Column(String name) {
+        this.name = name;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getPid() {
+        return pid;
+    }
+
+    public void setPid(int pid) {
+        this.pid = pid;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getGroupType() {
+        return groupType;
+    }
+
+    public void setGroupType(String groupType) {
+        this.groupType = groupType;
+    }
+
+    @Override
+    public int hashCode() {
+
+        return name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Column) {
+            return name.equals(((Column) obj).getName());
+        } else {
+            return false;
+        }
+    }
+}
+
+
+
+package com.yeepay.bigdata.model;
+
+
+public class CompCell {
+	private String title;
+	private List<String> value=new ArrayList<>();
+	private boolean isdimen;
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	public List<String> getValue() {
+		return value;
+	}
+	public void setValue(List<String> value) {
+		this.value = value;
+	}
+	public boolean isIsdimen() {
+		return isdimen;
+	}
+	public void setIsdimen(boolean isdimen) {
+		this.isdimen = isdimen;
+	}
+
+
+}
+
+
+
+package com.yeepay.bigdata.model;
+
+public class Filter {
+
+	private int id;
+    private String comment;
+    private String value;
+    private String name;
+
+
+    public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+}
+
+
+
+package com.yeepay.bigdata.model;
+
+
+public class Function {
+
+    private int id;
+    private int pid;
+    private String reportid;
+    private String reportname;
+    private String parentName;
+    private String view;
+    private List<Column> columns;
+    private List<Filter> filters;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getPid() {
+        return pid;
+    }
+
+    public void setPid(int pid) {
+        this.pid = pid;
+    }
+
+    public String getReportid() {
+        return reportid;
+    }
+
+    public void setReportid(String reportid) {
+        this.reportid = reportid;
+    }
+
+    public String getReportname() {
+        return reportname;
+    }
+
+    public void setReportname(String reportname) {
+        this.reportname = reportname;
+    }
+
+
+    public String getParentName() {
+        return parentName;
+    }
+
+    public void setParentName(String parentName) {
+        this.parentName = parentName;
+    }
+
+    public String getView() {
+        return view;
+    }
+
+    public void setView(String view) {
+        this.view = view;
+    }
+
+    public List<Column> getColumns() {
+        return columns;
+    }
+
+    public void setColumns(List<Column> columns) {
+        this.columns = columns;
+    }
+
+    public List<Filter> getFilters() {
+        return filters;
+    }
+
+    public void setFilters(List<Filter> filters) {
+        this.filters = filters;
+    }
+
+
+}
+
+
+
+package com.yeepay.bigdata.model;
+
+public class Role {
+
+    private int id;
+    private String comment;
+
+    public Role() {
+
+    }
+
+    public Role(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    @Override
+    public int hashCode() {
+        return new Integer(id).hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Role) {
+            return ((Role) obj).getId() == id;
+        } else {
+            return false;
+        }
+
+    }
+}
+
+
+
+package com.yeepay.bigdata.model;
+
+
+
+public class User {
+
+    private int id;
+    private String username;
+    private String password;
+    private String fullname;
+    private JSONObject parr;
+    private int parent;
+    private String parentName;
+
+
+
+    public User() {
+	}
+
+	public User(int id) {
+        this.id = id;
+    }
+
+    public User(Map<String, Object> data) {
+        id = (Integer) data.get("id");
+        fullname = (String) data.get("fullname");
+        try {
+            parr = new JSONObject((String) data.get("parameter"));
+        } catch (Exception e) {
+            parr = new JSONObject();
+        }
+        if(data.get("parent")==null){
+        	parent=0;
+        }else{
+        	try {
+                parent = (Integer) data.get("parent");
+            } catch (Exception e) {
+                parent = 0;
+            }
+        }
+
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+
+
+    public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getFullname() {
+        return fullname;
+    }
+
+    public void setFullname(String fullname) {
+        this.fullname = fullname;
+    }
+
+    public String getParr() {
+        return parr.toString();
+    }
+
+    public void setParr(JSONObject parr) {
+        this.parr = parr;
+    }
+
+    public int getParent() {
+        return parent;
+    }
+
+    public void setParent(int parent) {
+        this.parent = parent;
+    }
+
+    @Override
+    public int hashCode() {
+        return new Integer(id).hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof User) {
+            return ((User) obj).getId() == id;
+        } else {
+            return false;
+        }
+
+    }
+
+	public String getParentName() {
+		return parentName;
+	}
+
+	public void setParentName(String parentName) {
+		this.parentName = parentName;
+	}
+
+}
+
+
+
+package com.yeepay.bigdata.parse;
+
+
+
+
+
+public class FormatterDownload {
+
+    public static void DownloadCSV(String data, HttpServletResponse res,HttpServletRequest req) throws IOException {
+
+        BufferedOutputStream bos = null;
+        OutputStream fos = null;
+        fos = res.getOutputStream();
+        bos = new BufferedOutputStream(fos);
+
+        //OutputStream os = res.getOutputStream();// 取得输出流
+        res.reset();// 清空输出流
+        res.setHeader("Content-disposition", "attachment; filename=" + UUID.randomUUID().toString().replace("-", "") + ".csv");
+        boolean one = true;
+        CSVFormat format=CSVFormat.RFC4180;
+        //=====
+        JSONArray reslutJson = new JSONArray(data);
+        JSONObject title = reslutJson.getJSONObject(0);
+
+        //输出标题
+        List<String> titleList=new ArrayList<>();
+        for (Object key : title.keySet()) {
+        	titleList.add(title.getString(key.toString()));
+        }
+        String value=format.format(titleList.toArray());
+        bos.write(U.getBytesForDownload(value, req));
+
+        //输出表体
+        for (int i = 1; i < reslutJson.length(); i++) {
+            bos.write(U.getBytesForDownload("\n", req));
+            one = true;
+            JSONObject body = reslutJson.getJSONObject(i);
+            List<String> bodyList=new ArrayList<>();
+            for (Object key : body.keySet()) {
+            	bodyList.add(String.valueOf(body.get(key.toString())));
+            }
+            value=format.format(bodyList.toArray());
+            bos.write(U.getBytesForDownload(value, req));
+        }
+
+        bos.flush();
+        fos.close();
+        bos.close();
+    }
+
+    public static void DownloadExcel(String data, HttpServletResponse res,HttpServletRequest req) throws JsonParseException, JsonMappingException, JSONException, IOException {
+        // TODO Auto-generated method stub
+        //输出标题
+
+        JSONObject jsonData = new JSONObject(data);
+        String titles = jsonData.get("title").toString();
+        String content = jsonData.get("data").toString();
+        List<String> titlesList = new ObjectMapper().readValue(titles, List.class);
+        List<List<Object>> contentList = new ObjectMapper().readValue(content, List.class);
+
+        ExcelxMaker.exportExcel(UUID.randomUUID().toString().replace("-", "") + ".xlsx", titlesList, contentList, res,req);
+    }
+}
+
+
+
+package com.yeepay.bigdata.parse;
+
+
+
+public class FormatterViewJson {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(FormatterViewJson.class);
+
+    public static String format(String result) {
+        JSONArray obj = new JSONArray(result);
+        //得到标题
+        JSONArray title = obj.getJSONObject(0).getJSONArray("report_title");
+        LOGGER.info("title=======================" + title.toString());
+        Map<Object, Object> titleMap = new HashMap<Object, Object>();
+        List<Object> fields = new ArrayList<Object>();
+        List<Map<Object, Object>> allData = new ArrayList<Map<Object, Object>>();
+
+        for (int i = 0; i < title.length(); i++) {
+            Object field = title.getJSONObject(i).get("field");
+            fields.add(field);
+            Object text = title.getJSONObject(i).get("text");
+            titleMap.put(field, text);
+        }
+        allData.add(titleMap);
+        //得到表体
+        for (int i = 1; i < obj.length(); i++) {
+            Map<Object, Object> bodyMap = new HashMap<Object, Object>();
+            for (int j = 0; j < fields.size(); j++) {
+                Object field = fields.get(j);
+                Object value = obj.getJSONObject(i).get(field.toString());
+                bodyMap.put(field, value);
+            }
+            allData.add(bodyMap);
+        }
+        JSONArray resultArray = new JSONArray(allData);
+        return resultArray.toString();
+    }
+
+    public static String formatList(String result) throws JsonProcessingException {
+
+        JSONArray obj = new JSONArray(result);
+        //得到标题
+        JSONArray title = obj.getJSONObject(0).getJSONArray("report_title");
+        LOGGER.info("title=======================" + title.toString());
+
+        Map<String, List> allMap = new HashMap<String, List>();
+
+        //得到表头
+        List<Object> titles = new ArrayList<Object>();
+        List<Object> fields = new ArrayList<Object>();
+        for (int i = 0; i < title.length(); i++) {
+            Object field = title.getJSONObject(i).get("field");
+            fields.add(field);
+            Object text = title.getJSONObject(i).get("text");
+            titles.add(text);
+        }
+        allMap.put("title", titles);
+        //得到表体
+        List<List<Object>> allBody = new ArrayList<List<Object>>();
+        for (int i = 1; i < obj.length(); i++) {
+            List<Object> bodys = new ArrayList<Object>();
+            for (int j = 0; j < fields.size(); j++) {
+                Object field = fields.get(j);
+                Object value = obj.getJSONObject(i).get(field.toString());
+                bodys.add(value);
+            }
+            allBody.add(bodys);
+        }
+        allMap.put("data", allBody);
+        JSONObject jsonResult = new JSONObject(allMap);
+        if (obj.length() == 1) {
+            jsonResult.put("noData", true);
+        }
+        LOGGER.info("obj lenght : {}", obj.length());
+        return jsonResult.toString();
+    }
+
+    public static String formatData(List<Map<String, Object>> list) throws JsonProcessingException {
+        Map<String, List> result = new HashMap<String, List>();
+        //添加标题
+        List<Object> title = new ArrayList<Object>();
+        title.add("序号");
+        title.add("菜单名称");
+        title.add("菜单级别");
+        title.add("父菜单名称");
+        title.add("操作");
+        result.put("title", title);
+        List<List<Object>> allBody = new ArrayList<List<Object>>();
+        for (int i = 0; i < list.size(); i++) {
+            List<Object> bodys = new ArrayList<Object>();
+            bodys.add(i + 1);
+            bodys.add(list.get(i).get("reportname"));
+            if (list.get(i).get("pid") == null) {
+                bodys.add(1);
+            } else {
+                bodys.add(2);
+            }
+            bodys.add(list.get(i).get("parentName"));
+
+            allBody.add(bodys);
+        }
+        result.put("data", allBody);
+
+        JSONObject jsonResult = new JSONObject(result);
+
+        return jsonResult.toString();
+    }
+
+    public static void main(String[] args) throws JsonProcessingException {
+        String result = "[{\"report_node_type\":\"report_title\",\"report_stat_timespan\":\"日期: 2015-10-01 至 2015-10-24\",\"report_name\":\"交易日统计\",\"chartTypes\":[],\"report_conditions\":[\"日期: 从2015-10-01 到2015-10-24\",\"所属分公司/行业线: \"],\"report_title\":[{\"text\":\"交易日期\",\"field\":\"trx_date\",\"presentType\":\"date\",\"presentFormat\":\"yyyy-MM-dd\",\"order\":true},{\"text\":\"分公司/行业线\",\"field\":\"suborg\",\"presentType\":\"string\",\"presentFormat\":\"\",\"order\":false},{\"text\":\"交易笔数\",\"field\":\"transNum\",\"presentType\":\"number\",\"presentFormat\":\"'0'\",\"order\":false},{\"text\":\"封顶交易笔数\",\"field\":\"fengdingTransNum\",\"presentType\":\"number\",\"presentFormat\":\"'0'\",\"order\":false},{\"text\":\"非封顶交易笔数\",\"field\":\"feifengdingTransNum\",\"presentType\":\"number\",\"presentFormat\":\"'0'\",\"order\":false},{\"text\":\"总交易金额\",\"field\":\"transAmount\",\"presentType\":\"number\",\"presentFormat\":\"'0.00'\",\"order\":false},{\"text\":\"封顶交易金额\",\"field\":\"fengdingTransAmount\",\"presentType\":\"number\",\"presentFormat\":\"'0.00'\",\"order\":false},{\"text\":\"非封顶交易金额\",\"field\":\"feifengdingTransAmount\",\"presentType\":\"number\",\"presentFormat\":\"'0.00'\",\"order\":false},{\"text\":\"收入\",\"field\":\"income\",\"presentType\":\"number\",\"presentFormat\":\"'0.00'\",\"order\":false},{\"text\":\"成本\",\"field\":\"cost\",\"presentType\":\"number\",\"presentFormat\":\"'0.00'\",\"order\":false},{\"text\":\"毛利\",\"field\":\"grossProfit\",\"presentType\":\"number\",\"presentFormat\":\"'0.00'\",\"order\":false}]},{\"report_node_type\":\"report_data\",\"suborg\":\"银行合作部\",\"transAmount\":1.7246318343E8,\"grossProfit\":-716587.73,\"income\":19584.49,\"trx_date\":\"2015-10-01\",\"fengdingTransNum\":5071,\"transNum\":22582,\"feifengdingTransAmount\":6.908587589E7,\"feifengdingTransNum\":17511,\"fengdingTransAmount\":1.0337730754E8,\"cost\":736172.22},{\"report_node_type\":\"report_data\",\"suborg\":\"北京分公司\",\"transAmount\":4.40097677E7,\"grossProfit\":29804.76,\"income\":137226.11,\"trx_date\":\"2015-10-01\",\"fengdingTransNum\":1791,\"transNum\":10900,\"feifengdingTransAmount\":2.091111667E7,\"feifengdingTransNum\":9109,\"fengdingTransAmount\":2.309865103E7,\"cost\":107421.35},{\"report_node_type\":\"report_data\",\"suborg\":\"四川分公司\",\"transAmount\":2.4511015369E8,\"grossProfit\":284441.21,\"income\":1094942.37,\"trx_date\":\"2015-10-01\",\"fengdingTransNum\":14990,\"transNum\":81288,\"feifengdingTransAmount\":1.4410699308E8,\"feifengdingTransNum\":66298,\"fengdingTransAmount\":1.0100316061E8,\"cost\":810501.16},{\"report_node_type\":\"report_data\",\"suborg\":\"全国\",\"transAmount\":3305006.17,\"grossProfit\":1729.65,\"income\":6609.89,\"trx_date\":\"2015-10-01\",\"fengdingTransNum\":2,\"transNum\":661,\"feifengdingTransAmount\":3132338.17,\"feifengdingTransNum\":659,\"fengdingTransAmount\":172668.0,\"cost\":4880.24},{\"report_node_type\":\"report_data\",\"suborg\":\"哆啦宝\",\"transAmount\":32513.0,\"grossProfit\":67.28,\"income\":406.49,\"trx_date\":\"2015-10-01\",\"fengdingTransNum\":0,\"transNum\":81,\"feifengdingTransAmount\":32513.0,\"feifengdingTransNum\":81,\"fengdingTransAmount\":0.0,\"cost\":339.21},{\"report_node_type\":\"report_data\",\"suborg\":\"教育事业部\",\"transAmount\":6.273204308E7,\"grossProfit\":82343.54,\"income\":321000.46,\"trx_date\":\"2015-10-01\",\"fengdingTransNum\":117,\"transNum\":14098,\"feifengdingTransAmount\":6.086360307E7,\"feifengdingTransNum\":13981,\"fengdingTransAmount\":1868440.01,\"cost\":238656.92},{\"report_node_type\":\"report_data\",\"suborg\":\"福建分公司\",\"transAmount\":5.9498137704E8,\"grossProfit\":491150.95,\"income\":1591647.26,\"trx_date\":\"2015-10-01\",\"fengdingTransNum\":11815,\"transNum\":105865,\"feifengdingTransAmount\":3.369525541E8,\"feifengdingTransNum\":94050,\"fengdingTransAmount\":2.5802882294E8,\"cost\":1100496.31},{\"report_node_type\":\"report_data\",\"suborg\":\"广东分公司\",\"transAmount\":1.4811368786E8,\"grossProfit\":105580.85,\"income\":723238.28,\"trx_date\":\"2015-10-01\",\"fengdingTransNum\":6339,\"transNum\":34021,\"feifengdingTransAmount\":1.0214776226E8,\"feifengdingTransNum\":27682,\"fengdingTransAmount\":4.59659256E7,\"cost\":617657.43},{\"report_node_type\":\"report_data\",\"suborg\":\"航旅事业部\",\"transAmount\":1.7591639561E8,\"grossProfit\":41421.8,\"income\":609705.05,\"trx_date\":\"2015-10-01\",\"fengdingTransNum\":0,\"transNum\":71427,\"feifengdingTransAmount\":1.7591639561E8,\"feifengdingTransNum\":71427,\"fengdingTransAmount\":0.0,\"cost\":568283.25},{\"report_node_type\":\"report_data\",\"suborg\":\"浙江分公司\",\"transAmount\":1.0523815064E8,\"grossProfit\":55691.8,\"income\":183691.01,\"trx_date\":\"2015-10-01\",\"fengdingTransNum\":2600,\"transNum\":23124,\"feifengdingTransAmount\":4.861405833E7,\"feifengdingTransNum\":20524,\"fengdingTransAmount\":5.662409231E7,\"cost\":127999.21},{\"report_node_type\":\"report_data\",\"suborg\":\"保险事业部\",\"transAmount\":9.7700628034E8,\"grossProfit\":-3001202.92,\"income\":42251.6,\"trx_date\":\"2015-10-01\",\"fengdingTransNum\":0,\"transNum\":299846,\"feifengdingTransAmount\":9.7700628034E8,\"feifengdingTransNum\":299846,\"fengdingTransAmount\":0.0,\"cost\":3043454.52},{\"report_node_type\":\"report_data\",\"suborg\":\"山东分公司\",\"transAmount\":4.320519933E7,\"grossProfit\":35862.96,\"income\":159508.8,\"trx_date\":\"2015-10-01\",\"fengdingTransNum\":297,\"transNum\":15316,\"feifengdingTransAmount\":3.980376106E7,\"feifengdingTransNum\":15019,\"fengdingTransAmount\":3401438.27,\"cost\":123645.84},{\"report_node_type\":\"report_data\",\"suborg\":\"江苏分公司\",\"transAmount\":2.2531214095E8,\"grossProfit\":109992.91,\"income\":419033.84,\"trx_date\":\"2015-10-01\",\"fengdingTransNum\":4617,\"transNum\":33601,\"feifengdingTransAmount\":1.7806063395E8,\"feifengdingTransNum\":28984,\"fengdingTransAmount\":4.7251507E7,\"cost\":309040.93},{\"report_node_type\":\"report_data\",\"suborg\":\"内蒙古分公司\",\"transAmount\":2.315301759E7,\"grossProfit\":28184.12,\"income\":82537.84,\"trx_date\":\"2015-10-01\",\"fengdingTransNum\":1752,\"transNum\":8385,\"feifengdingTransAmount\":1.066494726E7,\"feifengdingTransNum\":6633,\"fengdingTransAmount\":1.248807033E7,\"cost\":54353.72},{\"report_node_type\":\"report_data\",\"suborg\":\"线下收单业务部\",\"transAmount\":31980.0,\"grossProfit\":20.37,\"income\":121.52,\"trx_date\":\"2015-10-09\",\"fengdingTransNum\":0,\"transNum\":31,\"feifengdingTransAmount\":31980.0,\"feifengdingTransNum\":31,\"fengdingTransAmount\":0.0,\"cost\":101.15}]";
+        FormatterViewJson.formatList(result);
+    }
+
+}
+
+
+
+package com.yeepay.bigdata.report.aop;
+
+
+
+
+@Aspect
+@Component
+public class AdminAop {
+
+	@Before("execution(* com.yeepay.bigdata.report.controller.AdminController.*(..))&&@annotation(org.springframework.web.bind.annotation.RequestMapping)")    //spring中Before通知
+    public void before(JoinPoint point) {
+		Object[] args=point.getArgs();
+		for(Object arg:args){
+			if(arg instanceof HttpServletRequest){
+				HttpServletRequest request=(HttpServletRequest)arg;
+				int userId;
+				try {
+					userId = (Integer) request.getSession().getAttribute("userId");
+				} catch (Exception e) {
+					throw new DaportalException("登陆超时,请重新登陆");
+				}
+				if(userId==1||userId<0){
+					return ;
+				}else{
+					throw new DaportalException("需要管理员权限的操作");
+				}
+			}
+		}
+		throw new DaportalException("缺少HttpServletRequest参数");
+    }
+}
+
+
+
+package com.yeepay.bigdata.report.dao;
+
+
+
+
+@Repository("authDao2")
+public class AuthDao {
+
+	@Autowired
+	private JdbcTemplate mysql;
+
+	public int getUserType(int userId){
+		List<Map<String, Object>> list = mysql.queryForList("select userType from auth_user where id=?",new Object[]{userId});
+		if(list.size()!=1){
+			throw new DaportalException("用户错误,没有用户id或用户id重复");
+		}
+		Integer type=(Integer)list.get(0).get("userType");
+		if(type==null){
+			throw new DaportalException("用户类型为空");
+		}
+		return type;
+	}
+
+}
+
+
+
+package com.yeepay.bigdata.report.dao;
+
+
+
+
+@Repository
+public class PushMailDao {
+
+	@Autowired
+	private JdbcTemplate mysql;
+
+
+
+	public List<Map<String, Object>> getPushMailConfig() {
+		List<Map<String, Object>> rs = mysql
+				.queryForList("select * from pushmail");
+		return rs;
+	}
+
+	public List<Map<String, Object>> getPushMailConfig(int userId) {
+		List<Map<String, Object>> rs = mysql.queryForList(
+				"select * from pushmail where userid=?",
+				new Object[] { userId });
+		return rs;
+	}
+
+	public Map<String, Object> getPushMailConfig(int userId, int id) {
+		Map<String, Object> rs = mysql.queryForMap(
+				"select * from pushmail where userid=? and id=?", new Object[] {
+						userId, id });
+		return rs;
+	}
+
+	public void add(final Map<String, Object> data,final int userId) {
+		KeyHolder holder = new GeneratedKeyHolder();
+		mysql.update(new PreparedStatementCreator() {
+
+			@Override
+			public PreparedStatement createPreparedStatement(Connection con)
+					throws SQLException {
+				PreparedStatement ps = con.prepareStatement(
+						"insert into pushmail values(null,?,?,?,?,?,?,?)",
+						Statement.RETURN_GENERATED_KEYS);
+				ps.setInt(1, userId);
+				ps.setString(2, (String)data.get("formData"));
+				ps.setString(3, (String)data.get("sendTime"));
+				ps.setString(4, (String)data.get("mailUrl"));
+				ps.setString(5, (String)data.get("mailName"));
+				ps.setString(6, (String)data.get("queryDateName"));
+				ps.setString(7, (String)data.get("queryDateType"));
+				return ps;
+			}
+		},holder);
+		int id=holder.getKey().intValue();
+		data.put("id", id);
+		return ;
+	}
+
+	public int delete(int userId, int id) {
+		return mysql.update("delete from pushmail where userid=? and id=?",
+				new Object[] { userId, id });
+	}
+
+	public void hold(){
+		mysql.queryForList("select id from pushmail limit 1");
+	}
+}
+
+
+
+package com.yeepay.bigdata.report.dao;
+
+
+
+
+@Repository
+public class ReportAuthDao {
+
+	@Autowired
+	private JdbcTemplate mysql;
+
+	public AuthConfigure getAuthConfigureByCache(int userId) {
+		userMap.put(userId, System.currentTimeMillis());
+		if (AuthCache.userConfigureMap.get(userId) == null) {
+			S.LOG.info("从数据库读取权限配置:userId:{}", userId);
+			return getAuthConfigure(userId);
+		} else {
+			S.LOG.info("从缓存读取权限配置:userId:{}", userId);
+			return AuthCache.userConfigureMap.get(userId);
+		}
+
+	}
+
+	private Map<Integer,Long> userMap=new HashMap<>();
+	public synchronized AuthConfigure getAuthConfigure(int userId) {
+		userMap.put(userId, System.currentTimeMillis());
+		// 初始化auth_parr表到缓存
+		initAuthParrCache();
+		// 初始化auth_r2columns表到缓存
+		initAuthColumns();
+		// 获取用户的所有子用户
+		List<Integer> userIdList = getUserList(userId);
+		// 获取所有可用用户的配置
+		Map<AuthUser, Map<AuthRole, List<AuthFunction>>> configMap = getAuthConfigure(userIdList);
+		AuthConfigure config = new AuthConfigure(configMap,
+				getFunctionParents(configMap));
+		// 将配置保存到缓存
+		AuthCache.userConfigureMap.put(userId, config);
+		return config;
+	}
+
+	private boolean updating=false;
+	private boolean waiting=false;
+	public void updateAllAuthConfigure(){
+		synchronized (this) {
+			if(updating){
+				S.LOG.info("缓存正在更新中.等待缓存更新");
+				waiting=true;
+				return ;
+			}else{
+				S.LOG.info("开始更新缓存");
+				updating=true;
+			}
+		}
+		new updateAllAuthConfigureThread().start();
+	}
+
+	private class updateAllAuthConfigureThread extends Thread{
+		@Override
+		public void run() {
+			for(Entry<Integer, Long> entry:userMap.entrySet()){
+				int userId=entry.getKey();
+				Long lastTime=entry.getValue();
+				if(System.currentTimeMillis()-lastTime<1000*60*60*8){
+					getAuthConfigure(userId);
+				}
+			}
+			if(waiting){
+				S.LOG.info("开始跟更新缓存(等待的更新)");
+				waiting=false;
+				new updateAllAuthConfigureThread().start();
+			}
+			S.LOG.info("完成更新缓存");
+			updating=false;
+		}
+	}
+
+	private void initAuthParrCache() {
+		Builder<Integer, List<AuthParr>> builder;
+		final Map<Integer, List<AuthParr>> userParrMap = new HashMap<>();
+		final Map<Integer, List<AuthParr>> roleParrMap = new HashMap<>();
+		final Map<Integer, List<AuthParr>> functionParrMap = new HashMap<>();
+		String sql = "select * from auth_parr";
+		mysql.query(sql, new RowCallbackHandler() {
+
+			@Override
+			public void processRow(ResultSet rs) throws SQLException {
+				int id = rs.getInt("id");
+				int pid = rs.getInt("pid");
+				String name = rs.getString("name");
+				String type = rs.getString("type");
+				String dataType = rs.getString("dataType");
+				String value = rs.getString("value");
+				AuthParr parr = new AuthParr();
+				parr.setId(id);
+				parr.setPid(pid);
+				parr.setName(name);
+				parr.setDataType(dataType);
+				parr.setValue(value);
+				if ("user".equals(type)) {
+					if (userParrMap.get(pid) == null) {
+						userParrMap.put(pid, new ArrayList<AuthParr>());
+					}
+					userParrMap.get(pid).add(parr);
+				} else if ("role".equals(type)) {
+					if (roleParrMap.get(pid) == null) {
+						roleParrMap.put(pid, new ArrayList<AuthParr>());
+					}
+					roleParrMap.get(pid).add(parr);
+				} else if ("function".equals(type)) {
+					if (functionParrMap.get(pid) == null) {
+						functionParrMap.put(pid, new ArrayList<AuthParr>());
+					}
+					functionParrMap.get(pid).add(parr);
+				}
+			}
+		});
+		builder = ImmutableMap.builder();
+		AuthCache.userParrMap = builder.putAll(userParrMap).build();
+
+		builder = ImmutableMap.builder();
+		AuthCache.roleParrMap = builder.putAll(roleParrMap).build();
+
+		builder = ImmutableMap.builder();
+		AuthCache.functionParrMap = builder.putAll(functionParrMap).build();
+	}
+
+	private void initAuthColumns() {
+		Builder<String, List<String>> builder;
+		final Map<String, List<String>> columnsMap = new HashMap<>();
+		String sql = "select * from auth_r2columns";
+		mysql.query(sql, new RowCallbackHandler() {
+
+			@Override
+			public void processRow(ResultSet rs) throws SQLException {
+				String name = rs.getString("name");
+				int fid = rs.getInt("fid");
+				int rid = rs.getInt("rid");
+				String key = rid + "." + fid;
+				if (columnsMap.get(key) == null) {
+					columnsMap.put(key, new ArrayList<String>());
+				}
+				columnsMap.get(key).add(name);
+			}
+		});
+		builder = ImmutableMap.builder();
+		AuthCache.columnsMap = builder.putAll(columnsMap).build();
+	}
+
+	private List<Integer> getUserList(int userId) {
+		Set<Integer> rs = new HashSet<>();
+		Set<Integer> userIdSet = new HashSet<>();
+		userIdSet.add(userId);
+		while (true) {
+			rs.addAll(userIdSet);
+
+			userIdSet = getChildrenUserList(userIdSet);
+
+			if (userIdSet.size() == 0) {
+				break;
+			}
+
+			for (Integer id : userIdSet) {
+				if (rs.contains(id)) {
+					throw new DaportalException("用户父子关系错乱");
+				}
+			}
+		}
+
+		return Lists.newArrayList(rs);
+	}
+
+	private Set<Integer> getChildrenUserList(Set<Integer> userIdSet) {
+
+		final Set<Integer> users = new HashSet<>();
+
+		String sql = "select id from auth_user u " + "where parent in(";
+		for (Integer id : userIdSet) {
+			sql += id + ",";
+		}
+		sql = sql.substring(0, sql.length() - 1) + ")";
+
+		mysql.query(sql, new RowCallbackHandler() {
+
+			@Override
+			public void processRow(ResultSet rs) throws SQLException {
+				int id = rs.getInt("id");
+				users.add(id);
+			}
+		});
+		return users;
+	}
+
+	private Map<AuthUser, Map<AuthRole, List<AuthFunction>>> getAuthConfigure(
+			List<Integer> userIdList) {
+		// ------------------------读取user,role,function-------------------------------
+		final Map<AuthUser, Map<AuthRole, List<AuthFunction>>> map = new HashMap<>();
+
+		String id = "";
+		for (int i = 0; i < userIdList.size(); i++) {
+			id += userIdList.get(i) + ",";
+		}
+		id = id.substring(0, id.length() - 1);
+		String sql = String.format("select\n" + "u.id uid,\n" + "r.id rid,\n"
+				+ "f.id fid,\n" + "u.fullname ufullname,\n"
+				+ "r.`comment` rcomment,\n" + "f.reportid freportid,\n"
+				+ "f.reportname freportname,\n" + "f.`view` fview,\n"
+				+ "f.pid fparent\n" + "from auth_user u \n"
+				+ "join auth_u2r u2r on u.id=u2r.uid\n"
+				+ "join auth_role r on u2r.rid=r.id\n"
+				+ "join auth_r2f r2f on r.id=r2f.rid and r2f.type='function'\n"
+				+ "join auth_function f on r2f.fid=f.id\n"
+				+ "where u.id in (%s)\n" + "order by u.id,r.id,f.id\n", id);
+		mysql.query(sql, new RowCallbackHandler() {
+			int userid = 0, roleid = 0;
+
+			int uid, rid, fid;
+
+			String ufullname, rcomment, freportid, freportname, fview;
+			Integer fparent;
+
+			@Override
+			public void processRow(ResultSet rs) throws SQLException {
+				uid = rs.getInt("uid");
+				rid = rs.getInt("rid");
+				fid = rs.getInt("fid");
+				if (fid == 0) {
+					System.out.println("1111111");
+				}
+				ufullname = rs.getString("ufullname");
+				rcomment = rs.getString("rcomment");
+				freportid = rs.getString("freportid");
+				freportname = rs.getString("freportname");
+				fview = rs.getString("fview");
+				fparent = (Integer) rs.getObject("fparent");
+
+				if (uid != userid) {
+					putNewUser();
+				} else if (rid != roleid) {
+					putNewRole();
+				} else {
+					putNewFunction();
+				}
+
+				userid = uid;
+				roleid = rid;
+			}
+
+			private void putNewUser() {
+				AuthUser user = new AuthUser(uid);
+				user.setFullname(ufullname);
+				user.setParrs(AuthCache.userParrMap.get(uid));
+				map.put(user, new HashMap<AuthRole, List<AuthFunction>>());
+				putNewRole();
+			}
+
+			private void putNewRole() {
+				AuthRole role = new AuthRole(rid);
+				role.setComment(rcomment);
+				role.setParrs(AuthCache.roleParrMap.get(rid));
+				map.get(new AuthUser(uid)).put(role,
+						new ArrayList<AuthFunction>());
+				putNewFunction();
+			}
+
+			private void putNewFunction() {
+				AuthFunction function = new AuthFunction(fid);
+				function.setReportid(freportid);
+				function.setReportname(freportname);
+				function.setView(fview);
+				function.setParent(fparent);
+				function.setParrs(AuthCache.functionParrMap.get(fid));
+				String key = rid + "." + fid;
+				function.setColumns(AuthCache.columnsMap.get(key));
+				map.get(new AuthUser(uid)).get(new AuthRole(rid)).add(function);
+			}
+
+		});
+
+		return map;
+	}
+
+	public List<AuthFunction> getFunctionParents(
+			Map<AuthUser, Map<AuthRole, List<AuthFunction>>> configMap) {
+		final List<AuthFunction> list = new ArrayList<>();
+		List<String> fidList = new ArrayList<>();
+		for (Map<AuthRole, List<AuthFunction>> roleMap : configMap.values()) {
+			for (List<AuthFunction> functionList : roleMap.values()) {
+				for (AuthFunction function : functionList) {
+					fidList.add(String.valueOf(function.getId()));
+				}
+			}
+		}
+		String sql = "select distinct(pf.id),pf.reportname from auth_function f\n"
+				+ "join auth_function pf on f.pid=pf.id\n"
+				+ "where f.id in(%s) and pf.id not in(%s)";
+		if(fidList.size()==0){
+			throw new DaportalException("登陆成功,但没有任何的功能权限");
+		}
+		mysql.query(
+				String.format(sql, U.join(fidList, ","), U.join(fidList, ",")),
+				new RowCallbackHandler() {
+
+					@Override
+					public void processRow(ResultSet rs) throws SQLException {
+
+						AuthFunction f = new AuthFunction(rs.getInt("id"));
+
+						f.setReportname(rs.getString("reportname"));
+						list.add(f);
+					}
+				});
+
+		return list;
+	}
+
+	public String getReportidByFid(int fid){
+		String sql="select reportid from auth_function where id=?";
+		Map<String, Object> rs = mysql.queryForMap(sql,new Object[]{fid});
+		return String.valueOf(rs.get("reportid"));
+	}
+
+}
+
+
+
+package com.yeepay.bigdata.report.job;
+
+
+
+public class ReportQueryCompJob implements Runnable{
+
+	private ReportQueryController controller;
+	private int userId;
+	private ReportRequest req;
+
+	private BlockingQueue<List<String>> queue = new ArrayBlockingQueue<List<String>>(1);
+	private List<String> line=null;
+	//是否完成查询
+	private volatile boolean finished;
+	//是否正在查询中
+
+	public ReportQueryCompJob(ReportQueryController controller,int userId,
+			ReportRequest req){
+		this.controller=controller;
+		this.userId=userId;
+		//limit=0为没有限制
+		req.setLimit((req.getPage()+1)*req.getLimit());
+		req.setPage(0);
+		this.req=req;
+		this.finished=false;
+	}
+
+	@Override
+	public void run() {
+		try {
+			controller.query(userId, req, new ReportCallbackHandler(){
+
+
+				@Override
+				public void processRow(List<String> row) throws Exception {
+					if(finished){
+						return ;
+					}else{
+						queue.put(row);
+					}
+				}
+
+				@Override
+				public void processTitle(List<String> title) throws Exception {
+					// nothing todo
+				}
+			});
+		} catch (Exception e) {
+			S.LOG.warn("报表对比查询错误",e);
+		}finally{
+		}
+		try {
+			if(!finished){
+				queue.put(new ArrayList<String>());
+			}
+		} catch (InterruptedException e) {
+			S.LOG.warn("BlockQueue put null中断异常",e);
+		}
+	}
+
+	public List<String> pull() throws InterruptedException{
+		if(line==null){
+			List<String> l=queue.take();
+			line=l;
+		}
+		if(line.size()==0){
+			return null;
+		}else{
+			return line;
+		}
+	}
+
+	public void next(){
+		line=null;
+	}
+
+	public void finish() throws InterruptedException{
+		finished=true;
+		queue.poll();
+	}
+
+}
+
+
+
+package com.yeepay.bigdata.report.model.auth;
+
+
+
+public class AuthCache {
+
+	//key=uid
+	public static ImmutableMap<Integer,List<AuthParr>> userParrMap;
+	//key=rid
+	public static ImmutableMap<Integer,List<AuthParr>> roleParrMap;
+	//key=fid
+	public static ImmutableMap<Integer,List<AuthParr>> functionParrMap;
+
+	//key=rid+"."+fid
+	public static ImmutableMap<String,List<String>> columnsMap;
+
+	//key=uid
+	public final static ConcurrentMap<Integer,AuthConfigure> userConfigureMap=new ConcurrentHashMap<>();
+
+}
+
+
+
+package com.yeepay.bigdata.report.model.auth;
+
+
+public class AuthFunction implements Comparable<AuthFunction>{
+
+	private int id;
+	private String reportid;
+	private String reportname;
+	private String view;
+	private Integer parent;
+	private List<AuthParr> parrs;
+	private List<String> columns;
+
+	public AuthFunction(int id){
+		this.id=id;
+	}
+
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getReportid() {
+		return reportid;
+	}
+	public void setReportid(String reportid) {
+		this.reportid = reportid;
+	}
+	public String getReportname() {
+		return reportname;
+	}
+	public void setReportname(String reportname) {
+		this.reportname = reportname;
+	}
+	public String getView() {
+		return view;
+	}
+	public void setView(String view) {
+		this.view = view;
+	}
+	public List<AuthParr> getParrs() {
+		if(parrs==null){
+			return new ArrayList<AuthParr>();
+		}
+		return parrs;
+	}
+	public void setParrs(List<AuthParr> parrs) {
+		this.parrs = parrs;
+	}
+	public List<String> getColumns() {
+		if(columns==null){
+			return new ArrayList<String>();
+		}
+		return columns;
+	}
+	public void setColumns(List<String> columns) {
+		this.columns = columns;
+	}
+	public Integer getParent() {
+		return parent;
+	}
+
+	public void setParent(Integer parent) {
+		this.parent = parent;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof AuthFunction){
+			return this.id==((AuthFunction)obj).getId();
+		}else{
+			return false;
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		return this.id;
+	}
+
+	@Override
+	public int compareTo(AuthFunction o) {
+		return compare(this.id, o.id);
+	}
+
+	public static int compare(int x, int y) {
+        return (x < y) ? -1 : ((x == y) ? 0 : 1);
+    }
+}
+
+
+
+package com.yeepay.bigdata.report.model.auth;
+
+public class AuthParr {
+
+	private int id;
+	private int pid;
+	private String name;
+	private String value;
+	private String dataType;
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public int getPid() {
+		return pid;
+	}
+	public void setPid(int pid) {
+		this.pid = pid;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getValue() {
+		return value;
+	}
+	public void setValue(String value) {
+		this.value = value;
+	}
+	public String getDataType() {
+		return dataType;
+	}
+	public void setDataType(String dataType) {
+		this.dataType = dataType;
+	}
+
+}
+
+
+
+package com.yeepay.bigdata.report.model.auth;
+
+
+public class AuthRole {
+
+	private int id;
+	private String comment;
+	private List<AuthParr> parrs=new ArrayList<>();
+
+	private Integer createUid;
+
+	public AuthRole(int id){
+		this.id=id;
+	}
+
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getComment() {
+		return comment;
+	}
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+	public List<AuthParr> getParrs() {
+		if(parrs==null){
+			return new ArrayList<>();
+		}
+		return parrs;
+	}
+	public void setParrs(List<AuthParr> parrs) {
+		this.parrs = parrs;
+	}
+
+	public Integer getCreateUid() {
+		return createUid;
+	}
+
+	public void setCreateUid(Integer createUid) {
+		this.createUid = createUid;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof AuthRole){
+			return this.id==((AuthRole)obj).getId();
+		}else{
+			return false;
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		return this.id;
+	}
+}
+
+
+
+package com.yeepay.bigdata.report.model.auth;
+
+
+public class AuthUser {
+
+	private int id;
+	private String username;
+	private String fullname;
+	//1: 超级管理员 2:管理员 3:普通用户
+	private Integer type;
+	private List<AuthParr> parrs=new ArrayList<>();
+	public AuthUser(int id){
+		this.id=id;
+	}
+
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getFullname() {
+		return fullname;
+	}
+	public void setFullname(String fullname) {
+		this.fullname = fullname;
+	}
+	public List<AuthParr> getParrs() {
+		if(parrs==null){
+			return new ArrayList<AuthParr>();
+		}
+		return parrs;
+	}
+	public void setParrs(List<AuthParr> parrs) {
+		this.parrs = parrs;
+	}
+
+	public Integer getType() {
+		return type;
+	}
+
+	public void setType(Integer type) {
+		this.type = type;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof AuthUser){
+			return this.id==((AuthUser)obj).getId();
+		}else{
+			return false;
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		return this.id;
+	}
+}
+
+
+
+package com.yeepay.bigdata.report.model;
+
+
+
+
+public class AuthConfigure {
+
+
+	//map<user,map<role,list<function>>>
+	private final Map<AuthUser,Map<AuthRole,List<AuthFunction>>> configMap;
+	private final List<AuthFunction> parentFunctions;
+
+	public AuthConfigure(Map<AuthUser,Map<AuthRole,List<AuthFunction>>> configMap,
+			List<AuthFunction> parentFunctions){
+		this.configMap=configMap;
+		this.parentFunctions=parentFunctions;
+	}
+
+	public List<AuthFunction> getFunctionList(){
+		Set<AuthFunction> functionSet=new TreeSet<>();
+		for(Map<AuthRole,List<AuthFunction>> roleMap:configMap.values()){
+			for(List<AuthFunction> functionList:roleMap.values()){
+				for(AuthFunction function:functionList){
+					functionSet.add(function);
+				}
+			}
+		}
+		functionSet.addAll(parentFunctions);
+		return Lists.newArrayList(functionSet);
+	}
+	public JSONObject getJsonMapByFunction(int fid) throws JSONException, JsonProcessingException{
+		Map<AuthUser,Map<AuthRole,AuthFunction>> map=getMapByFunction(fid);
+		JSONObject jmap=new JSONObject();
+
+		for(Entry<AuthUser,Map<AuthRole,AuthFunction>> configEntry:map.entrySet()){
+			AuthUser user=configEntry.getKey();
+			Map<AuthRole,AuthFunction> roleMap=configEntry.getValue();
+
+			JSONObject juser=new JSONObject();
+			juser.put("fullname", user.getFullname());
+			juser.put("parr", new JSONArray(S.MAPPER.writeValueAsString(user.getParrs())));
+			juser.put("roles", new JSONObject());
+
+			for(Entry<AuthRole,AuthFunction> roleEntry:roleMap.entrySet()){
+				AuthRole role=roleEntry.getKey();
+				AuthFunction function=roleEntry.getValue();
+
+				JSONObject jrole=new JSONObject();
+				jrole.put("comment", role.getComment());
+				jrole.put("parr", new JSONArray(S.MAPPER.writeValueAsString(role.getParrs())));
+
+				JSONObject jfunction=new JSONObject();
+				jfunction.put("parrs", new JSONArray(S.MAPPER.writeValueAsString(function.getParrs())));
+				jfunction.put("columns", new JSONArray(S.MAPPER.writeValueAsString(function.getColumns())));
+				jfunction.put("reportname", function.getReportname());
+
+				jrole.put("fun", jfunction);
+
+				String roleId=String.valueOf(role.getId());
+				juser.getJSONObject("roles").put(roleId, jrole);
+			}
+			String userId=String.valueOf(user.getId());
+			jmap.put(userId, juser);
+		}
+		return jmap;
+	}
+	public Map<AuthUser,Map<AuthRole,AuthFunction>> getMapByFunction(int fid){
+		AuthFunction f=new AuthFunction(fid);
+		Map<AuthUser,Map<AuthRole,AuthFunction>> map=new HashMap<>();
+
+		for(Entry<AuthUser,Map<AuthRole,List<AuthFunction>>> configEntry:configMap.entrySet()){
+			AuthUser user=configEntry.getKey();
+			Map<AuthRole,List<AuthFunction>> roleMap=configEntry.getValue();
+
+			for(Entry<AuthRole,List<AuthFunction>> roleEntry:roleMap.entrySet()){
+				AuthRole role=roleEntry.getKey();
+				List<AuthFunction> functionList=roleEntry.getValue();
+
+				for(AuthFunction function:functionList){
+					if(f.equals(function)){
+						if(map.get(user)==null){
+							map.put(user, new HashMap<AuthRole,AuthFunction>());
+						}
+
+						map.get(user).put(role, function);
+						break;
+					}
+				}
+			}
+		}
+		return map;
+	}
+
+	public String getReportid(int fid){
+		AuthFunction f=new AuthFunction(fid);
+		for(Map<AuthRole,List<AuthFunction>> roleMap:configMap.values()){
+			for(List<AuthFunction> functionList:roleMap.values()){
+				for(AuthFunction function:functionList){
+					if(f.equals(function)){
+						return function.getReportid();
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	public AuthFunction getFunction(int uid,int rid,int fid){
+		List<AuthFunction> functions=configMap.get(new AuthUser(uid)).get(new AuthRole(rid));
+		for(AuthFunction function:functions){
+			if(function.getId()==fid){
+				return function;
+			}
+		}
+		return null;
+	}
+
+	public AuthRole getRole(int uid,int rid){
+		for(AuthRole role:configMap.get(new AuthUser(uid)).keySet()){
+			if(new AuthRole(rid).equals(role)){
+				return role;
+			}
+		}
+		return null;
+	}
+
+	public AuthUser getUser(int uid){
+		for(AuthUser user:configMap.keySet()){
+			if(new AuthUser(uid).equals(user)){
+				return user;
+			}
+		}
+		return null;
+	}
+}
+
+
+
+package com.yeepay.bigdata.report.model;
+
+public class PushMailData {
+
+	private int userid;
+	private String formData;
+	private String sendTime;
+	private String mailUrl;
+	private String queryDateName;
+	private String queryDateType;
+	public int getUserid() {
+		return userid;
+	}
+	public void setUserid(int userid) {
+		this.userid = userid;
+	}
+	public String getFormData() {
+		return formData;
+	}
+	public void setFormData(String formData) {
+		this.formData = formData;
+	}
+	public String getSendTime() {
+		return sendTime;
+	}
+	public void setSendTime(String sendTime) {
+		this.sendTime = sendTime;
+	}
+	public String getMailUrl() {
+		return mailUrl;
+	}
+	public void setMailUrl(String mailUrl) {
+		this.mailUrl = mailUrl;
+	}
+	public String getQueryDateName() {
+		return queryDateName;
+	}
+	public void setQueryDateName(String queryDateName) {
+		this.queryDateName = queryDateName;
+	}
+	public String getQueryDateType() {
+		return queryDateType;
+	}
+	public void setQueryDateType(String queryDateType) {
+		this.queryDateType = queryDateType;
+	}
+
+}
+
+
+
+package com.yeepay.bigdata.report.model;
+
+
+
+public class ReportRequest implements Cloneable{
+
+	// 只有对比时使用
+	// 是否使用对比(组合sql)
+	private boolean iscomp=false;
+	// 标识每个查询的名称(当前,同比,环比)
+	private String name;
+
+	// 表示是否下载
+	private boolean download=false;
+
+	private int page;
+	private int limit;
+
+	private List<String> columns;
+	private Map<String,String> query;
+
+	private int fid;
+	private int rid;
+	private int uid;
+
+	public boolean isDownload() {
+		return download;
+	}
+	public void setDownload(boolean download) {
+		this.download = download;
+	}
+	public boolean isIscomp() {
+		return iscomp;
+	}
+	public void setIscomp(boolean iscomp) {
+		this.iscomp = iscomp;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public int getPage() {
+		return page;
+	}
+	public void setPage(int page) {
+		this.page = page;
+	}
+	public int getLimit() {
+		return limit;
+	}
+	public void setLimit(int limit) {
+		this.limit = limit;
+	}
+	public List<String> getColumns() {
+		return columns;
+	}
+	public void setColumns(List<String> columns) {
+		this.columns = columns;
+	}
+	public Map<String, String> getQuery() {
+		return query;
+	}
+	public void setQuery(Map<String, String> query) {
+		this.query = query;
+	}
+	public int getFid() {
+		return fid;
+	}
+	public void setFid(int fid) {
+		this.fid = fid;
+	}
+	public int getRid() {
+		return rid;
+	}
+	public void setRid(int rid) {
+		this.rid = rid;
+	}
+	public int getUid() {
+		return uid;
+	}
+	public void setUid(int uid) {
+		this.uid = uid;
+	}
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		ReportRequest req=new ReportRequest();
+		req.setName(name);
+
+		req.setPage(page);
+		req.setLimit(limit);
+
+		req.setColumns(new ArrayList<String>());
+		for(String column:columns){
+			req.getColumns().add(column);
+		}
+		req.setQuery(new HashMap<String, String>());
+		for(Entry<String,String> entry:query.entrySet()){
+			req.getQuery().put(entry.getKey(), entry.getValue());
+		}
+
+		req.setFid(fid);
+		req.setRid(rid);
+		req.setUid(uid);
+		return req;
+	}
+}
+
+
+
+package com.yeepay.bigdata.report.model;
+
+
+
+
+public class ReportXml {
+
+	private JSONObject xml;
+
+	/**
+	 * @return xml
+	 * @throws URISyntaxException
+	 * @throws DocumentException
+	 */
+	@SuppressWarnings("unchecked")
+	public ReportXml(String reportid) throws DocumentException,
+			URISyntaxException {
+		// ------------------初始化------------------
+		JSONObject rs = new JSONObject();
+		Document doc = new SAXReader().read(new File("/etc/daportal/"
+				+ reportid + ".xml"));
+		Element root = doc.getRootElement();
+
+		// ------------------读取tables配置------------------
+		JSONObject jTables = new JSONObject();
+		Element eTables = root.element("tables");
+		jTables.put("factTable", eTables.attributeValue("factTable"));
+		jTables.put("as", eTables.attributeValue("as"));
+		jTables.put("lookup", new JSONArray());
+		List<Element> eLookups = eTables.elements("lookup");
+		for (Element eLookup : eLookups) {
+			JSONObject jLookup = new JSONObject();
+			jLookup.put("lookupTable", eLookup.attributeValue("lookupTable"));
+			jLookup.put("as", eLookup.attributeValue("as"));
+			jLookup.put("joinType", eLookup.attributeValue("joinType"));
+			jLookup.put("joinCondition", new JSONArray());
+			List<Element> eJoinConditions = eLookup.elements("joinCondition");
+			for (Element eJoinCondition : eJoinConditions) {
+				JSONObject jJoinCondition = new JSONObject();
+				if (eJoinCondition.attributeValue("condition") == null) {
+					jJoinCondition.put("fact",
+							eJoinCondition.attributeValue("fact"));
+					jJoinCondition.put("lookup",
+							eJoinCondition.attributeValue("lookup"));
+				} else {
+					jJoinCondition.put("condition",
+							eJoinCondition.attributeValue("condition"));
+				}
+				jLookup.getJSONArray("joinCondition").put(jJoinCondition);
+			}
+			jTables.getJSONArray("lookup").put(jLookup);
+		}
+		rs.put("tables", jTables);
+
+		// ------------------读取columns配置------------------
+		JSONObject jAllColumns = new JSONObject();
+		List<Element> eColumnsList = root.element("allcolumns").elements(
+				"columns");
+		for (Element eColumns : eColumnsList) {
+			String name = eColumns.attributeValue("name");
+			List<Element> eColumnList = eColumns.elements("column");
+			JSONObject jColumns = new JSONObject();
+			for (Element eColumn : eColumnList) {
+				String text = eColumn.attributeValue("text");
+				String sqlField = eColumn.attributeValue("sqlField");
+				String type = eColumn.attributeValue("type");
+				String decimals = eColumn.attributeValue("decimals");
+				String comp = eColumn.attributeValue("comp");
+				if(decimals==null){
+					decimals="2";
+				}
+				if(comp==null){
+					comp="0";
+				}
+				JSONObject jColumn = new JSONObject();
+				jColumn.put("sqlField", sqlField);
+				jColumn.put("type", type);
+				jColumn.put("decimals", decimals);
+				jColumn.put("comp", comp);
+				jColumns.put(text, jColumn);
+			}
+			jAllColumns.put(name, jColumns);
+		}
+		rs.put("allcolumns", jAllColumns);
+		if(root.element("allcolumns").attributeValue("comp")==null){
+			rs.put("comp", "0");
+		}else{
+			rs.put("comp", root.element("allcolumns").attributeValue("comp"));
+		}
+		// ------------------读取querys配置------------------
+		JSONObject jQuerys = new JSONObject();
+		String hideButton = root.element("querys").attributeValue("hideButton");
+		rs.put("hideButton", hideButton);
+		String download = root.element("querys").attributeValue("download");
+		if(download==null){
+			download="1";
+		}
+		rs.put("download", download);
+		List<Element> eQueryList = root.element("querys").elements("query");
+		int id = 1;
+		for (Element eQuery : eQueryList) {
+			String text = eQuery.attributeValue("text");
+			String queryType = eQuery.attributeValue("queryType");
+			String labelType = eQuery.attributeValue("labelType");
+			String must = eQuery.attributeValue("must");
+			if(must==null){
+				must="0";
+			}
+			JSONObject jQuery = new JSONObject();
+			JSONObject jData = new JSONObject();
+			List<Element> eDataList = eQuery.elements("data");
+			for (Element eData : eDataList) {
+				String key = eData.attributeValue("key");
+				String value = eData.attributeValue("value");
+				jData.put(key, value);
+			}
+			if(Objects.equal(queryType, "in")&&!jData.has("limit")){
+				jData.put("limit", "0");
+			}
+
+			jQuery.put("queryType", queryType);
+			jQuery.put("labelType", labelType);
+			jQuery.put("must", must);
+			jQuery.put("id", id++);
+			jQuery.put("data", jData);
+			jQuerys.put(text, jQuery);
+		}
+		rs.put("querys", jQuerys);
+
+		// ------------------返回结果------------------
+		this.xml = rs;
+	}
+
+	public JSONObject getXml() {
+		return this.xml;
+	}
+
+	public Map<String, String> getColumn(String name) {
+		for (Object fkey : xml.getJSONObject("allcolumns").keySet()) {
+			for (Object key : xml.getJSONObject("allcolumns")
+					.getJSONObject((String) fkey).keySet()) {
+				if (name.equals(key)) {
+					JSONObject column = xml.getJSONObject("allcolumns")
+							.getJSONObject((String) fkey)
+							.getJSONObject((String) key);
+					Map<String, String> map = new HashMap<>();
+					map.put("type", column.getString("type"));
+					map.put("sqlField", column.getString("sqlField"));
+					map.put("comp", column.getString("comp"));
+					if("sum".equals(column.getString("type"))){
+						map.put("decimals", column.getString("decimals"));
+					}
+					return map;
+				}
+			}
+		}
+		return null;
+	}
+
+	public JSONArray getAllColumns() {
+		JSONArray allColumns = new JSONArray();
+		for (Object fkey : xml.getJSONObject("allcolumns").keySet()) {
+			for (Object key : xml.getJSONObject("allcolumns")
+					.getJSONObject((String) fkey).keySet()) {
+
+				JSONObject jColumn = xml.getJSONObject("allcolumns")
+						.getJSONObject((String) fkey)
+						.getJSONObject((String) key);
+				JSONObject column = new JSONObject();
+				column.put("text", key);
+				column.put("type", jColumn.getString("type"));
+				column.put("sqlField", jColumn.getString("sqlField"));
+				allColumns.put(column);
+			}
+		}
+		return allColumns;
+	}
+
+	public String getQuery(String name) {
+		for (Object key : xml.getJSONObject("querys").keySet()) {
+			if (name.equals(key)) {
+				JSONObject query = xml.getJSONObject("querys").getJSONObject(
+						(String) key);
+				return query.getString("queryType");
+			}
+
+		}
+		return null;
+	}
+
+	public String getCompTime(){
+		for (Object fkey : xml.getJSONObject("allcolumns").keySet()) {
+			for (Object key : xml.getJSONObject("allcolumns")
+					.getJSONObject((String) fkey).keySet()) {
+				JSONObject jColumn = xml.getJSONObject("allcolumns")
+						.getJSONObject((String) fkey)
+						.getJSONObject((String) key);
+				if("time".equals(jColumn.getString("comp"))){
+					return (String)key;
+				}
+			}
+		}
+		throw new RuntimeException("没有time类型的对比字段");
+	}
+
+	public String getTablesBySql() {
+		String sql = "from "
+				+ xml.getJSONObject("tables").getString("factTable")
+				+ (xml.getJSONObject("tables").has("as") ? " AS "
+						+ xml.getJSONObject("tables").getString("as") : "")
+				+ "\n";
+		List<Map<String, String>> list = new ArrayList<>();
+		JSONArray jLookups = xml.getJSONObject("tables").getJSONArray("lookup");
+		for (int i = 0; i < jLookups.length(); i++) {
+			JSONObject jLookup = jLookups.getJSONObject(i);
+			String joinType = jLookup.getString("joinType");
+			String lookupTable = jLookup.getString("lookupTable");
+			if (!jLookup.has("as")) {
+				sql += joinType + " join " + lookupTable + " on 1=1 ";
+			} else {
+				sql += joinType + " join " + lookupTable + " AS "
+						+ jLookup.getString("as") + " on 1=1 ";
+			}
+			JSONArray jConditions = jLookup.getJSONArray("joinCondition");
+			for (int j = 0; j < jConditions.length(); j++) {
+				JSONObject jCondition = jConditions.getJSONObject(j);
+				if (jCondition.has("condition")) {
+					sql += "and " + jCondition.getString("condition") + " ";
+				} else {
+					sql += "and "
+							+ jCondition.getString("fact")
+							+ "="
+							+ (jLookup.has("as") ? jLookup.getString("as")
+									: lookupTable) + "."
+							+ jCondition.getString("lookup") + " ";
+				}
+			}
+			sql += "\n";
+		}
+		return sql;
+	}
+
+	public boolean isDownload(){
+		if(Objects.equal(xml.getString("download"),"1")){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	private static SAXReader sax = new SAXReader();
+	private static DocumentFactory docFactory = sax.getDocumentFactory();
+
+	public static void writeFile(String reportid, JSONObject config)
+			throws IOException {
+		// ---------------------table-----------------------------
+		Element eTables = docFactory.createElement("tables");
+		JSONObject jTable = config.getJSONObject("table");
+		eTables.addAttribute("factTable", jTable.getString("table"));
+		eTables.addAttribute("as", get(jTable.getString("as")));
+		for (int i = 0; i < jTable.getJSONArray("lookup").length(); i++) {
+			Element eLookup = docFactory.createElement("lookup");
+			JSONObject jLookup = jTable.getJSONArray("lookup").getJSONObject(i);
+			eLookup.addAttribute("lookupTable",
+					jLookup.getString("lookupTable"));
+			eLookup.addAttribute("as", get(jLookup.getString("as")));
+			eLookup.addAttribute("joinType", jLookup.getString("joinType"));
+			for (int j = 0; j < jLookup.getJSONArray("joinCondition").length(); j++) {
+				Element eJoinCondition = docFactory
+						.createElement("joinCondition");
+				JSONObject jJoinCondition = jLookup.getJSONArray(
+						"joinCondition").getJSONObject(j);
+				if (jJoinCondition.has("condition")) {
+					eJoinCondition.addAttribute("condition",
+							jJoinCondition.getString("condition"));
+				} else {
+					eJoinCondition.addAttribute("fact",
+							jJoinCondition.getString("fact"));
+					eJoinCondition.addAttribute("lookup",
+							jJoinCondition.getString("lookUp"));
+				}
+				eLookup.add(eJoinCondition);
+			}
+			eTables.add(eLookup);
+		}
+		// ---------------------columns-----------------------------
+		Element eAllcolumns = docFactory.createElement("allcolumns");
+		JSONObject jCols = config.getJSONObject("cols");
+		for (Object oColumnsName : jCols.keySet()) {
+			Element eColumns = docFactory.createElement("columns");
+			eColumns.addAttribute("name", (String) oColumnsName);
+			for (Object oColumnName : jCols
+					.getJSONObject((String) oColumnsName).keySet()) {
+				Element eColumn = docFactory.createElement("column");
+				JSONObject jColumn = jCols.getJSONObject((String) oColumnsName)
+						.getJSONObject((String) oColumnName);
+				eColumn.addAttribute("text", (String) oColumnName);
+				eColumn.addAttribute("sqlField", jColumn.getString("sqlField"));
+				eColumn.addAttribute("type", jColumn.getString("type"));
+				if("sum".equals(jColumn.getString("type"))){
+					eColumn.addAttribute("decimals", jColumn.getString("decimals"));
+				}
+				eColumn.addAttribute("comp", jColumn.getString("comp"));
+				eColumns.add(eColumn);
+			}
+			eAllcolumns.add(eColumns);
+		}
+		eAllcolumns.addAttribute("comp", config.getJSONObject("base").getString("comp"));
+
+		// ---------------------querys-----------------------------
+		Element eQuerys = docFactory.createElement("querys");
+		JSONArray jQuerys = config.getJSONArray("querys");
+		for(int i=0;i<jQuerys.length();i++){
+			Element eQuery = docFactory.createElement("query");
+			JSONObject jQuery=jQuerys.getJSONObject(i);
+			eQuery.addAttribute("text", jQuery.getString("text"));
+			eQuery.addAttribute("queryType", jQuery.getString("queryType"));
+			if(jQuery.has("labelType")){
+				eQuery.addAttribute("labelType", jQuery.getString("labelType"));
+				eQuery.addAttribute("must", jQuery.getString("must"));
+				JSONObject jData=jQuery.getJSONObject("data");
+				for(Object oKey:jData.keySet()){
+					Element eData = docFactory.createElement("data");
+					eData.addAttribute("key", (String)oKey);
+					eData.addAttribute("value", jData.getString((String)oKey));
+					eQuery.add(eData);
+				}
+			}
+			eQuerys.add(eQuery);
+		}
+		eQuerys.addAttribute("hideButton", "4");
+		eQuerys.addAttribute("download", config.getJSONObject("base").getString("download"));
+		// ---------------------写文件-----------------------------
+		Element eRoot = docFactory.createElement("report");
+		eRoot.add(eTables);
+		eRoot.add(eAllcolumns);
+		eRoot.add(eQuerys);
+
+		XMLWriter xmlWriter = new XMLWriter(new FileWriter(new File(
+				"/etc/daportal/" + reportid + ".xml")),
+				OutputFormat.createPrettyPrint());
+		xmlWriter.write(eRoot);
+		xmlWriter.close();
+	}
+
+	public static String get(String s) {
+		if ("".equals(s)) {
+			return null;
+		} else {
+			return s;
+		}
+	}
+}
+
+
+
+package com.yeepay.bigdata.report.service;
+
+
+
+
+public class PushMailJob implements Job {
+
+	public static PushMailDao dao;
+	public static ReportQueryController reportQueryController;
+
+	@Override
+	public void execute(JobExecutionContext ctx) throws JobExecutionException {
+		try {
+			List<Integer> config = (List) ctx.getMergedJobDataMap().get(
+					"config");
+			int userId = (Integer) ctx.getMergedJobDataMap().get("userId");
+			S.LOG.info("开始邮件推送:{}", S.MAPPER.writeValueAsString(config));
+			Map<String,List<String>> filenames=new HashMap<>();
+			Map<String,String> mailNames=new HashMap<>();
+			for (int i = 0; i < config.size(); i++) {
+				int id = config.get(i);
+				Map<String, Object> confMap = dao.getPushMailConfig(userId, id);
+				String filename;
+				filename = downloadFile(confMap);
+
+
+				String[] mailUrls=((String)confMap.get("mailUrl")).split(";");
+				for(String mailUrl:mailUrls){
+					if(filenames.get(mailUrl)==null){
+						filenames.put(mailUrl, new ArrayList<String>());
+					}
+					filenames.get(mailUrl).add(filename);
+
+					if(mailNames.get(mailUrl)==null){
+						mailNames.put(mailUrl,(String)confMap.get("mailName"));
+					}else{
+						mailNames.put(mailUrl, mailNames.get(mailUrl)+confMap.get("mailName")+"&");
+					}
+				}
+			}
+			for(String mailUrl:filenames.keySet()){
+				MailSend.sendMail(mailUrl, mailNames.get(mailUrl), "", filenames.get(mailUrl));
+			}
+			S.LOG.info("完成邮件推送:{}", S.MAPPER.writeValueAsString(config));
+		} catch (Exception e) {
+			S.LOG.error("推送邮件执行失败", e);
+		}
+	}
+
+	private DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
+	private String downloadFile(Map<String, Object> confMap)
+			throws Exception {
+
+		final String type = "csv";
+		String filename = "/tmp/daportal/report-" + confMap.get("userid")+"-"
+				+ confMap.get("mailName") + "-" + df.format(new Date());
+
+		if ("csv".equals(type)) {
+			filename += ".csv";
+		} else {
+			filename += ".xlsx";
+		}
+
+		final BufferedOutputStream out = new BufferedOutputStream(
+				new FileOutputStream(new File(filename)));
+		final StreamingExcelGenerator excel = new StreamingExcelGenerator(out,
+				"数据");
+
+		final CSVFormat format = CSVFormat.RFC4180;
+		if(iscomp(confMap)){
+			List<ReportRequest> reqs=initParameterComp(confMap);
+			for(ReportRequest req:reqs){
+				req.setDownload(true);
+			}
+			reportQueryController.queryComp((Integer) confMap.get("userid"), reqs,
+					new ReportCompCallbackHandler() {
+
+						@Override
+						public void processTitle(List<CompCell> compTitle) throws Exception {
+							List<String> title=new ArrayList<>();
+							for(CompCell cell:compTitle){
+								if(cell.isIsdimen()){
+									title.add(cell.getTitle());
+								}else{
+									boolean isfirst=true;
+									for(String v:cell.getValue()){
+										if(isfirst){
+											title.add(cell.getTitle()+"-"+v);
+											isfirst=false;
+										}else{
+											title.add(cell.getTitle()+"-"+v);
+											title.add(cell.getTitle()+"-"+v+"-增量");
+											title.add(cell.getTitle()+"-"+v+"-增量百分比");
+										}
+
+									}
+								}
+							}
+							if ("csv".equals(type)) {
+								String value = format.format(title.toArray());
+								out.write(value.getBytes(S.GBK));
+							} else {
+								excel.start(title);
+							}
+						}
+
+						@Override
+						public void processRow(List<CompCell> compRow) throws Exception {
+							List<String> row=new ArrayList<>();
+							for(CompCell cell:compRow){
+								boolean isfirst=true;
+								String firstv=null;
+								for(String v:cell.getValue()){
+									if(isfirst){
+										row.add(v);
+										firstv=v;
+										isfirst=false;
+									}else{
+										row.add(v);
+										row.add(reportQueryController.getSub(firstv,v));
+										row.add(reportQueryController.getPer(firstv,v));
+									}
+								}
+							}
+							if ("csv".equals(type)) {
+								String value = "\n" + format.format(row.toArray());
+								out.write(value.getBytes(S.GBK));
+							} else {
+								excel.processLine(row);
+							}
+						}
+					});
+		}else{
+			ReportRequest req = initParameter(confMap);
+			req.setDownload(true);
+			reportQueryController.query((Integer) confMap.get("userid"), req,
+					new ReportCallbackHandler() {
+
+						// 输出报表标题
+						@Override
+						public void processTitle(List<String> title)
+								throws Exception {
+							if ("csv".equals(type)) {
+								String value = format.format(title.toArray());
+								out.write(value.getBytes(S.GBK));
+							} else {
+								excel.start(title);
+							}
+
+						}
+
+						// 输出报表内容
+						@Override
+						public void processRow(List<String> row) throws Exception {
+							if ("csv".equals(type)) {
+								String value = "\n" + format.format(row.toArray());
+								out.write(value.getBytes(S.GBK));
+							} else {
+								excel.processLine(row);
+							}
+						}
+
+					});
+		}
+		out.close();
+		return filename;
+	}
+
+	private ReportRequest initParameter(Map<String, Object> confMap) {
+		JSONObject formdata = new JSONObject((String) confMap.get("formData"));
+		ReportRequest req = new ReportRequest();
+		req.setUid(Integer.parseInt(formdata.getString("uid")));
+		req.setRid(Integer.parseInt(formdata.getString("rid")));
+		req.setFid(Integer.parseInt(formdata.getString("fid")));
+
+		req.setPage(0);
+		req.setLimit(0);
+
+		List<String> columns = Lists.newArrayList(formdata.getString("columns")
+				.split(","));
+		req.setColumns(columns);
+
+		JSONObject jQuerys = new JSONObject(formdata.getString("querys"));
+		Iterator<String> ite = jQuerys.keys();
+		Map<String, String> querys = new HashMap<>();
+		while (ite.hasNext()) {
+			String key = ite.next();
+			String value = jQuerys.getString(key);
+			querys.put(key, value);
+		}
+		req.setQuery(querys);
+		// 重新处理请求时间
+		String queryDateName = (String) confMap.get("queryDateName");
+		String[] queryDateType = ((String) confMap.get("queryDateType"))
+				.split(",");
+		Date now = UDate.get(S.DAY);
+		String dateStr;
+		Date start, end;
+		if ("day".equals(queryDateType[0])) {
+			start = UDate.add(now, S.DAY, -Integer.parseInt(queryDateType[1]));
+			end = UDate.add(now, S.DAY, -Integer.parseInt(queryDateType[2]));
+		} else if ("month".equals(queryDateType[0])) {
+			start = UDate
+					.add(now, S.MONTH, -Integer.parseInt(queryDateType[1]));
+			end = UDate.add(now, S.MONTH, -Integer.parseInt(queryDateType[2]));
+		} else {
+			throw new DaportalException("无效的queryDateType:" + queryDateType[0]);
+		}
+		DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd");
+		DateFormat df2 = new SimpleDateFormat("yyyy-MM");
+		String pdStr = querys.get(queryDateName).split(",")[0];
+		if (pdStr.length() == 10) {
+			querys.put(queryDateName, df1.format(start) + "," + df1.format(end));
+		} else if (pdStr.length() == 7) {
+			querys.put(queryDateName, df2.format(start) + "," + df2.format(end));
+		} else {
+			throw new DaportalException("未知时间类型:" + pdStr);
+		}
+		return req;
+	}
+
+	private List<ReportRequest> initParameterComp(Map<String, Object> confMap) throws CloneNotSupportedException{
+		JSONObject formdata = new JSONObject((String) confMap.get("formData"));
+		ReportRequest req = new ReportRequest();
+		req.setUid(Integer.parseInt(formdata.getString("uid")));
+		req.setRid(Integer.parseInt(formdata.getString("rid")));
+		req.setFid(Integer.parseInt(formdata.getString("fid")));
+
+		req.setPage(0);
+		req.setLimit(0);
+
+		List<String> columns = Lists.newArrayList(formdata.getString("columns")
+				.split(","));
+		req.setColumns(columns);
+
+		JSONObject jQuerys = new JSONObject(formdata.getString("querys"));
+		Iterator<String> ite = jQuerys.keys();
+		Map<String, String> querys = new HashMap<>();
+		while (ite.hasNext()) {
+			String key = ite.next();
+			String value = jQuerys.getString(key);
+			querys.put(key, value);
+		}
+		req.setQuery(querys);
+		// 重新处理请求时间
+		DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd");
+		DateFormat df2 = new SimpleDateFormat("yyyy-MM");
+		List<ReportRequest> rs=new ArrayList<>();
+
+		String queryDateName = (String) confMap.get("queryDateName");
+		JSONArray queryDateTypes = new JSONArray( (String)confMap.get("queryDateType"));
+		String pdStr = new JSONArray(querys.get(queryDateName))
+			.getJSONObject(0)
+			.getString("value")
+			.split(",")[0];
+		for(int i=0;i<queryDateTypes.length();i++){
+			ReportRequest request=(ReportRequest)req.clone();
+			JSONObject queryDateType = queryDateTypes.getJSONObject(i);
+
+			Date now = UDate.get(S.DAY);
+			String dateStr;
+			Date start, end;
+			String queryDateTypeName=queryDateType.getString("name");
+			String queryDateTypeTimes[]=queryDateType.getString("time").split(",");
+			String queryDateTypeType=queryDateType.getString("type");
+			if ("day".equals(queryDateTypeType)) {
+				start = UDate.add(now, S.DAY, -Integer.parseInt(queryDateTypeTimes[0]));
+				end = UDate.add(now, S.DAY, -Integer.parseInt(queryDateTypeTimes[1]));
+			} else if ("month".equals(queryDateTypeType)) {
+				start = UDate
+						.add(now, S.MONTH, -Integer.parseInt(queryDateTypeTimes[0]));
+				end = UDate.add(now, S.MONTH, -Integer.parseInt(queryDateTypeTimes[1]));
+			} else {
+				throw new DaportalException("无效的queryDateType:" + queryDateTypeType);
+			}
+
+			String dateValue;
+			if (pdStr.length() == 10) {
+				dateValue=df1.format(start) + "," + df1.format(end);
+			} else if (pdStr.length() == 7) {
+				dateValue=df2.format(start) + "," + df2.format(end);
+
+			} else {
+				throw new DaportalException("未知时间类型:" + pdStr);
+			}
+			request.getQuery().put(queryDateName,dateValue);
+			request.setName(queryDateTypeName+"("+dateValue+")");
+			request.setIscomp(true);
+
+			rs.add(request);
+		}
+		return rs;
+	}
+
+	private boolean iscomp(Map<String, Object> confMap){
+		JSONObject formdata = new JSONObject((String) confMap.get("formData"));
+		if(formdata.has("comp")&&formdata.getInt("comp")==1){
+			return true;
+		}else{
+			return false;
+		}
+	}
+}
+
+
+
+package com.yeepay.bigdata.report.service;
+
+
+
+
+
+@Service
+public class PushMailSvc {
+
+	@Autowired
+	private PushMailDao dao;
+
+	private SchedulerFactory factory = new StdSchedulerFactory();
+	private Scheduler sched;
+
+	public PushMailSvc() throws SchedulerException {
+		sched = factory.getScheduler();
+	}
+
+	private Thread init;
+
+	@PostConstruct
+	public void init() throws InterruptedException {
+		init = new InitThread();
+		init.start();
+		PushMailJob.dao = dao;
+	}
+
+	@PreDestroy
+	public void destroy() throws SchedulerException {
+		init.interrupt();
+		sched.shutdown();
+	}
+
+	@Transactional
+	public void add(Map<String, Object> data, int userId)
+			throws SchedulerException, ParseException, JsonProcessingException {
+		dao.add(data, userId);
+		addToSched(data, userId);
+	}
+
+	private void addToSched(Map<String, Object> data, int userId)
+			throws SchedulerException, ParseException, JsonProcessingException {
+		String cron = getCron((String) data.get("sendTime"));
+		JSONObject formdata = new JSONObject((String) data.get("formData"));
+		String key = userId + ":" + formdata.getString("fid") + ":" + cron;
+		S.LOG.info("定时任务:\ndata:{}\ncron表达式:{}\nkey:{}", S.MAPPER
+				.writeValueAsString(data).toString(), cron, key);
+		if (sched.getJobDetail(JobKey.jobKey(key)) == null) {
+			JobDetailImpl jobDetail = new JobDetailImpl();
+			jobDetail.setKey(JobKey.jobKey(key));
+			List<Integer> config = new ArrayList<>();
+			config.add((Integer) data.get("id"));
+			jobDetail.getJobDataMap().put("config", config);
+			jobDetail.getJobDataMap().put("userId", userId);
+			jobDetail.setJobClass(PushMailJob.class);
+
+			CronTriggerImpl trigger = new CronTriggerImpl();
+			trigger.setName(key);
+			trigger.setCronExpression(cron);
+
+			sched.scheduleJob(jobDetail, trigger);
+			sched.start();
+		} else {
+			JobDetail jobDetail = sched.getJobDetail(JobKey.jobKey(key));
+			List<Integer> config = (List) jobDetail.getJobDataMap().get(
+					"config");
+			config.add((Integer) data.get("id"));
+		}
+	}
+
+	public void delete(int userId, int id) throws SchedulerException {
+		Map<String, Object> rs = dao.getPushMailConfig(userId, id);
+		if (dao.delete(userId, id) == 0) {
+			return;
+		}
+		JSONObject formdata = new JSONObject((String) rs.get("formData"));
+		String cron = getCron((String) rs.get("sendTime"));
+		String key = userId + ":" + formdata.getString("fid") + ":" + cron;
+		if (sched.getJobDetail(JobKey.jobKey(key)) != null) {
+			JobDetail jobDetail = sched.getJobDetail(JobKey.jobKey(key));
+			List<Integer> config = (List) jobDetail.getJobDataMap().get(
+					"config");
+			for (int i = config.size() - 1; i >= 0; i--) {
+				if (config.get(i).equals(id)) {
+					config.remove(i);
+				}
+			}
+		}
+	}
+
+	private String getCron(String str) {
+		String[] s = str.split(",");
+		String cron = "0";// 秒
+		String[] time = s[0].split(":");
+		cron += " " + Integer.parseInt(time[1]);// 分
+		cron += " " + Integer.parseInt(time[0]);// 时
+		String m = "";
+		for (int i = 2; i < s.length; i++) {
+			m += s[i] + ",";
+		}
+		m = m.substring(0, m.length() - 1);
+		if ("week".equals(s[1])) {
+			cron += " ? * " + m;
+		} else if ("month".equals(s[1])) {
+			cron += " " + m + " * ?";
+		}
+		return cron;
+	}
+
+	public class InitThread extends Thread {
+		@Override
+		public void run() {
+			List<Map<String, Object>> rs = dao.getPushMailConfig();
+			for (int i = 0; i < rs.size(); i++) {
+				Map<String, Object> map = rs.get(i);
+				try {
+					addToSched(map, (Integer) map.get("userid"));
+				} catch (Exception e) {
+					S.LOG.error("邮件推送初始化失败", e);
+				}
+			}
+			// 创建用来下载推送邮件的临时文件夹
+			File file = new File("/tmp/daportal");
+			if (!file.exists() && !file.isDirectory()) {
+				file.mkdir();
+			}
+			S.LOG.info("邮件推送初始化完成");
+			try {
+				while (true) {
+					sleep(1000 * 60 * 60);
+					dao.hold();
+				}
+			} catch (InterruptedException e) {
+			}
+			S.LOG.info("监听结束");
+		}
+	}
+}
+
+
+
+package com.yeepay.bigdata.service;
+
+
+
+
+
+/**
+ * 执行流程:
+ * ->report()
+ * 	->checkAuth():检查权限
+ * 		-function:获取用户的function权限参数
+ * 	->formatParameter():格式化参数
+ * 		-root:获取xml配置
+ * 		-fieldMap:获取字段映射
+ * 	->query():查询
+ * 		->dealSql():生成sql语句
+ *
+ * report_type为多余参数,但是以前的查询需要,暂不去除 在formatParameter映射中reportData中的report_type被移除
+ * 在checkAuth中,添加system的report_type,覆盖请求参数
+ *
+ * @author yp-tc-m-2682
+ *
+ */
+@Service
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+public class FlowQuerySvc {
+
+	@Autowired
+	private AuthDao dao;
+	@Autowired
+	private JdbcTemplate reportdb;
+	@Autowired
+	private LogDao log;
+
+	private JSONObject system;
+	private JSONObject reportData;
+	private int userid;
+	private ReportCallbackHandler handler;
+	// report配置文件
+	private Element root;
+	// field->sqlField
+	private Map<String, String> fieldMap = new HashMap<String, String>();
+	// field->title
+	private Map<String, String> titleMap = new HashMap<String, String>();
+	// 当前用户的function
+	private Function function;
+
+	/**
+	 * 查询报表内容
+	 *
+	 * @param system
+	 * @param reportData
+	 * @param userid
+	 * @param handler
+	 * @throws Exception
+	 */
+	private Runtime rt = Runtime.getRuntime();
+	public void report(JSONObject system, JSONObject reportData,
+			HttpServletRequest request, ReportCallbackHandler handler)
+			throws Exception {
+
+		log.log((String)MDC.get("userid"), "内存", "used:"+U.getSize(rt.totalMemory() - rt.freeMemory()), "INFO");
+		S.LOG.info("内存使用情况->used:{},total:{},free:{},max:{}",
+				U.getSize(rt.totalMemory() - rt.freeMemory()),
+				U.getSize(rt.totalMemory()), U.getSize(rt.freeMemory()),
+				U.getSize(rt.maxMemory()));
+		this.system = system;
+		this.reportData = reportData;
+		try {
+			this.userid = (Integer) request.getSession().getAttribute("userId");
+		} catch (Exception e) {
+			throw new DaportalException("登陆超时,请重新登陆");
+		}
+		this.handler = handler;
+
+		long start = System.currentTimeMillis();
+		log.log(String.valueOf(MDC.get("userid")), "查询请求参数", system.toString()+reportData.toString(), "INFO");
+		S.LOG.info("用户:{},查询开始时间:{}", userid, start);
+		S.LOG.info("参数system:{}", system);
+		S.LOG.info("参数reportData:{}", reportData);
+		checkAuth();
+		formatParameter();
+		query();
+		log.log((String)MDC.get("userid"), "查询时间", String.valueOf((System.currentTimeMillis() - start)), "INFO");
+		S.LOG.info("查询使用时间:{}", (System.currentTimeMillis() - start));
+	}
+
+	/**
+	 * 检查权限
+	 */
+	private void checkAuth() {
+		/**
+		 * 读取function
+		 */
+		int fid = Integer.parseInt((String) system.get("fid"));
+		int uid = Integer.parseInt((String) system.get("uid"));
+		int rid = Integer.parseInt((String) system.get("rid"));
+		Map<User, Map<Role, Function>> res = dao.getFunctionsMap(userid, fid);
+		function = res.get(new User(uid)).get(new Role(rid));
+
+		/*
+		 * 匹配reportid(function)
+		 */
+		system.put("report_type", function.getReportid());
+		/**
+		 * 匹配filter(filters)
+		 */
+		// 获取用户用来得到用户配置的参数
+		User user = null;
+		for (User u : res.keySet()) {
+			if (u.equals(new User(uid))) {
+				user = u;
+				break;
+			}
+		}
+		// 根据用户参数得到filters
+		Map<String, String> filters = new HashMap<>();
+		for (Filter filter : function.getFilters()) {
+			String filterValue = U.getStringByParr(filter.getValue(),
+					user.getParr());
+			if (filterValue != null) {
+				filters.put(filter.getName(), filterValue);
+			}
+		}
+		// 遍历filters合并到reportData中
+		for (String key : filters.keySet()) {
+			if (reportData.has(key)) {
+				Set<String> filtersSet = Sets.newHashSet(filters.get(key)
+						.split(","));
+				String[] values = reportData.getString(key).split(",");
+				for (int i = 0; i < values.length; i++) {
+					String value = values[i];
+					if (!filtersSet.contains(value)) {
+						throw new DaportalException("查询参数权限不足:" + key);
+					}
+				}
+			} else {
+				reportData.put(key, filters.get(key));
+			}
+		}
+
+		/**
+		 * 匹配列(columns)
+		 */
+		Set<Column> columnsSet = Sets.newHashSet(function.getColumns());
+		for (int i = 0; i < system.getJSONArray("columns").length(); i++) {
+			if (!columnsSet.contains(new Column(system.getJSONArray("columns")
+					.getString(i)))) {
+				throw new DaportalException("列权限不足");
+			}
+		}
+		if (system.getJSONArray("columns").length() == 0) {
+			throw new DaportalException("查询列为空");
+		}
+	}
+
+	/**
+	 * 格式化参数
+	 *
+	 * @throws DocumentException
+	 * @throws URISyntaxException
+	 */
+	private void formatParameter() throws DocumentException, URISyntaxException {
+		// field转到sqlfield
+		String filename = system.getString("report_type") + "_report.xml";
+		Document doc = new SAXReader().read(new File(this.getClass()
+				.getClassLoader().getResource("/views/" + filename).toURI()));
+		root = doc.getRootElement();
+		@SuppressWarnings("unchecked")
+		List<Element> titles = root.element("titles").elements("title");
+		JSONObject data = new JSONObject();
+		for (int i = 0; i < titles.size(); i++) {
+			Element title = titles.get(i);
+			String field = title.attributeValue("field");
+			String sqlField = title.attributeValue("sqlField");
+			String text = title.attributeValue("text");
+			if (reportData.has(field)) {
+				data.put(sqlField, reportData.get(field));
+			}
+			fieldMap.put(field, sqlField);
+			titleMap.put(field, text);
+		}
+		reportData = data;
+	}
+
+	/**
+	 * 查询数据
+	 * @throws Exception
+	 */
+	private int count=0;
+	private void query() throws Exception {
+		// 转换参reportData数据到sql
+		// --包含selectField,where,grouping
+		String sql = dealSql();
+		log.log((String)MDC.get("userid"), "sql语句", sql, "INFO");
+		S.LOG.info("查询sql语句:{}", sql);
+		// 选择数据库
+		JdbcTemplate jdbc;
+		String datasource = root.element("datasource").getText();
+		if ("reportdb".equals(datasource)) {
+			jdbc = reportdb;
+		} else {
+			throw new DaportalException("配置数据库不存在");
+		}
+		// 查询,回调resultSet,一行返回一次
+		S.LOG.info("开始查询:"+S.MAPPER.writeValueAsString(new Date()));
+
+		//=====================query=====================
+		final int start,end;
+		if(system.has("page")&&system.has("limit")){
+			int page=Integer.parseInt(system.getString("page"));
+			int limit=Integer.parseInt(system.getString("limit"));
+			start=page*limit;
+			end=(page+1)*limit;
+		}else{
+			start=0;
+			end=0;
+		}
+		jdbc.query(sql, new RowCallbackHandler() {
+			@Override
+			public void processRow(ResultSet rs) throws SQLException {
+				try{
+					List<String> title = new ArrayList<>();
+					if(count==0){
+						for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+							title.add(titleMap.get(rs.getMetaData().getColumnLabel(i)));
+						}
+						handler.processTitle(title);
+					}
+					count++;
+					//end=0为取全部数据
+					if(end>0){
+						if(count<=start||count>end){
+							return ;
+						}
+					}
+					List<String> row = new ArrayList<>();
+					for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+						row.add(rs.getString(i));
+					}
+					handler.processRow(row);
+				}catch(Exception e){
+					throw new RuntimeException(e);
+				}
+
+			}
+		});
+	}
+
+	DateFormat dfDay = new SimpleDateFormat("yyyy-MM-dd");
+	DateFormat dfMonth = new SimpleDateFormat("yyyy-MM");
+
+	/**
+	 * 生成sql语句
+	 *
+	 * @return
+	 * @throws ParseException
+	 */
+	@SuppressWarnings("deprecation")
+	private String dealSql() throws ParseException {
+		// sql
+		String sql = root.element("sql").getText();
+		/**
+		 * where
+		 */
+		String where = "where 1=1\n";
+		// 逗号分隔,结束时间增加一天
+		@SuppressWarnings("unchecked")
+		List<Element> queryFields = root.element("queryFields").elements(
+				"queryField");
+		for (int i = 0; i < queryFields.size(); i++) {
+			Element queryField = queryFields.get(i);
+			String id = queryField.attributeValue("id");
+			String type = queryField.attributeValue("type");
+			if (reportData.has(id)) {
+				String value = reportData.getString(id);
+				if (!"".equals(value)) {
+					if ("FIELD_COLLECTION".equals(type)) {
+						where += "and " + id + " in('"
+								+ value.replaceAll(",", "','") + "')\n";
+					} else if ("FIELD_DESC".equals(type)) {
+						where += "and " + id + " like '%" + value + "%'\n";
+					} else if ("FIELD_DAY".equals(type)) {
+						String[] time = value.split(",");
+						Date end = dfDay.parse(time[1]);
+						end.setDate(end.getDate() + 1);
+						where += "and " + id + ">='" + time[0] + "' and " + id
+								+ "<'" + dfDay.format(end) + "'\n";
+					} else if ("FIELD_MONTH".equals(type)) {
+						String[] time = value.split(",");
+						Date end = dfMonth.parse(time[1]);
+						end.setDate(end.getDate() + 1);
+						where += "and " + id + ">='" + time[0].replace("-", "") + "' and " + id
+								+ "<'" + dfMonth.format(end).replace("-", "") + "'\n";
+					} else {
+						throw new DaportalException("配置中出现未知的筛选类型:" + type);
+					}
+				}
+			}
+		}
+		/**
+		 * selectField
+		 */
+		String selectFields = "";
+		JSONArray columns = system.getJSONArray("columns");
+		Set<String> columnsSet = new HashSet<>();
+		for (int i = 0; i < columns.length(); i++) {
+			selectFields += fieldMap.get(columns.getString(i)) + " as "
+					+ columns.getString(i) + ",\n";
+			columnsSet.add(columns.getString(i));
+		}
+		selectFields = selectFields.substring(0, selectFields.length() - 2)
+				+ "\n";
+		/**
+		 * grouping
+		 */
+		String grouping;
+		List<String> groups=new ArrayList<>();
+		for (int i = 0; i < function.getColumns().size(); i++) {
+			Column c = function.getColumns().get(i);
+			if ("group".equals(c.getGroupType())) {
+				if (columnsSet.contains(c.getName())) {
+					groups.add(c.getName());
+				}
+			}
+		}
+		//group顺序
+		List<String> groupsx=new ArrayList<>();
+		for(int i=0;i<columns.length();i++){
+			if(groups.contains(columns.getString(i))){
+				groupsx.add(columns.getString(i));
+			}
+		}
+		groups=groupsx;
+		//生成grouping
+		if(groups.size()==0){
+			grouping="";
+		}else{
+			grouping="group by\n";
+			for(int i=0;i<groups.size();i++){
+				grouping+=fieldMap.get(groups.get(i))+",\n";
+			}
+			grouping = grouping.substring(0, grouping.length() - 2) + "\n";
+		}
+		/**
+		 * order
+		 */
+		String order="order by\n";
+		for(int i=0;i<columns.length();i++){
+			order+=fieldMap.get(columns.getString(i))+" desc,\n";
+		}
+		order=order.substring(0, order.length() - 2) + "\n";
+		return sql.replace("${selectFields}", selectFields)
+				.replace("${where}", where).replace("${grouping}", grouping+order);
+	}
+
+}
+
+
+
+package com.yeepay.bigdata.service;
+
+
+
+
+
+@Service
+public class ReportSvc {
+
+	@Autowired
+	DataSource db2DataSource;
+	@Autowired
+	DataSource bigdataDataSource;
+	@Autowired
+	DataSource reportdbDataSource;
+
+	@Autowired
+	private LogDao log;
+
+	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	private SimpleDateFormat sdfMonth = new SimpleDateFormat("yyyy-MM");
+
+	private static final Logger LOG = LoggerFactory.getLogger(ReportSvc.class);
+
+	public String report(Map<String, String> params)
+			throws JsonProcessingException {
+		long start = System.currentTimeMillis();
+		log.log(String.valueOf(MDC.get("userid")), "查询请求参数-report", S.MAPPER.writeValueAsString(params), "INFO");
+		LOG.info("开始查询,时间:{},参数:{}",
+				S.MAPPER.writeValueAsString(new Date(start)),
+				S.MAPPER.writeValueAsString(params));
+
+		String result=reportCore(params);
+
+		log.log((String)MDC.get("userid"), "查询时间-report", String.valueOf((System.currentTimeMillis() - start)), "INFO");
+		LOG.info("结束查询,耗时:{}", System.currentTimeMillis() - start);
+		return result;
+	}
+
+	private String reportCore(Map<String, String> params) {
+		ReportAction ra = ReportAction.getInstance();
+		List<Map<String, Object>> lines = null;
+		String reportType = params.get("report_type");
+		String pageNo = params.get("pageno");
+		String pageSize = params.get("pagesize");
+		if (reportType == null) {
+			return null;
+		}
+		String paging = "";
+		if (pageNo != null && pageSize != null) {
+			int rowNo = (Integer.parseInt(pageNo) - 1)
+					* Integer.parseInt(pageSize);
+			paging = "limit " + rowNo + "," + pageSize;
+		}
+
+		String timeRange = params.get("timespan");
+		String groupBy = params.get("group");
+
+		String s = null;
+		String e = null;
+		if (timeRange != null) {
+			String[] se = timeRange.split(",");
+			s = se[0].trim();
+			e = previousDay(se[1].trim());
+		}
+
+		ra.setDatasource(bigdataDataSource);
+		String query = "trx_date=" + s + "&trx_date=" + e;
+		String reportId = null;
+		// ==========================开始reportType判断======================================
+		// ================================================================================
+		// ===========================trans_stat_report====================================
+		if ("trans_stat_report".equals(reportType)) {
+			reportId = "trans_stat_report";
+			String branchname = params.get("branchname");
+			if (branchname != null) {
+				branchname = "'" + branchname.replaceAll(",", "','") + "'";
+			}
+			query = "m.trx_date=" + s + "&m.trx_date=" + e + "&m.sales_branch="
+					+ branchname;
+		}
+		// ===========================merchant_stat_report================================
+		else if ("merchant_stat_report".equals(reportType)) {
+			reportId = "merchant_stat_report";
+			String branchname = params.get("branchname");
+			if (branchname != null) {
+				branchname = "'" + branchname.replaceAll(",", "','") + "'";
+			}
+			query = "d.trx_date=" + s + "&d.trx_date=" + e + "&cu.OPEN_TIME="
+					+ s + "&cu.OPEN_TIME=" + e + "&temp1.branchname="
+					+ branchname;
+		}
+		// ===========================unionpay_stat_report================================
+		else if ("unionpay_stat_report".equals(reportType)) {
+			String customers = params.get("customers");
+			String[] customerList = customers.split(",");
+			if (customerList.length <= 0) {
+				return null;
+			}
+			StringBuffer customerListStr = new StringBuffer();
+			for (int i = 0; i < customerList.length; i++) {
+				customerListStr.append("'" + customerList[i] + "',");
+			}
+			reportId = "unionpay_stat_report";
+			query = "pc.start_using_time="
+					+ s
+					+ " 00:00:00&pc.start_using_time="
+					+ e
+					+ " 00:00:00"
+					+ "&d.TRX_DATE="
+					+ s
+					+ "&d.TRX_DATE="
+					+ e
+					+ "&d.TRXDATE="
+					+ s
+					+ "&d.TRXDATE="
+					+ e
+					+ "&pc.CUSTOMER_NUMBER="
+					+ customerListStr
+							.substring(0, customerListStr.length() - 1);
+		}
+		// ===========================agent_sub_report================================
+		else if ("agent_sub_report".equals(reportType)) {
+			reportId = "agent_sub_report";
+			String agentNos = params.get("agentno");
+			if (agentNos != null) {
+				agentNos = "'" + agentNos.replaceAll(",", "','") + "'";
+			}
+			String subNos = params.get("subno");
+			if (subNos != null) {
+				subNos = "'" + subNos.replaceAll(",", "','") + "'";
+			}
+			String agentName = params.get("agentname");
+			String subName = params.get("subname");
+			query = "agent_code=" + agentNos + "&customer_number=" + subNos
+					+ "&agent_name=" + agentName + "&full_name=" + subName;
+		}
+		// ===========================merchant_quality_report================================
+		else if ("merchant_quality_report".equals(reportType)) {
+			reportId = "merchant_quality_report";
+			String customerNos = params.get("customerno");
+			if (customerNos != null) {
+				customerNos = "'" + customerNos.replaceAll(",", "','") + "'";
+			}
+			String fullName = params.get("fullname");
+			query = "cu.customer_number=" + customerNos + "&cu.full_name="
+					+ fullName;
+		}
+		// ===========================profit_report================================
+		else if ("profit_report".equals(reportType)) {
+			reportId = "profit_report";
+			String saleName = params.get("salename");
+			query = "d.trx_date=" + s + "&d.trx_date=" + e + "&c.sales_name="
+					+ saleName;
+		}
+		// ===========================merchant_report================================
+		else if ("merchant_report".equals(reportType)) {
+			reportId = "merchant_report";
+			String branch = params.get("branch");
+			String province = params.get("province");
+			String city = params.get("city");
+			String sales = params.get("sales");
+			String bizCat = params.get("bizcat");
+			String customerNos = params.get("customerno");
+			String customerName = params.get("customername");
+			String agentCodes = params.get("agentcode");
+			String agentName = params.get("agentname");
+			if (customerNos != null) {
+				customerNos = "'" + customerNos.replaceAll(",", "','") + "'";
+			}
+			if (agentCodes != null) {
+				agentCodes = "'" + agentCodes.replaceAll(",", "','") + "'";
+			}
+
+			query = "cu.signed_time=" + s + "&cu.signed_time=" + e
+					+ "&cu.branch_company=" + branch + "&cu.province="
+					+ province + "&cu.city=" + city + "&cu.sales_name=" + sales
+					+ "&cu.businesscat=" + bizCat + "&cu.customer_number="
+					+ customerNos + "&cu.full_name=" + customerName
+					+ "&cu.agent_code=" + agentCodes + "&cu.agent_name="
+					+ agentName;
+		}
+		// ===========================merchant_trade_report================================
+		else if ("merchant_trade_report".equals(reportType)) {
+			reportId = "merchant_trade_report";
+			String branch = params.get("branch");
+			String sales = params.get("sales");
+			String customerNos = params.get("customerno");
+			String customerName = params.get("customername");
+			String agentCodes = params.get("agentcode");
+			String agentName = params.get("agentname");
+			if (customerNos != null) {
+				customerNos = "'" + customerNos.replaceAll(",", "','") + "'";
+			}
+			if (agentCodes != null) {
+				agentCodes = "'" + agentCodes.replaceAll(",", "','") + "'";
+			}
+
+			query = "d.trx_date=" + s + "&d.trx_date=" + e
+					+ "&cu.branch_company=" + branch + "&cu.sales_name="
+					+ sales + "&cu.customer_number=" + customerNos
+					+ "&cu.full_name=" + customerName + "&cu.agent_code="
+					+ agentCodes + "&cu.agent_name=" + agentName;
+		}
+		// ===========================common_trx_stats_report================================
+		else if ("common_trx_stats_report".equals(reportType)) {
+			reportId = "common_trx_stats_report";
+			String branch = params.get("branch");
+			if (branch != null) {
+				branch = "'" + branch.replaceAll(",", "','") + "'";
+			}
+			String sales = params.get("sales");
+			String product = params.get("product");
+			String transType = params.get("transType");
+			String bizcat = params.get("bizcat");
+			String riskLevel = params.get("riskLevel");
+
+			query = "trx_date=" + s + "&trx_date=" + e + "&BRANCH_COMPANY="
+					+ branch + "&SALES_NAME=" + sales + "&PAY_PRODUCT="
+					+ product + "&ACCOUNTING_PRODUCT_CODE=" + transType
+					+ "&BUSINESSCAT=" + bizcat + "&GRADELEVEL=" + riskLevel;
+		}
+		// ===========================customerinfo_report================================
+		else if ("customerinfo_report".equals(reportType)) {
+			reportId = "customerinfo_report";
+			String branch = params.get("branch");
+			if (branch != null) {
+				branch = "'" + branch.replaceAll(",", "','") + "'";
+			}
+			String mcc = params.get("mcc");
+			String province = params.get("province");
+			String city = params.get("city");
+			String sales = params.get("sales");
+			String customerNos = params.get("customernos");
+			if (customerNos != null) {
+				customerNos = "'" + customerNos.replaceAll(",", "','") + "'";
+			}
+			if (!StringUtils.isEmpty(e)) {
+				e = e + " 00:00:00";
+			}
+			if (!StringUtils.isEmpty(s)) {
+				s = s + " 00:00:00";
+			}
+			query = "cu.CREATE_TIME=" + s + "&cu.CREATE_TIME=" + e
+					+ "&pos_mcc_name=" + mcc + "&cu.branch_company=" + branch
+					+ "&cu.province=" + province + "&cu.city=" + city
+					+ "&SALES_NAME=" + sales + "&CUSTOMER_NUMBER="
+					+ customerNos;
+		}
+		// ===========================agent_subcustomer_report================================
+		else if ("agent_subcustomer_report".equals(reportType)) {
+			reportId = "agent_subcustomer_report";
+			String agentNos = params.get("agent_code");
+			String branchname = params.get("branchname");
+			if (branchname != null) {
+				branchname = "'" + branchname.replaceAll(",", "','") + "'";
+			}
+			if (agentNos != null) {
+				agentNos = "'" + agentNos.replaceAll(",", "','") + "'";
+			}
+			query = "agent_code=" + agentNos + "&branch_company=" + branchname;
+		}
+		// ===========================pos_terminal_report================================
+		else if ("pos_terminal_report".equals(reportType)) {
+			reportId = "pos_terminal_report";
+			String posSn = params.get("possn");
+			String customerNos = params.get("customernos");
+			String posNo = params.get("posno");
+			String posStatus = params.get("posstatus");
+			if (posSn != null) {
+				posSn = "'" + posSn.replaceAll(",", "','") + "'";
+			}
+			if (posNo != null) {
+				posNo = "'" + posNo.replaceAll(",", "','") + "'";
+			}
+			if (customerNos != null) {
+				customerNos = "'" + customerNos.replaceAll(",", "','") + "'";
+			}
+			query = "SERIAL_NUMBER=" + posSn + "&c.CUSTOMER_NUMBER="
+					+ customerNos + "&POS_CATI=" + posNo + "&POS_STATUS="
+					+ posStatus;
+		}
+		// ===========================commtrans_report================================
+		else if ("commtrans_report".equals(reportType)) {
+			reportId = "commtrans_report";
+			String groupby = params.get("groupby");
+			if ("customerno,bank-custno".equals(groupby)) {
+				reportId = "commtrans_report.bank";
+			} else if ("customerno,frpcode".equals(groupby)) {
+				reportId = "commtrans_report.frp";
+			}
+			String customerNos = params.get("customernos");
+
+			if (customerNos != null) {
+				customerNos = "'" + customerNos.replaceAll(",", "','") + "'";
+			}
+			String branch = params.get("branch");
+			if (branch != null) {
+				branch = "'" + branch.replaceAll(",", "','") + "'";
+			}
+			String products = params.get("products");
+			if (products != null) {
+				products = "'" + products.replaceAll(",", "','") + "'";
+			}
+			String transAmount = params.get("transamount");
+			String amountFloor = null;
+			String amountCell = null;
+			if (transAmount != null) {
+				String[] amounts = transAmount.split(",");
+				amountFloor = amounts[0].trim();
+				amountCell = amounts[1].trim();
+			}
+			query = "d.trx_date=" + s + "&d.trx_date=" + e
+					+ "&c.CUSTOMER_NUMBER=" + customerNos
+					+ "&c.BRANCH_COMPANY=" + branch + "&a.trx_amount="
+					+ amountFloor + "&a.trx_amount=" + amountCell
+					+ "&c.POS_PRODUCT=" + products;
+		}
+		// ===========================fruit_trans_report================================
+		else if ("fruit_trans_report".equals(reportType)) {
+			// 使用DB2的报表模板，所以 不能使用通用的。
+			reportId = "fruit_trans_report";
+			String customerNos = params.get("customernos");
+			if (customerNos != null) {
+				customerNos = "'" + customerNos.replaceAll(",", "','") + "'";
+			}
+			query = "p.COMPLETE_TIME=" + s + " 00:00:00&p.COMPLETE_TIME=" + e
+					+ " 00:00:00&o.CUSTOMER_NUMBER=" + customerNos;
+
+			if (pageNo != null && pageSize != null) {
+				int rowNo = (Integer.parseInt(pageNo) - 1)
+						* Integer.parseInt(pageSize);
+				paging = "where a.row_no between " + rowNo + " and "
+						+ (rowNo + Integer.parseInt(pageSize));
+			}
+			query = query + "&paging=" + paging;
+			LOG.info("query : " + query);
+			ra.setDatasource(db2DataSource);
+
+			ObjectMapper objectMapper = new ObjectMapper();
+			try {
+				lines = ra.getReportData(reportId, query);
+				long end = System.currentTimeMillis();
+				LOG.info("end : " + end);
+				return objectMapper.writeValueAsString(lines);
+			} catch (IOException ioe) {
+				LOG.info("error : " + System.currentTimeMillis());
+				LOG.error("", ioe);
+				return null;
+			} catch (Exception e1) {
+				LOG.error("", e1);
+			}
+		}
+		// ===========================reportdb================================
+		else if ("reportdb".equals(reportType)) {
+			reportId = "reportdb_report";
+			String start = null;
+			String end = null;
+			if (timeRange != null) {
+				String[] se = timeRange.split(",");
+				start = se[0].trim();
+				end = previousDay(se[1].trim());
+			}
+			query = "TRXDATE=" + start + "&TRXDATE=" + end;
+			return reportByDB2(reportId, query, ra);
+		}
+		// ===========================report_day_report================================
+		else if ("report_day_report".equals(reportType)) {
+			reportId = "report_day_report";
+			String start = null;
+			String end = null;
+			if (timeRange != null) {
+				String[] se = timeRange.split(",");
+				start = se[0].trim();
+				end = previousDay(se[1].trim());
+			} else {
+				throw new RuntimeException("report_day_report->缺少参数:timespan");
+			}
+
+			query = "TRXDATE=" + start + "&TRXDATE=" + end;
+			query += "&grouping=" + params.get("grouping");
+			query += "&selectFields=" + params.get("selectFields");
+			query += getQueryForCollection(params.get("BIZTYPE"),
+					"TRXSTATBIZTYPE.DISPLAYNAME");
+			query += getQueryForCollection(params.get("TRXTYPE"),
+					"TRXSTATTRXTYPE.NAME");
+			query += getQueryForCollection(params.get("RECEIVERNUMBER"),
+					"RECEIVER.CUSTOMERNUMBER");
+			query += getQueryForCollection(params.get("TRXCHANNELID"),
+					"DAILYTRXSTAT.TRXCHANNELID");
+			query += getQueryForCollection(params.get("RECEIVERNAME"),
+					"RECEIVER.FULLNAME");
+			query += getQueryForCollection(params.get("EMPNAME"), "EMP.NAME");
+			query += getQueryForCollection(params.get("BUSINESSCATLINE"),
+					"TB.NAME");
+			query += getQueryForCollection(params.get("BRANCHCOMPANY"),
+					"BRA.BRANCHNAME");
+			query += getQueryForCollection(params.get("SIGNEDNAME"),
+					"RECEIVER.SIGNEDNAME");
+			query += getQueryForCollection(params.get("AGENTCODE"),
+					"RECEIVER.AGENTCODE");
+			query += getQueryForCollection(params.get("AGENTNAME"),
+					"RECEIVER.AGENTNAME");
+			query += getQueryForCollection(params.get("GRADELEVEL"),
+					"RECEIVER.GRADELEVEL");
+			query += getQueryForCollection(params.get("VMARK"),
+					"RECEIVER.VMARK");
+			query += getQueryForCollection(params.get("ACCMARK"), "acc.NAME");
+			query += getQueryForCollection(params.get("PRODUCTNAME"),
+					"P.PRODUCTNAME");
+			query += getQueryForCollection(params.get("SALESPRODUCTNAME"),
+					"P1.PRODUCTNAME");
+
+			return reportByDB2(reportId, query, ra);
+		}
+		// ===========================report_month_report================================
+		else if ("report_month_report".equals(reportType)) {
+			reportId = "report_month_report";
+			String start = null;
+			String end = null;
+			String monthRange = params.get("monthspan");
+			if (monthRange != null) {
+				String[] se = monthRange.split(",");
+				start = se[0].trim();
+				end = previousMonth(se[1].trim());
+				start = start.replaceAll("-", "").substring(0, 6);
+				end = end.replaceAll("-", "").substring(0, 6);
+			} else {
+				throw new RuntimeException(
+						"report_month_report->缺少参数:monthspan");
+			}
+			query = "MONTHLYTRXSTAT.MONTH=" + start + "&MONTHLYTRXSTAT.MONTH="
+					+ end;
+
+			query += "&grouping=" + params.get("grouping");
+			query += "&selectFields=" + params.get("selectFields");
+
+			query += getQueryForCollection(params.get("CUSTOMERNUMBER"),
+					"CUSTOMERINFO.CUSTOMERNUMBER");
+			query += getQueryForCollection(params.get("FULLNAME"),
+					"CUSTOMERINFO.FULLNAME");
+			query += getQueryForCollection(params.get("CUSTOMERTYPE"),
+					"MONTHLYTRXSTAT.CUSTOMERTYPE");
+			query += getQueryForCollection(params.get("ISSHARECUSTOMER"),
+					"MONTHLYTRXSTAT.ISSHARECUSTOMER");
+			query += getQueryForCollection(params.get("ISSELF"),
+					"case MONTHLYTRXSTAT.ISSELF when 1 then '自' else '转' end");
+			query += getQueryForCollection(params.get("BIZTYPE"),
+					"TRXSTATBIZTYPE.DISPLAYNAME");
+			query += getQueryForCollection(params.get("EMPNAME"),
+					"EMPLOYEEINFO.NAME");
+			query += getQueryForCollection(params.get("SIGNEDNAME"),
+					"CUSTOMERINFO.SIGNEDNAME");
+			query += getQueryForCollection(params.get("TRXTYPE"),
+					"TRXTYPE.NAME");
+			query += getQueryForCollection(params.get("BRANCHNAME"),
+					"BRA.BRANCHNAME");
+			query += getQueryForCollection(params.get("BUSINESSLINE"),
+					"TB.NAME");
+			query += getQueryForCollection(params.get("BUSINESSLINENOW"),
+					"TBC.NAME");
+			query += getQueryForCollection(params.get("AGENTCODE"),
+					"CUSTOMERINFO.AGENTCODE");
+			query += getQueryForCollection(params.get("AGENTNAME"),
+					"CUSTOMERINFO.AGENTNAME");
+			query += getQueryForCollection(params.get("GRADELEVEL"),
+					"CUSTOMERINFO.GRADELEVEL");
+			query += getQueryForCollection(params.get("VMARK"),
+					"CUSTOMERINFO.VMARK");
+			query += getQueryForCollection(params.get("ACCMARK"), "ACC.NAME");
+			query += getQueryForCollection(params.get("PRODUCTNAME"),
+					"P.PRODUCTNAME");
+			query += getQueryForCollection(params.get("SALESPRODUCTNAME"),
+					"P1.PRODUCTNAME");
+			query += getQueryForCollection(params.get("MANAGEMARK"),
+					"MONTHLYTRXSTAT.MANAGEMARK");
+			query += getQueryForCollection(params.get("INNOVATETYPE"),
+					"BP.INNOVATE_TYPE_NAME");
+			query += getQueryForCollection(params.get("MOBILETYPE"),
+					"BP.MOBILE_TYPE_NAME");
+			query += getQueryForCollection(params.get("BPPRODUCTLINE"),
+					"BP.PRODUCTLINE");
+			return reportByDB2(reportId, query, ra);
+		}
+		// ===========================其他报表统一配置================================
+		else {
+			query = "";
+			// 遍历url的所有请求参数
+			for (String key : params.keySet()) {
+				// 获取reporttype
+				if ("report_type".equals(key)) {
+					reportId = params.get(key);
+				}
+				// 获取使用的数据库,默认dbReportdb
+				else if ("datasource".equals(key)) {
+					String datasource = params.get(key);
+					if ("reportdb".equals(datasource)) {
+						ra.setDatasource(reportdbDataSource);
+					} else if ("mysql".equals(datasource)) {
+						ra.setDatasource(bigdataDataSource);
+					} else {
+						throw new RuntimeException("未知的datasource类型:"
+								+ datasource);
+					}
+				}
+				// 其他所有参数
+				else {
+					query += "&" + key + "=" + params.get(key);
+				}
+				query = query.substring(1);
+			}
+			// 调用report-engine查询数据
+			try {
+				lines = ra.getReportData(reportId, query);
+				LOG.info("end : " + System.currentTimeMillis());
+				return new ObjectMapper().writeValueAsString(lines);
+			} catch (IOException ioe) {
+				LOG.info("error : " + System.currentTimeMillis());
+				LOG.error("", ioe);
+				return null;
+			} catch (Exception e1) {
+				LOG.error("", e1);
+				return null;
+			} catch (Error error) {
+				LOG.error("doggie-web : {}", error);
+				return null;
+			}
+		}
+		// ===============================================================================
+		// ===========================结束reportType判断====================================
+		query = query + "&paging=" + paging;
+		LOG.info("query : " + query);
+		try {
+			lines = ra.getReportData(reportId, query);
+			if ("city".equals(groupBy)) {
+				lines = ra.getReportData(reportId, query);
+			} else if ("province".equals(groupBy)) {
+				lines = ra.getReportData(reportId + ".province", query);
+			} else if ("suborg".equals(groupBy)) {
+				lines = ra.getReportData(reportId + ".suborg", query);
+			}
+		} catch (Exception e1) {
+			LOG.error("", e1);
+		} catch (Error error) {
+			LOG.error("doggie-web : {}", error);
+		}
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		long end = System.currentTimeMillis();
+		LOG.info("end : " + end);
+		try {
+			return objectMapper.writeValueAsString(lines);
+		} catch (IOException ex) {
+			LOG.info("error : " + System.currentTimeMillis());
+			LOG.error("", ex);
+			return null;
+		}
+	}
+
+	private String reportByDB2(String reportId, String query, ReportAction ra) {
+		LOG.info("query : " + query);
+		ra.setDatasource(reportdbDataSource);
+		try {
+			List<Map<String, Object>> lines = ra.getReportData(reportId, query);
+			long endtime = System.currentTimeMillis();
+			LOG.info("end : " + endtime);
+			return new ObjectMapper().writeValueAsString(lines);
+		} catch (IOException ioe) {
+			LOG.info("error : " + System.currentTimeMillis());
+			LOG.error("", ioe);
+			return null;
+		} catch (Exception e1) {
+			LOG.error("", e1);
+			return null;
+		} catch (Error error) {
+			LOG.error("doggie-web : {}", error);
+			return null;
+		}
+	}
+
+	/**
+	 * 字符,逗号分割
+	 *
+	 * @param data
+	 * @param name
+	 * @return
+	 */
+	private String getQueryForCollection(String data, String name) {
+		if (data == null) {
+			return "&" + name + "=null";
+		} else {
+			return "&" + name + "='" + data.replaceAll(",", "','") + "'";
+		}
+	}
+
+	private String previousDay(String date) {
+		try {
+			Date endDate = sdf.parse(date);
+			Calendar c = Calendar.getInstance();
+			c.setTime(endDate);
+			c.add(Calendar.DATE, 1);
+			return sdf.format(c.getTime());
+		} catch (ParseException e1) {
+			e1.printStackTrace();
+		}
+		return date;
+	}
+
+	private String previousMonth(String date) {
+		try {
+			Date endDate = sdfMonth.parse(date);
+			Calendar c = Calendar.getInstance();
+			c.setTime(endDate);
+			c.add(Calendar.MONTH, 1);
+			return sdfMonth.format(c.getTime());
+		} catch (ParseException e1) {
+			e1.printStackTrace();
+		}
+		return date;
+	}
+}
+
+#+END_SRC
+* 部署环境
+  #+BEGIN_SRC 
+  
+请提供申请软著的软件源代码、软件说明书及下列10项信息（黑色字体作为参考）：
+1、软件名称：NewReport
+2、版本号：V1.2
+3、开发完成日期：2016年10月20日
+4、发表日期：2016年11月01日
+5、地点：北京
+6、硬件环境：
+服务器：DELLR710，CPU2.6GHz,双核 内存：8G，硬盘：60G；网络：2块千兆网卡；
+7、软件环境： Java 1.7
+8、编程语言：Java  
+9、源程序量：26万
+10、主要功能及技术特点：
+主要功能有：
+内部产品与运营利器
+多维度聚合数据灵活查询
+敏感数据支持行列级权限
+同比环比、自定义时间对比
+用户偏好设置
+自动邮件发送
+广播式权限授权
+技术特点：
+Java 平台，报表执行逻辑的高度抽象，流式下载，支持百万条以上。
+
+  #+END_SRC

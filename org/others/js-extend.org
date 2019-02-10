@@ -1,0 +1,4 @@
+#+TITLE: js extend区别
+
+jQuery.extend和jQuery.fn.extend的区别
+

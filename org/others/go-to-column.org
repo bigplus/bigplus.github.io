@@ -1,0 +1,25 @@
+#+TITLE: Go to Column
+
+Almost every Emacs user knows that M-g M-g and M-g g (both bound to go-to-line) will take him to the line of his choosing (provided he knows the number of the target line, of course).
+
+Surprisingly few Emacs users know that there is a similar way to jump to a column by its number - M-g TAB (bound to move-to-column). Interactively you cannot jump past the end of the line you’re currently on, but you can always cook your own version of the command to get around that limitation:
+
+#+BEGIN_SRC 
+(defun go-to-column (column)
+  (interactive "nColumn: ")
+  (move-to-column column t))
+#+END_SRC
+
+
+
+
+
+
+
+
+
+Let’s bind that to some keycombo:
+
+#+BEGIN_SRC 
+(global-set-key (kbd "M-g M-c") 'go-to-column)
+#+END_SRC

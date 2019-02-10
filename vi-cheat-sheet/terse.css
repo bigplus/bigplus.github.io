@@ -1,0 +1,18 @@
+@import url(base.css);
+
+body .keys td {
+	position: relative; /* hides overflow */
+	width: 4.5em;
+}
+body .keys td b,
+body .keys.meta td b,
+body .keys.ctrl td b,
+body .keys.lead td b { /* leading chars always fit */
+	position: absolute; /* background */
+	right: 0; /* least overlap in corner */
+	font-size: 250%;
+	line-height: 2.5ex;
+	opacity: .5;
+	color: #FFF;
+}
+

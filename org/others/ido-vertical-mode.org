@@ -1,0 +1,7 @@
+#+TITLE: ido-vertical-mode
+
+If you like ido, but don’t like the way it displays the available completion candidates you might want to have a look at ido-vertical-mode.
+
+I won’t duplicate here the installation instructions, but I’ll show you how ido-vertical-mode displays the completion candidates:
+
+https://github.com/gempesaw/ido-vertical-mode.el

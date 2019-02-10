@@ -1,0 +1,24 @@
+#+TITLE: upgrade-jdk
+#+AUTHOR: Jerry
+
+
+#+BEGIN_SRC java
+1. 
+将jdk放到 /opt/java/ 下，为/opt/java/jdk_***
+
+2. 
+sudo ln -s ./jdk1.7.0_60/  default
+
+3. 
+sudo vim /etc/profile
+
+4.
+export JAVA_HOME=/opt/java/default
+export PATH=$JAVA_HOME/bin:$PATH:/sbin:/usr/sbin:/usr/local/sbin:/opt/gnome/sbin:/root/bin:/usr/local/bin:/usr/bin:/usr/X11R6/bin:/bin:/usr/games:/opt/gnome/bin:/usr/lib/mit/bin:/usr/lib/mit/sbin:/data/mysql/bin:/usr/local/bin/ruby
+
+5. 
+source /etc/profile
+
+6. ok
+#+END_SRCx
+

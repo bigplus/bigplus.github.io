@@ -1,0 +1,27 @@
+使用 BulkLoad
+HBase 使用常见的 HFile 格式将其数据存储在磁盘上。在许多情况下，使用您的数据并以编程方式写入 HFile、然后将数据和批量加载到 RegionServer 比其他数据摄取机制更具优势。BulkLoad 操作完全绕过写路径，并提供以下好处：
+数据可供 HBase 立即使用，并会在显示时导致群集上出现额外负载或延迟。
+BulkLoad 操作不使用预写日志 (WAL)，并不会导致刷新或拆分风暴。
+BulkLoad 操作不会导致过多的垃圾数据收集。
+  Note: 因为它们会绕过 WAL，BulkLoad 操作不会在使用复制方法的群集之间传播。如果您需要所有复制群集上的数据，必须在每个群集上执行 BulkLoad。
+如果您对 HBase 使用 BulkLoad 操作，您的工作流将与以下内容相似：
+从其现有源提取数据。例如，如果您的数据位于 MySQL 数据库中，则可以运行 mysqldump 命令。您使用的进程取决于您的数据。如果您的数据已经是 TSV 或 CSV 格式，请跳过此步骤，并使用随附的 ImportTsv 实用程序将您的数据处理到 HFile 中。参见 ImportTsv 文档了解详细信息。
+将您的数据处理成 HFile 格式。参见http://hbase.apache.org/book/hfile_format.html 了解有关 HFile 格式的详细信息。通常，您可使用 MapReduce 作业进行转换，且通常需要亲自写入 Mapper，因为您的数据是独特的。该作业必须发布行密钥作为 Key，且必须发布 KeyValue、Put 或 Delete 作为 Value。降噪等级是由 HBase 处理的；使用 HFileOutputFormat.configureIncrementalLoad() 对其进行配置，它将执行以下操作：
+检查该表以配置总订单分区程序
+将分区文件上传到群集并将其添加到DistributedCache
+设置 reduce 任务的数量，确保它与当前的地区数量匹配
+设置输出密钥/值类，使其与 HFileOutputFormat 要求向匹配。
+设置 Reducer，以执行的相应排序操作（KeyValueSortReducer 或 PutSortReducer）
+每个输出文件夹中的每个区域都会创建一个 HFile 。I输入数据几乎全部被重写，因此您需要的可用磁盘空间应至少为原始数据集大小的两倍。例如，对于 100GB 的 mysqldump 输出，您应在 HDFS 中至少具有不低于 200GB 的可用磁盘空间。您可以在此进程结束时删除原始输入文件。
+将文件加载到 HBase。使用 LoadIncrementalHFiles 命令（通常称作 completebulkload 工具），并向其传递一个用于在 HDFS 中查找文件的 URL。每个文件将根据区域加载到 RegionServer 上的相关区域。您可以通过传递 --versions=N 选项限制加载的版本数量，其中 N 表示要包含的最新至最老版本（最大时间戳至最小时间戳）的最大数目。
+如果在创建文件后拆分区域，此工具将根据新边界自动拆分 HFile。此进程十分高效，因此如果您的表正被其他进程写入，则您应在执行此步骤后尽快载入。
+
+下图显示了完整的 BulkLoad 进程。
+HBase 批量加载图示
+
+BulkLoad 的使用案例：
+
+首次将原始数据集载入 HBase- 您的初始数据集可能很大，绕过 HBase 写入路径可以显著加速此进程。
+递增负载 - 要定期加载新数据，请使用 BulkLoad 并按照自己的理想时间间隔分批次导入数据。这可以缓解延迟问题，并且有助于您实现服务级别协议 (SLA)。但是，压缩触发器就是 RegionServer 上的 HFile 数目。因此，频繁导入大量 HFile 可能会导致更频繁地发生大型压缩，从而对性能产生负面影响。您可以通过以下方法缓解此问题：调整压缩设置，确保不触发压缩即可存在的最大 HFile 文件数很高，并依赖于其他因素，如 Memstore 的大小 触发压缩。
+数据需要源于其他位置 - 如果当前系统捕获了您想在 HBase 中包含的数据，且因业务原因需要保持活动状态，您可从系统中将数据定期批量加载到 HBase 中，以便可以在不影响系统的前提下对其执行操作。
+如要了解更多信息和示例，以及有关可以用来导入 CSV 等制表符分隔格式的数据 ImportTsv 实用程序，请参阅 Cloudera Blog 上的本帖子。

@@ -1,0 +1,4 @@
+jstack(查看线程)、jmap(查看内存)和jstat(性能分析)命令
+http://blog.csdn.net/imxiangzi/article/details/47123849
+
+https://my.oschina.net/feichexia/blog/196575

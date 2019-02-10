@@ -1,0 +1,46 @@
+#+TITLE: 将 JAVA 程序打成独立的App简介
+#+AUTHOR: Jerry
+
+* method1
+ /基于 maven，使用mojo插件/
++ 生成 maven 工程
+#+BEGIN_SRC maven
+mvn archetype:generate \
+  -DarchetypeGroupId=org.apache.maven.archetypes \
+  -DarchetypeArtifactId=maven-archetype-quickstart \
+  -DgroupId=com.mycompany.app \
+  -DartifactId=my-app \
+  -Dversion=1.0-SNAPSHOT
+#+END_SRC
++ 在 pom.xml 中配置，如下
+#+BEGIN_SRC maven
+<build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>appassembler-maven-plugin</artifactId>
+        <version>1.8.1</version>
+        <configuration>
+          <programs>
+            <program>
+              <mainClass>com.mycompany.app.App</mainClass>
+              <id>app</id>
+            </program>
+          </programs>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+#+END_SRC
++ 打包命令
+#+BEGIN_SRC maven
+mvn package appassembler:assemble
+#+END_SRC
++ 运行程序
+#+BEGIN_SRC maven
+sh target/appassembler/bin/app
+#+END_SRC
+
++ 官网地址
+
+/ 官网地址:http://mojo.codehaus.org/appassembler/appassembler-maven-plugin/usage-program.html /

@@ -1,0 +1,42 @@
+#+TITLE:最小差值的划分
+
+* 问题描述
+对一组数据分成两部分，使其差值最小。
+最小差值的划分，就是给一组数，划分为两组总和差值最小的数字，从大到小输出两个和就好了，不要具体的划分结果。就把它当成一个大小为所有数字之和的一半的0-1背包来求。当背包容量为所有数之和一半时，能放入背包的总重量
+对一组数据分成两部分，使其差值最小。
+* 解决问题代码
+#+BEGIN_SRC c
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+int *dp, data[100], n, sum, target;
+int main()
+{
+    int t, i, j, tt;
+    while(~scanf("%d", &n))
+    {
+        sum = 0;
+
+        for(i = 0; i < n; ++i)
+		{
+			scanf("%d", &data[i]);
+			sum += data[i];
+		}
+
+        target = sum / 2;
+
+        dp = (int* )calloc(sum + 1, 4);
+        dp[0] = 1;
+        for (i = 0; i < n; i++)
+            for (j = target; j >= data[i]; j--)
+                if(dp[j-data[i]])
+					dp[j] = 1;
+				for (i = target; i >= 0; i--)
+					if(dp[i])
+						break;
+		printf("%d\n",sum-2*i);
+    }
+}
+
+#+END_SRC

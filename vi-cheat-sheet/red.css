@@ -1,0 +1,150 @@
+@import url(base.css);
+
+body {
+	background: #000;
+	color: #CCC;
+}
+a:link    { color:#DDB; }
+a:visited { color:#CCCCC0; }
+a:active  { color:#FF0; }
+a:hover   { color:#FF0; text-decoration: none}
+
+h1 {
+	border: 1px solid #A00;
+	background: #800;
+	width: 50%;
+	margin: 0 auto;
+	margin-bottom: 0.5ex;
+	text-shadow: #000 0 0 0.1em;
+}
+h2, caption {
+	text-shadow: #F00 0 0 1em, #F00 0 0 1ex;
+}
+p.footer {
+	border: 1px dashed #600;
+	border-width: 1px 0 0;
+	margin-top: 1.5em;
+}
+
+dl.legend dt,
+.keys td {
+	border-radius: 0;
+	-moz-border-radius: 0;
+	border-color: #800;
+}
+.keys td {
+	text-align: left;
+}
+.keys td b {
+	margin-right: 3px;
+	font-size: 100%;
+	background: #800;
+	float: left;
+	min-width: 1.5em;
+	line-height: 5ex;
+	font-style: normal;
+}
+
+.no, dl.legend-options dt,
+.ci, .pm, .po, .co {background: none}
+#mutt .co,
+.mi, .cp           {background: #300}
+.mo, .mv, .me      {background: #600}
+#mutt .pm b, #mutt dt.pm,
+#mutt .mv b, #mutt dt.mv,
+dt.co,
+  .co b            {color: inherit}
+#vimperator .mi b, #vimperator dt.mi,
+dt.po,
+  .po b            {color: #6CD}
+#mutt .ci b, #mutt dt.ci,
+#mutt .mi b, #mutt dt.mi,
+#mutt .me b, #mutt dt.me,
+dt.pm, dt.mv,
+  .pm b, .mv b     {color: #DD6}
+.no b              {color: #000}
+.ci, .mv, .me      {font-style: italic}
+#mutt .ci, #mutt .me,
+.no                {font-style: normal}
+
+.ci a:hover, .ci[onclick]:hover,
+.pm a:hover, .pm[onclick]:hover,
+.po a:hover, .po[onclick]:hover,
+.co a:hover, .co[onclick]:hover,
+.cp a:hover, .cp[onclick]:hover,
+.mi a:hover, .mi[onclick]:hover,
+.mo a:hover, .mo[onclick]:hover,
+.mv a:hover, .mv[onclick]:hover,
+.me a:hover, .me[onclick]:hover {
+	background: #800;
+	color: #FF0;
+} /* mode link */
+
+.l1,
+.X { /* unidentified */
+	background: #000;
+	border-color: #800;
+	border-width: 1px;
+}
+th, td, .Co {
+	background: #000;
+	border-color: #300;
+	border-width: 1px 0 0 1px; /* no precedence */
+}
+.Co {background: #200 } /* private */
+.mapped tbody, .mapped colgroup,
+.dimap tbody, .dimap colgroup,
+tbody, colgroup, th {
+	background: #800;
+	border: 1px solid #800;
+}
+.keys tbody {
+	background: #000;
+	border: 0;
+}
+
+.glyphs small.digraph {
+	background: #600;
+	color: #AAA;
+	opacity: 1;
+}
+.glyphs small.value {
+	background: #600;
+	color: #AAA;
+	opacity: 1;
+}
+
+/* implementation-based alternatives */
+.l1 {background: #000; color: #DD6}
+.l3 {background: #000; color: #CCC}
+.l2 {background: #000; color: #CA8}
+.l5,
+.l4 {background: #000; color: #8BC}
+.ex {background: #333}
+.u-invalid {background: #200} /* impossible */
+
+/* continents */
+.c-af     {background: #100; color: #FFF}
+.c-eu     {background: #300; color: #FFF}
+.c-as     {background: #500; color: #FFF}
+.c-an     {background: #400; color: #8BC}
+.c-oc     {background: #100; color: #8BC}
+.c-sa     {background: #100; color: #DD6}
+.c-na     {background: #300; color: #DD6}
+.l:hover,
+.X:hover  {background: #800; color: #FF0}
+
+/* code syntax */
+.sy-comment    { color: #888 }
+.sy-constant   { color: #C88 }
+.sy-type,
+.sy-identifier { color: #C44 }
+.sy-statement  { text-shadow: #F00 0 0 0.5em }
+.sy-special    { color: #CA8 }
+.sy-error      { font-weight: bold; background-color: #A00; color: #EEE }
+.sy-todo       { background-color: #400 }
+
+#browser td > a:not(:hover):not(:active) {
+	color: inherit;
+}
+

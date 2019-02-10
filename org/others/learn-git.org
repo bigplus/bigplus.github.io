@@ -1,0 +1,338 @@
+#+TITLE: dp git
+
+* head
+https://blog.csdn.net/claroja/article/details/78858411
+
+* git 教程
+https://github.com/geeeeeeeeek/git-recipes/wiki
+https://git-scm.com/book/zh/v1/Git-%E5%88%86%E6%94%AF-%E4%BD%95%E8%B0%93%E5%88%86%E6%94%AF
+
+* pro git
+
+
+* git工作流介绍
+http://www.cnblogs.com/xirongliu/p/458653.html#23-gitflow%E5%B7%A5%E4%BD%9C%E6%B5%81
+
+* why fork from git
+https://help.github.com/articles/fork-a-repo/
+
+* google : git commit 原则
+https://www.zhihu.com/question/61283395
+
+* Git 使用指南
+https://www.jianshu.com/p/a980fc1eb626
+
+* git分2部分
+** basic(git constructure + git command)
+http://git.oschina.net/
+https://git-scm.com/book/zh/v2
+https://user.qzone.qq.com/23276998/blog/1429478164
+http://blog.csdn.net/sgs595595/article/details/54913666
+https://segmentfault.com/a/1190000002918123#articleHeader6
+http://blog.jobbole.com/110052/
+https://www.atlassian.com/git/tutorials/merging-vs-rebasing
+http://rogerdudler.github.io/git-guide/
+
+** team(git team)
+http://blog.jobbole.com/110052/
+https://segmentfault.com/a/1190000002918123#articleHeader1
+http://yedingding.com/2013/09/11/practical-git-flow-for-startups.html
+https://www.zhihu.com/question/21596554
+http://limboy.me/tech/2011/02/25/git-workflow-with-blog-demo.html
+http://blog.csdn.net/yeasy/article/details/46524209
+http://blog.csdn.net/sgs595595/article/details/54913666
+
+
+
+* git hbase
+  git clone -b 2.0.x-hbase0.98 --depth 1 https://github.com/apache/kylin.git 
+* git 教程
+  https://git-scm.com/book/zh/v1/%E8%B5%B7%E6%AD%A5-Git-%E7%AE%80%E5%8F%B2
+  http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000/001375840038939c291467cc7c747b1810aab2fb8863508000
+
+  git fetch vs git pull
+  http://blog.csdn.net/a19881029/article/details/42245955
+  http://blog.csdn.net/hudashi/article/details/7664457
+  http://blog.csdn.net/wfdtxz/article/details/8632811
+  delete
+  http://jarrettmeyer.com/2014/08/07/oops-how-to-permanently-delete-a-file-from-git
+
+  http://www.cnblogs.com/cnblogsfans/p/5075073.html
+
+  git 协同工作
+  https://segmentfault.com/a/1190000002413519
+  https://github.com/livoras/blog/issues/7
+
+  git ignore
+  http://www.cnblogs.com/kevingrace/p/5690241.html
+
+  git stash
+  http://www.cppblog.com/deercoder/archive/2011/11/13/160007.aspx
+
+  http://www.tuicool.com/articles/rUBNBvI
+
+  撤销
+  http://blog.csdn.net/frank2336/article/details/7358999
+  http://blog.csdn.net/frank2336/article/details/7358999
+
+  http://blog.csdn.net/arkblue/article/details/9568249/
+  -------------------------------------------------------------
+  Git + Gerrit: Never too late
+  Git也用了时间不短了，但是一直也就是当着svn来用。
+
+  先说svn的每天工作流程。
+  0. svn checkout：一个pc上对一个项目只需要执行一次。
+  1. 早晨update。
+  2. 白天开发。
+  3.  下班前，再次update，看看和有没有被人的工作冲突的地方，有就解决，没有就commit。
+
+  其实，在windows下，一直是“小乌龟”默默滴在奉献着。对于我来说，就是svn update变成了git pull；svn commit变成了git commit + git push。
+
+  直到今天，自尊心受伤。 
+
+  对于Git，这嘎达不流行小乌龟，甚至不流行GUI客户端。今天恶补下Git的文档。
+
+  工作流变化了。
+  0. git clone: 一个pc上对一个项目只需要执行一次。之后就又了master分支。
+  1. 早晨git pull (有人说，pull都别用，要用fetch + merge)。
+  2. git checkout newFeature： 建立新的分支newFeature，并且改变当前分支为newFeature。
+  3. 使用newFeature分支开发新功能（当然bug也行，反正就是写代码）。
+  4. 开发告一段落，也就是说这个分支的功能搞定了，照常在这个分支上add + commit。
+  5. 更新master：git checkout master (改变当前分支为master)，  之后git pull（更新master分支）。
+  6. 再之后换回newFeature分支 (git checkout newFeature)。再之后git rebase master，也就是将newFeature分支的master起点进行更新。当然有冲突解决（解决后git rebase --continue）。
+  7. 通过git checkout master切换到maste分支，合并新开发的内容(git merge newFeature)。之后， git push。
+
+  看起来，比svn复杂好多啊。其实，意思就是，麻烦在了2点：
+  1. 多了个分支的概念（svn也有分支，但是不是这么用的）。即使是一个很小的功能，也要搞出个分支，再分支上开发。
+  2. 偏执狂需要完美平滑的commit历史，不短的在rebase。
+
+  为啥有了这2个变化，或者说这两个变化带了那些好处。看后面的文献，慢慢体会。 
+
+  Gerrit代码评审
+  不就是push的时候，地址前面加个ref吗？多嘴又说了一句，gerrit服务器上建立个分支用来做代码review。结果又被鄙视了。在gerrit上面是没有分支的，并且马上被提出证据：
+  http://stackoverflow.com/questions/10461214/why-do-git-push-gerrit-headrefs-for-master-instead-of-git-push-origin-master
+
+  咋整，俺是Gui用惯了滴，细节在不出问题的时候根本不关注的银啊。其实上面的网页也提到了，gerrit上有staging area，其实不算是branch，那么也用该有类似的存储变化的地方，不然还搞啥？但是不重要，错了就是错了。之后更猛的来了。
+
+  Gerrit做了code评审，之后按照意见改正啊，之后再提交，还得用个change id。这个鬼东东我就完全没用过了。
+  https://gerrit.googlecode.com/svn/documentation/2.0/user-changeid.html
+
+  Gerrit用这个id来关联每次提交，评审过后的结果没有push到master，下次再提交，需要和前面这次评审过的提交关联起来。这个关联就是通过changeid实现的。并且，commit的时候，需要修改上次提交的记录。这时候，git commit --amend命令就粉磨登场拉。
+
+  努力，继续啊~~~
+
+  ----------------------------------------------
+
+  git官网
+  http://git-scm.com
+  doc
+  http://git-scm.com/documentation
+  book
+  http://git-scm.com/book/en/v2
+  中文版本
+  http://git-scm.com/book/zh/v1
+
+  git commands: cheating sheet
+  https://training.github.com/kit/downloads/github-git-cheat-sheet.pdf
+
+  很好的git教程中文
+  http://rogerdudler.github.io/git-guide/index.zh.html
+  英文教程
+  https://www.atlassian.com/git/tutorials/
+
+  https://zhuanlan.zhihu.com/p/24199363?refer=dreawer
+  http://developer.51cto.com/art/201508/487746_all.htm
+
+  —————————————————————————————————————————————————————
+  http://www.ruanyifeng.com/blog/2015/08/git-use-process.html
+
+  http://gitbook.liuhui998.com/4_2.html
+
+  http://backlogtool.com/git-guide/cn/stepup/stepup2_8.html
+
+  http://www.jb51.net/article/93561.htm
+
+  ———————————————————————————————————————————————
+  很多人都把git当作个人代码备份工具，没有涉及多人提交代码到中央版本库，多人使用时，不能简单地再延续原来个人使用时的习惯。如何提交避免版本冲突是下文讨论的：
+
+  1. 首先在本地按方法1 clone 回来之后，只有一个默认分支master，不要直接在上面工作。
+
+     a.建立一个自己的分支，如取名working： git branch working
+
+     b.切换到这个新分支： git checkout working
+
+     c.现在可以自由修改代码并保存了。
+
+  2.确保你修改的代码都是自己负责项目下，或者说你的两次提交之间，没有其他人来改相同项目下的代码，如果不能避免，你就要在下面的merge步骤手工处理冲突了。
+
+  3.提交代码时按下面的步骤：(可以将下面的脚本保存在你的每个项目之下，每次只修改提交一个项目)
+
+
+  [plain] view plain copy
+
+ 
+  git checkout working    --force  #确保使用的是工作分支  
+  git add .  
+  git commit -m"$1" -a     #提交代码到本地，工作分支增加一个版本，这里的$1是运行脚本的第一个参数  
+  
+  git checkout master        
+  git pull origin master   #切换回默认分支，并将默认分支和中央最新版本合并  
+  git merge working        #在本地合并你的这次修改到默认分支  
+  git push origin master   #提交到中央版本库，接下来还是要切换回工作分支的  
+  git checkout working   --force  
+  如果不小心动了生产环境（就是只从中央版本库pull到本地）的文件，只好将本地版本退回一个，再从中央代码库pull代码合并。
+
+
+  [plain] view plain copy
+
+ 
+  git reset --hard HEAD  
+
+#+TITLE: git 冲突
+Git:代码冲突常见解决方法
+
+如果系统中有一些配置文件在服务器上做了配置修改,然后后续开发又新添加一些配置项的时候,
+
+在发布这个配置文件的时候,会发生代码冲突:
+
+error: Your local changes to the following files would be overwritten by merge:
+        protected/config/main.php
+Please, commit your changes or stash them before you can merge.
+
+如果希望保留生产服务器上所做的改动,仅仅并入新配置项, 处理方法如下:
+
+git stash
+git pull
+git stash pop
+然后可以使用git diff -w +文件名 来确认代码自动合并的情况.
+
+
+
+反过来,如果希望用代码库中的文件完全覆盖本地工作版本. 方法如下:
+
+git reset --hard
+git pull
+其中git reset是针对版本,如果想针对文件回退本地修改,使用
+
+[plain] view plaincopy在CODE上查看代码片派生到我的代码片
+git checkout HEAD file/to/restore  
+
+by iefreer
+
+http://blog.csdn.net/iefreer/article/details/7679631
+
+ 
+#+ 使用git pull文件时和本地文件冲突怎么办
+
+* case 1 如果希望保留生产服务器上所做的改动,仅仅并入新配置项, 处理方法如下:
+
+#+BEGIN_SRC demo
+
+处理的方式非常简单，主要是使用git stash命令进行处理，分成以下几个步骤进行处理。
+　　1、先将本地修改存储起来
+　　$ git stash
+
+　　这样本地的所有修改就都被暂时存储起来 。是用git stash list可以看到保存的信息：
+
+　　git stash暂存修改
+　　其中stash@{0}就是刚才保存的标记。
+　　2、pull内容
+　　暂存了本地修改之后，就可以pull了。
+　　$ git pull
+
+　　3、还原暂存的内容
+　　$ git stash pop stash@{0}
+
+　　系统提示如下类似的信息：
+　　Auto-merging c/environ.c
+CONFLICT (content): Merge conflict in c/environ.c
+
+　　意思就是系统自动合并修改的内容，但是其中有冲突，需要解决其中的冲突。
+　　4、解决文件中冲突的的部分
+　　打开冲突的文件，会看到类似如下的内容：
+
+　　git冲突内容
+
+其中Updated upstream 和=====之间的内容就是pull下来的内容，====和stashed changes之间的内容就是本地修改的内容。
+碰到这种情况，git也不知道哪行内容是需要的，所以要自行确定需要的内容。
+
+　　解决完成之后，就可以正常的提交了。
+
+#+END_SRC
+* case 2
+http://blog.csdn.net/lincyang/article/details/45269491
+http://blog.csdn.net/u012150179/article/details/14047183
+
+
+
+#+TITLE: HOW TO: 升级Mac OS X上的GIT
+#+AUTHOR: Jerry
+
+在MacOSX下使用Homebrew或其它方式安装最新版本的GIT后，往往并不能使用，系统默认调用的依旧还是比较旧的版本，原因是已经通过XCode等方式安装过git，且它们的路径优先级较高。
+
+　　下面假设你已经通过Homebrew的brew install git成功安装了GIT，但系统默认使用的还是旧版本。
+
+1. 检查系统默认调用的是否是通过Homebrew安装的最新版本
+
+　　Homebrew安装的GIT会被软链接到/usr/local/bin目录下，所以如果你使用which git看到的结果不是/usr/local/bin/git，那么你就需要通过后面的方法修改以便能够默认使用你所安装版本的GIT。
+
+2. 移除系统自带的版本
+
+　　如果which git返回的结果是/usr/bin/git，说明你可能通过XCode安装了其自带的GIT，其版本一般都比较低，需要移除。
+
+cd /usr/bin
+sudo mkdir backup-git-apple
+sudo mv git* backup-git-apple
+3. 移除可能存在的其它版本
+
+　　如果which git返回的结果是/usr/local/git/bin/git，则表示可能是你曾经使用git-osx-installer或其它方式安装过GIT，检查系统环境变量PATH可能还包含形如/usr/local/git/bin的路径。
+
+sudo rm -rf /usr/local/git
+sudo rm /etc/paths.d/git
+sudo rm /etc/manpaths.d/git
+　　最后，重启终端，再次检查which git及git version。
+
+　　BTW: 2、3的情况可能同时存在。
+
+#+TITLE: 在mac中自动保存git用户名与密码
+
+#+BEGIN_SRC example
+
+之前为了实现在Windows中自动保存git用户名与密码，写过一篇博客终于解决“Git Windows客户端保存用户名与密码”的问题，需要进行一堆配置。
+
+而在Mac OS X中这个操作竟然如此简单。只需在Terminal中输入如下的命令：
+
+git config --global credential.helper osxkeychain
+然后在git操作时只要输入一次用户名与密码，以后就不用输入了。
+
+【参考资料】
+
+Git keeps prompting me for password
+#+END_SRC
+
+
+#+TITLE: nlp git
+#+AUTHOR: Jerry
+
+https://github.com/UFAL-DSG/tgen
+
+* Cambriage
+https://bitbucket.org/dialoguesystems/pydial.git
+
+http://dialogue.mi.eng.cam.ac.uk/
+
+http://aclweb.org/anthology/P17-1045
+
+https://github.com/MiuLab/KB-InfoBot
+
+http://camdial.org/~mh521/dstc/
+
+* nbt
+https://github.com/nmrksic/neural-belief-tracker
+https://arxiv.org/pdf/1606.03777.pdf
+https://zhuanlan.zhihu.com/p/27470864
+https://zhuanlan.zhihu.com/p/27399471
+
+￼关于技术与团队
+gitlab使用
+http://blog.csdn.net/predict_wise/article/details/77898577

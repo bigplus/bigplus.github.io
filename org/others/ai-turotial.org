@@ -1,0 +1,173 @@
+* mcmc
+http://cos.name/2013/01/lda-math-mcmc-and-gibbs-sampling/
+http://bindog.github.io/blog/2015/10/15/revisit-mcmc-method/
+https://zhuanlan.zhihu.com/p/21112618
+
+http://blog.csdn.net/lanchunhui/article/details/50452515
+
+* todo
+
+强化学习
+https://zhuanlan.zhihu.com/p/27122232
+http://blog.csdn.net/aliceyangxi1987/article/details/71079448
+http://blog.csdn.net/agodj/article/details/72602772
+http://scikit-learn.org/stable/
+https://www.zhihu.com/question/20151659
+http://www.tuicool.com/articles/zYZNJzF
+http://python.jobbole.com/84809/?utm_source=blog.jobbole.com&utm_medium=relatedPosts
+http://blog.csdn.net/heyongluoyao8/article/details/48636251
+http://www.csdn.net/article/2015-11-25/2826323
+https://book.douban.com/subject/24703171/
+http://blog.csdn.net/dongtingzhizi/article/details/15962797
+http://python.jobbole.com/82208/
+https://www.zhihu.com/question/34681168
+http://blog.csdn.net/heyongluoyao8/article/details/48636251
+https://zhuanlan.zhihu.com/p/22930328
+https://zhuanlan.zhihu.com/p/26811689
+http://weibo.com/1402400261/CDEl8DItD?type=comment#_rnd1495158118824
+http://peterroelants.github.io/posts/rnn_implementation_part01/
+http://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/
+https://www.zhihu.com/search?type=content&q=%E5%BE%AA%E7%8E%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C
+http://geek.csdn.net/news/detail/195596
+http://www.cnblogs.com/ZJUT-jiangnan/p/5233898.html
+https://www.zhihu.com/question/29411132
+https://morvanzhou.github.io/tutorials/machine-learning/ML-intro/
+https://iamtrask.github.io/2015/11/15/anyone-can-code-lstm/
+awosome rnn
+https://github.com/bigplus/awesome-rnn
+adaboost
+https://www.zhihu.com/search?type=content&q=adaboost
+拉格朗日
+https://www.zhihu.com/question/38586401
+http://blog.csdn.net/xianlingmao/article/details/7919597
+
+股票
+https://zhuanlan.zhihu.com/p/20091100?utm_campaign=rss&utm_medium=rss&utm_source=rss&utm_content=title&columnSlug=faruto
+http://blog.csdn.net/bytxl/article/details/48379615
+http://blog.csdn.net/quanter/article/details/41746045
+https://www.zhihu.com/question/24065933
+https://www.zhihu.com/question/23667442
+https://www.zhihu.com/question/26126648
+
+加密
+http://geek.csdn.net/news/detail/195968
+
+books
+https://group.jd.com/thread/20000271/21126296/c20000992/p4.htm#post_area
+
+5大学派
+http://www.sohu.com/a/135703081_465975
+
+http://www.36dsj.com/archives/54152
+
+http://blog.csdn.net/zxllll8898/article/details/53422593
+https://www.zhihu.com/question/28271927
+https://zhuanlan.zhihu.com/p/25822995
+
+vim
+https://segmentfault.com/a/1190000003962806#articleHeader8
+http://macshuo.com/?p=877
+https://github.com/spf13/spf13-vim
+http://www.cnblogs.com/feichexia/archive/2012/11/07/Vim_NerdTree.html
+
+http://geek.csdn.net/news/detail/197385
+https://www.zhihu.com/question/20151659
+https://www.zhihu.com/question/19655689
+http://blog.csdn.net/a464057216/article/details/51523860
+http://blog.chinaunix.net/uid-28253945-id-3393428.html
+http://blog.csdn.net/fuxingdaima/article/details/8658342
+
+stl
+http://blog.csdn.net/lhshaoren/article/details/7216421
+
+mac
+https://www.macrumors.com/roundup/macbook-pro/
+https://www.macrumors.com/roundup/iphone-8/
+https://www.zhihu.com/question/50785780
+https://www.zhihu.com/question/27698122
+https://www.zhihu.com/search?type=content&q=MacBook+%E6%9B%B4%E6%96%B0%E6%97%B6%E9%97%B4
+
+
+
+--------------------------------------------------------------------------------
+stl algo
+http://blog.csdn.net/lhshaoren/article/details/7216421%20http://geek.csdn.net/news/detail/197691
+
+35个机器学习算法
+http://www.tuicool.com/articles/zYZNJzF
+
+traditional ml
+http://python.jobbole.com/82208/
+
+deep learning
+https://github.com/exacity/deeplearningbook-chinese/blob/master/README.md
+
+bp (11行代码)
+http://python.jobbole.com/82758/
+
+rnn
+http://python.jobbole.com/84809/?utm_source=blog.jobbole.com&utm_medium=relatedPosts
+
+lstm
+http://www.jianshu.com/p/9dc9f41f0b29
+
+
+
+
+
+
+bayes
+http://python.jobbole.com/84809/?utm_source=blog.jobbole.com&utm_medium=relatedPosts
+
+
+http://www.cnblogs.com/leoo2sk/archive/2010/09/18/bayes-network.html
+
+
+* Andew Ng
+  http://cs229.stanford.edu/notes/cs229-notes1.pdf
+
+  note1
+  I Linear Regression
+  II Classification and LR
+  III Generalized Linear Models
+  note2
+  IV
+  generative learing algorithms
+  note3
+  V svm
+  note4
+  VI learning theory
+  note5
+  Regularization and model selection
+  note6
+
+  note7
+  k-means
+  note7b
+  mixtures of gaussians and the em algorithms
+  note8
+  IX
+  em
+  note9
+  X
+  factor analysis
+  note10
+  XI
+  pca
+  note11
+  XII
+  independent componets analysis
+
+数据依旧，魅力倍增
+在李卓的带领下，邓瞩彧，吴文祥，白玮，彭涛，郭美智推动了报表可视化,多数据源连接等功能的上线:旨在将数据转化更清晰明了的见解;进行即兴分析，探索更多的潜在规律。
+对产品中心，航旅行业线，商户管理部等的产品人员，运营人员,部分技术人员提供数据分析,促使其更好的理解数据.
+
+人的一生，很快，一转眼就到了快30而立的年纪。
+有时候，也许就是某个偶然间，我会想到10来岁的时候，会希望长大。长大后怀念曾经的无忧无虑。
+也许是2，3年前，我开始有意识的反思，我来这世界一趟到底追求什么，什么才是我应该追求的。
+现在，每天都会看很多书，心理，经济，历史，行为，哲学，想想这个世界是怎么运转的，顺着好奇心东看看西望望，想找点乐趣，对未知有所了解.
+也许我应该看看道家的书，修修心，或者看看王明阳的书，知行合一。
+这2年，少了很多激情，内心越来越平和，依然控制不住情绪.当别人追求的东西，是你不关心的时候，你也就懒得去关注了。
+内心缺少了一份贪念。
+
+

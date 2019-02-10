@@ -1,0 +1,44 @@
+#+TITLE: HBase基本知识
+#+AUTHOR Jerry
+HBase 记忆
+
+* 基本概念
+** compaction queue size
+   http://stackoverflow.com/questions/20230942/what-is-hbase-compaction-queue-size-at-all
+* 原理设计理解
+  http://www.cnblogs.com/hark0623/p/5571193.html
+  http://blog.jobbole.com/91913/
+  http://www.open-open.com/lib/view/open1427792081037.html
+* 指标
+  http://www.tuicool.com/articles/imArAb
+
+* 运维命令
+
+  灵活查看hbase信息的命令
+
+  echo "scan '.META.'" | hbase shell | grep O_P_NEW
+
+  你走查代码，对这个地方你做，这个地方我做
+
+** https://learnhbase.wordpress.com/2013/03/02/hbase-shell-commands/
+
+* 优化
+  http://www.besttest.cn/article/45.html
+  http://itindex.net/detail/49632-hbase-%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98
+  http://eclecl1314-163-com.iteye.com/blog/1704249
+
+* error
+** 官方错误查找
+   http://hbase.apache.org/book.html#trouble.rs.runtime.zkexpired
+** hbase 报错gc wal.FSHLog: Error while AsyncSyncer sync, request close of hlog YouAr
+   http://blackproof.iteye.com/blog/2188952
+
+* 配置
+HStore Blocking Store Files 21000000
+
+* TODO
+** java gc
+http://blog.cloudera.com/blog/2014/12/tuning-java-garbage-collection-for-hbase/
+
+* 潜在获得的知识
+YCSB

@@ -1,0 +1,223 @@
+#+TITLE: Java 内存模型
+#+AUTHOR: Jerry
+
+* Java 内存模型及GC原理
+  http://blog.csdn.net/ithomer/article/details/6252552
+
+  http://www.cnblogs.com/skywang12345/p/3447546.html
+
+  http://www.cnblogs.com/ggjucheng/p/3977384.html
+
+* 算法总结
+  /* 注意各个算法的使用场景，比如：响应时间和吞吐量 */
+  http://www.cnblogs.com/ityouknow/p/5614961.html
+  http://www.importnew.com/15311.html
+  http://blog.csdn.net/qq_34280276/article/details/52863551
+  cms
+  http://www.cnblogs.com/ggjucheng/p/3977612.html
+  http://iamzhongyong.iteye.com/blog/1989829
+
+* gc config parameter
+** g1gc
+   http://blog.csdn.net/qq_34280276/article/details/52863551
+   http://ju.outofmemory.cn/entry/65368
+** cms
+   http://blog.csdn.net/maosijunzi/article/details/46562489
+
+* gc 日志 参数解读
+  http://blog.csdn.net/huangzhaoyang2009/article/details/11860757
+  http://www.tuicool.com/articles/jqaUve
+  http://www.tuicool.com/articles/EBJfay7
+  http://qa.blog.163.com/blog/static/19014700220128199421589/
+  https://my.oschina.net/dabird/blog/714569
+  times 参数
+  https://segmentfault.com/q/1010000000610290
+
+* 调优系列文章
+  http://www.importnew.com/13954.html
+  http://www.iteye.com/topic/802638
+  http://blog.csdn.net/zhoutao198712/article/details/7831880
+
+* demo
+  http://www.wang1314.com/doc/topic-1564586-1.html
+  http://www.cnblogs.com/yang-hao/p/5939487.html
+
+  如何监视gc
+  如何监视GC
+  1.概览监视gc。
+
+  jmap -heap [pid] 查看内存分布
+
+  jstat -gcutil [pid] 1000 每隔1s输出java进程的gc情况
+
+  2.详细监视gc。
+
+  在jvm启动参数，加入-verbose:gc -XX:+PrintGCTimeStamps -XX:+PrintGCDetails -Xloggc:./gc.log。
+
+  输入示例:
+
+
+
+  [GC [ParNew: 11450951K->1014116K(11673600K), 0.8698830 secs] 27569972K->17943420K(37614976K), 0.8699520 secs] [Times: user=11.28 sys=0.82, real=0.86 secs]
+  表示发生一次minor GC，ParNew是新生代的gc算法，11450951K表示eden区的存活对象的内存总和，1014116K表示回收后的存活对象的内存总和，11673600K是整个eden区的内存总和。0.8699520 secs表示minor gc花费的时间。
+
+  27569972K表示整个heap区的存活对象总和，17943420K表示回收后整个heap区的存活对象总和，37614976K表示整个heap区的内存总和。
+
+  [Full GC [Tenured: 27569972K->16569972K(27569972K), 180.2368177 secs] 36614976K->27569972K(37614976K), [Perm : 28671K->28635K(28672K)], 0.2371537 secs]
+
+  表示发生了一次Full GC，整个JVM都停顿了180多秒，输出说明同上。只是Tenured: 27569972K->16569972K(27569972K)表示的是old区，而上面是eden区。
+
+* jvm 参数分类
+  http://blog.csdn.net/zhangjianying/article/details/7461563
+
+** 容量相关
+   -Xmx33g -Xms33g -Xmn2g -XX:SurvivorRatio=1 -XX:PermSize=128M -XX:MaxPermSize=128M -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv6Addresses=false -XX:MaxTenuringThreshold=15
+** gc algo
+   -XX:+CMSParallelRemarkEnabled -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=60 -XX:+UseCMSInitiatingOccupancyOnly -XX:+UseCMSCompactAtFullCollection -XX:CMSFullGCsBeforeCompaction=0
+** log
+   -verbose:gc
+   -XX:+PrintGCDetails
+   -XX:+PrintGCDateStamps
+   -XX:+PrintGCTimeStamps
+   -XX:+PrintTenuringDistribution
+   -XX:+PrintHeapAtGC
+   -XX:+PrintFlagsInitial
+   -XX:+PrintFlagsFinal
+   -Xloggc:/var/log/hbase/gc-hbase.log
+
+   -XX:+PrintGC 输出GC日志
+   -XX:+PrintGCDetails 输出GC的详细日志
+   -XX:+PrintGCTimeStamps 输出GC的时间戳（以基准时间的形式）
+   -XX:+PrintGCDateStamps 输出GC的时间戳（以日期的形式，如 2013-05-04T21:53:59.234+0800）
+   -XX:+PrintHeapAtGC 在进行GC的前后打印出堆的信息
+   -Xloggc:../logs/gc.log 日志文件的输出路径
+
+   -XX:+ParallelRefProcEnabled
+   -XX:+HeapDumpOnOutOfMemoryError
+
+   http://blog.csdn.net/java2000_wl/article/details/8042010
+
+** others
+   -xx:+UseFastAccessorMethods
+
+* hbase gc
+  cms
+  http://mt.sohu.com/20160811/n463740427.shtml
+* yeepay hbase
+  -Xmx33g -Xms33g -Xmn2g -XX:SurvivorRatio=1 -XX:PermSize=128M -XX:MaxPermSize=128M -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv6Addresses=false -XX:MaxTenuringThreshold=15 -XX:+CMSParallelRemarkEnabled -XX:+UseFastAccessorMethods -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=60 -XX:+UseCMSInitiatingOccupancyOnly -XX:+UseCMSCompactAtFullCollection -XX:CMSFullGCsBeforeCompaction=0 -XX:+HeapDumpOnOutOfMemoryError -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -XX:+ParallelRefProcEnabled -XX:+PrintHeapAtGC -Xloggc:/var/log/hbase/gc-hbase.log
+
+  ################################################################################
+
+
+  -XX:+UseG1GC -Xmx33g -Xms33g -Xmn2g -XX:SurvivorRatio=1 -XX:PermSize=128M -XX:MaxPermSize=128M -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv6Addresses=false -XX:MaxTenuringThreshold=15 -XX:+UseFastAccessorMethods -XX:+UseParNewGC -XX:+HeapDumpOnOutOfMemoryError -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -XX:+ParallelRefProcEnabled -XX:+PrintHeapAtGC -Xloggc:/var/log/hbase/gc-hbase.log
+
+  -XX:+UseG1GC -Xmx64g -Xms64g -Xmn2g -XX:SurvivorRatio=1 -XX:PermSize=128M -XX:MaxPermSize=128M -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv6Addresses=false -XX:MaxTenuringThreshold=15 -XX:+HeapDumpOnOutOfMemoryError -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -XX:+ParallelRefProcEnabled -XX:+PrintHeapAtGC -XX:+PrintFlagsFinal -XX:+PringAdaptiveSizePolicy -XX:+PrintReferenceGC -Xloggc:/var/log/hbase/gc-hbase.log
+
+  --------------------------------------------------------------------------------
+
+  -XX:+UseG1GC -Xmx64g -Xms64g -Xmn2g -XX:MaxGCPauseMills=100 -XX:ParallelGCThreads=48 -XX:SurvivorRatio=1 -XX:PermSize=128M -XX:MaxPermSize=128M -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv6Addresses=false -XX:MaxTenuringThreshold=15 -XX:+HeapDumpOnOutOfMemoryError -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -XX:+ParallelRefProcEnabled -XX:+PrintHeapAtGC -XX:+PrintFlagsFinal -XX:+PringAdaptiveSizePolicy -XX:+PrintReferenceGC -Xloggc:/var/log/hbase/gc-hbase.log
+
+  -XX:MaxGCPauseMillis=100
+
+  -XX:+UseG1GC -Xmx64g -Xms64g -Xmn2g -XX:MaxGCPauseMills=100 -XX:ParallelGCThreads=48 -XX:SurvivorRatio=1 -XX:PermSize=128M -XX:MaxPermSize=128M -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv6Addresses=false -XX:MaxTenuringThreshold=15 -XX:+HeapDumpOnOutOfMemoryError -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -XX:+ParallelRefProcEnabled -XX:+PrintHeapAtGC -XX:+PrintFlagsFinal -XX:+PringAdaptiveSizePolicy -XX:+PrintReferenceGC -Xloggc:/var/log/hbase/gc-hbase.log
+
+  -XX:+UseG1GC -XX:MaxGCPauseMills=100 -XX:+HeapDumpOnOutOfMemoryError -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -XX:+PrintHeapAtGC -Xloggc:/var/log/hbase/gc-hbase.log
+
+  --------------------------------------------------------------------------------
+  -XX:+UseParNewGC -XX:+UseG1GC
+  -verbose:gc
+  -XX:+PrintGCDetails
+  -XX:+PrintGCDateStamps
+  -XX:+PrintGCTimeStamps
+  -XX:+PrintTenuringDistribution
+  -XX:+PrintHeapAtGC
+  -Xloggc:/var/log/hbase/gc-hbase.log
+
+** failed
+   -XX:+UseG1GC
+   -XX:MaxGCPauseMillis=100
+   -XX:+ParallelRefProcEnabled
+   -XX:-ResizePLAB
+   -XX:ParallelGCThreads=30
+   -XX:G1NewSizePercent=1
+   -verbose:gc
+   -XX:+PrintGCDetails
+   -XX:+PrintGCDateStamps
+   -XX:+PrintGCTimeStamps
+   -XX:+PrintTenuringDistribution
+   -XX:+PrintHeapAtGC
+   -Xloggc:/var/log/hbase/gc-hbase.log
+
+** data09
+   -XX:+UseG1GC
+   -XX:MaxGCPauseMillis=100
+   -XX:+ParallelRefProcEnabled
+   -verbose:gc
+   -XX:+PrintGCDetails
+   -XX:+PrintGCDateStamps
+   -XX:+PrintGCTimeStamps
+   -XX:+PrintTenuringDistribution
+   -XX:+PrintHeapAtGC
+   -Xloggc:/var/log/hbase/gc-hbase.log
+
+** data10 04 01
+  -XX:+UseG1GC
+  -XX:MaxGCPauseMillis=100
+  -XX:+ParallelRefProcEnabled
+  -XX:-ResizePLAB
+  -XX:ParallelGCThreads=43
+  -verbose:gc
+  -XX:+PrintGCDetails
+  -XX:+PrintGCDateStamps
+  -XX:+PrintGCTimeStamps
+  -XX:+PrintTenuringDistribution
+  -XX:+PrintHeapAtGC
+  -Xloggc:/var/log/hbase/gc-hbase.log
+
+** default config
+   -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:-CMSConcurrentMTEnabled -XX:CMSInitiatingOccupancyFraction=70 -XX:+CMSParallelRemarkEnabled
+
+** formula
+   -XX:-ResizePLAB and -XX:ParallelGCThreads=8+(logical processors-8)(5/8)
+* util
+  http://itindex.net/detail/52895-gc-%E6%97%A5%E5%BF%97-%E5%88%86%E6%9E%90
+  gcviewer github
+  java -jar gcviewer-1.3x.jar filename
+** 监控工具bug
+   https://emacsist.github.io/2015/07/07/%E4%BD%BF%E7%94%A8Java%E7%9B%91%E6%8E%A7%E5%B7%A5%E5%85%B7%E5%87%BA%E7%8E%B0-Cant-attach-to-the-process/
+
+   还没看的
+   http://phl.iteye.com/blog/2005362
+   书可以参考
+   http://www.cnblogs.com/love-jishu/archive/2015/04/14/4424608.html
+   ppt
+   http://www.slideshare.net/HBaseCon/dev-session-7-49202969?qid=c9948e56-1c58-4b69-9bf8-39e3eb8815c8&v=&b=&from_search=6
+   sohu
+   http://mt.sohu.com/20160811/n463740427.shtml
+   http://blog.csdn.net/zhoutao198712/article/details/7831880
+   http://blog.csdn.net/u010814766/article/details/46785425
+   http://iamzhongyong.iteye.com/blog/1989829
+   http://blog.csdn.net/yingfeng2oo8/article/details/51719204
+   http://xiezhenye.com/2016/12/page-cache-%E9%80%A0%E6%88%90-java-%E9%95%BF%E6%97%B6%E9%97%B4-gc.html
+   http://blog.csdn.net/xpb1980/article/details/51750823
+
+   http://itindex.net/detail/50646-java-gc-%E6%97%A5%E5%BF%97
+   http://itindex.net/detail/52895-gc-%E6%97%A5%E5%BF%97-%E5%88%86%E6%9E%90
+
+   good
+   http://itindex.net/detail/52895-gc-%E6%97%A5%E5%BF%97-%E5%88%86%E6%9E%90
+   http://blog.cloudera.com/blog/2014/12/tuning-java-garbage-collection-for-hbase/
+   google : hbase gc
+   https://www.cloudera.com/documentation/enterprise/5-8-x/topics/admin_hbase_garbage_collection.html
+
+
+   http://hbasefly.com/2016/08/09/hbase-cms-gc/
+* hbase 报错
+  http://blackproof.iteye.com/blog/2188952
+
+* todo
+  内存大小
+  硬盘大小
+  块大小
+  块个数
+

@@ -1,0 +1,17 @@
+#+TITLE: Install htop on Mac OS X
+
+* manual install
+But this command isn’t part of Mac OS X.
+
+Sure, you can follow the various tutorials out there, to install git, then grab the htop source code and install it yourself. Or you can be a lazy nerd and grab the binary that I’ve compiled and install it.
+
+Copy and paste the following commands into a terminal window:
+
+curl -O http://themainframe.ca/wp-content/uploads/2011/06/htop.zip
+unzip htop.zip
+sudo mv htop /bin
+rm htop.zip
+You will need to enter your password for the ‘sudo’ line above.
+
+* brew install htop
+brew install htop

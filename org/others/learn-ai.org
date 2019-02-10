@@ -1,0 +1,108 @@
+https://github.com/exacity/deeplearningbook-chinese
+
+todo
+https://github.com/pangolulu/neural-network-from-scratch
+https://www.zhihu.com/question/20447622
+https://www.zhihu.com/question/51244962
+http://geek.csdn.net/news/detail/189766
+http://mengqi92.github.io/2016/05/20/linear-algebra-3/
+https://www.zhihu.com/question/20534668
+http://www.cnblogs.com/TenosDoIt/p/3214096.html
+http://geek.csdn.net/news/detail/160389
+http://shiyanjun.cn/archives/1186.html
+http://geek.csdn.net/news/detail/189196
+https://www.zhihu.com/question/54542998/answer/153477876
+http://blog.csdn.net/stdcoutzyx/article/details/41596663
+
+好文
+https://www.zhihu.com/question/21134457
+
+* 最好的资源set
+
+  Bengio 09年的《Learning Deep Architectures for AI》
+  http://blog.csdn.net/xbinworld/article/details/56523063
+  数学可视化
+  http://www.ams.org/samplings/feature-column/fcarc-svd
+
+  relu函数
+  http://shiyanjun.cn/archives/1186.html
+
+  RNN
+  http://geek.csdn.net/news/detail/186276
+
+  http://www.cnblogs.com/tornadomeet/p/3395593.html
+  http://www.tuicool.com/articles/YbaIvqJ
+  http://wenku.baidu.com/link?url=XZoB3PLv9D9t-d1-4iWozoQZkxTZ6Xgvk5_OJ_PfYPBeRRFdd7Tsopah6eCN9k5vW5Xa2ZBjMeHpdXUeVFK-yxmlDb_qI6XEm2CJVHAhAXq
+
+  tf
+  http://geek.csdn.net/news/detail/159031
+  https://zhuanlan.zhihu.com/p/25387613
+
+  https://zhuanlan.zhihu.com/p/25640834
+
+  http://geek.csdn.net/news/detail/187590
+
+  机器之心，做音乐
+  http://www.jiqizhixin.com/article/1620
+
+  几何做深度学习
+  http://blog.csdn.net/stdcoutzyx/article/details/41596663
+
+  CNN
+  http://blog.csdn.net/zouxy09/article/details/9993371
+  http://www.jianshu.com/p/781030d55000
+
+  矩阵
+  https://www.zhihu.com/question/28623194
+
+  矩阵乘法
+  https://www.zhihu.com/question/21351965
+
+  线性代数, 矩阵理解 *** 牛逼
+  https://www.zhihu.com/question/21082351/answer/19055262
+
+  矩阵特征值
+  https://www.zhihu.com/question/21874816/answer/19592526
+
+  奇异值分解 SVD (Singular Value Decomposition)
+  http://blog.sciencenet.cn/blog-696950-699432.html
+  http://www.ams.org/samplings/feature-column/fcarc-svd
+  https://www.cnblogs.com/LeftNotEasy/archive/2011/01/19/svd-and-applications.html (多读几遍)
+  https://www.zhihu.com/question/22237507
+
+  奇异值分解 VS 特征值分解
+  https://www.zhihu.com/question/19666954
+
+
+  最大似然原理
+  http://mp.weixin.qq.com/s?__biz=MzAxODkzMzc4Mw==&mid=2247483664&idx=1&sn=cba7c82f00c77f0be9489c1b7ae2bfdc#rd
+  https://www.zhihu.com/question/20447622
+
+  ReLU
+  http://www.cnblogs.com/neopenx/p/4453161.html
+
+  tensor
+  从一维数组开始，二维数组是一维数组的每个基本单元变为新的一维数组得到的，三维数组在此基础上，把基本单元在此变为一个一维数组;
+
+  可以关注的blog
+  bp
+  https://zhuanlan.zhihu.com/p/24801814
+
+  测试题
+  http://geek.csdn.net/news/detail/188814
+  预测学习
+  http://geek.csdn.net/news/detail/188777
+
+  各种分类器
+  https://www.zhihu.com/question/26726794/answer/151282052
+
+* 10 algo
+  大学教程
+  http://www.cmi.ac.in/~madhavan/courses/datamining12/
+** em
+   http://www.cmi.ac.in/~madhavan/courses/datamining12/reading/em-tutorial.pdf
+   https://www.zhihu.com/question/27976634/answer/153567695
+   https://www.zhihu.com/question/27976634
+
+* cs231n
+  http://cs231n.github.io/

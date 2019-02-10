@@ -1,0 +1,2 @@
+kubelet
+http://blog.csdn.net/liukuan73/article/details/62226926

@@ -1,0 +1,38 @@
+#+TITLE: scala basic
+
+1.以 val 定义的值实际上是一个常量， 用 var 声明的是一个变量。
+2.val greeting: String = null
+  val greeting: Any = "String"
+3. 8个基本类型Byte, Char, Short, Int, Long, Fload, Double, Boolean 但是scala不区分基本类型或者引用类。 1.toString()  // 得到字符串 "1"
+4. a 方法 b 是 a.方法(b) 的简写
+5. scala 没有 ++ 操作
+6. scala _ == java *
+7. 没有参数且不改变当前对象的方法不带圆括号
+8. apply方法： "hello"(4)
+   StringOps:
+            def apply(n: Int): Char
+         =>    "hello".apply(4) == "hello"(4)
+9. Unit类， 相当于 void， (), Unit 和 void 有区别
+10.
+        for (i <- 1 to 10; j <- 2 to 5; if i != j)
+                println(i + " : " + j)
+
+        for (i <- 1 to 10)
+                for (j <- 1 to 10)
+                       if (i != j)
+                              println(i + " : " + j)
+
+11. for 推导
+       for (i <- 1 to 10)
+           yield i % 3
+    // (1 2 0 1 2 0......)
+12. 方法和函数
+方法对对象进行操作， 函数不是
+
+13. 关于函数
+不是递归的函数，可以不写返回类型
+14. return
+匿名函数函数间break
+
+15. 1 to 10 = [1, 10]
+    1 util 10 = [1, 10)

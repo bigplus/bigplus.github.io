@@ -1,0 +1,32 @@
+body {
+	padding-bottom: 40px;
+}
+
+blockquote p {
+	font-size: inherit;
+	font-style: italic;
+}
+
+pre.src,
+pre.example {
+	background-color: #080808;
+	color: #f4f4f4;
+	font-size: 13px;
+}
+
+pre.example {
+	border-top: solid 5px #9c0001;
+	border-bottom: solid 5px #9c0001;
+}
+
+#footnotes {
+	font-style: italic;
+}
+
+#footnotes h2.footnotes {
+	font-size: 18px;
+}
+
+#disqus_thread {
+	margin-top: 28px;
+}

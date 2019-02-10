@@ -1,0 +1,158 @@
+* 要经常看的网站
+  http://pragmaticemacs.com/
+
+  http://ergoemacs.org/emacs/emacs.html
+
+  http://ergoemacs.org/emacs/emacs.html
+
+* emacs mirror
+  https://github.com/emacsmirror?language=python
+* org-mode
+  https://victor72.github.io/blog/2016/06/16/with-org-mode-setup-up-personal-blog/
+* python ide
+** elpy
+   https://github.com/jorgenschaefer/elpy
+** jedy
+   https://github.com/tkf/emacs-jedi
+** pyimport
+   https://github.com/emacsmirror/pyimport
+
+* python anaconda-mode
+  https://github.com/proofit404/anaconda-mode
+  https://www.reddit.com/r/emacs/comments/2mcj85/switching_from_vim_should_i_use_emacs_evil_or/
+
+
+* python neotree
+  https://www.emacswiki.org/emacs/NeoTree
+
+* python 开发设置
+  https://github.com/jhamrick/emacs
+
+  https://github.com/jhamrick/emacs
+
+  No such file or directory: pycheckers
+
+  pycheckers is a little script to check that your Python code conforms to the PEP8 style guide using the pep8 and pyflakes Python packages.
+
+  If you do not want this functionality, you can comment out the block of code in python-settings.el that starts with "pyflakes flymake integration". Otherwise, read on.
+
+  In your ~/.bashrc, add $HOME/bin to your $PATH environment variable like so:
+
+  export PATH="$HOME/bin:$PATH"
+  Create a file in ~/bin/pycheckers with the following contents:
+
+  #!/bin/bash
+
+  pyflakes "$1"
+  pep8 --ignore=E261 --repeat "$1"
+  true
+  Make it executable with chmod +x ~/bin/pycheckers.
+
+  Make sure you have pep8 and pyflakes installed (run pip install pep8 pyflakes).
+
+  Now it should work! If not, please submit a bug report and let me know.
+
+* emacs cal
+  emacs calculator
+  C-x * q (or M-x quick-calc )
+
+  https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_window_divider_more/
+
+  emacs常用命令：包安装、卸载
+  •【Enter ↵】 显示包相关帮助
+  •【i】  标记为要安装
+  •【u】 取消安装或卸载标记
+  •【d】 标记为要卸载
+  •【x】 执行安装或卸载
+  •【r】  刷新列表
+  •【f】  输入关键字过滤列表，按q恢复完整列表
+
+  spacemacs/recompile-elpa
+
+* emacs org babel org 中执行代码
+  http://wenshanren.org/?p=327
+  http://www.bagualu.net/wordpress/archives/6521
+  http://orgmode.org/worg/org-contrib/babel/languages/ob-doc-python.html
+  http://cheukyin.github.io/python/2014-08/pygments-highlight-src-export-html.html
+  byte-compile-file
+
+  ;;--------------------------------------------------------------------------------
+  ;; http://orgmode.org/worg/org-contrib/babel/languages/ob-doc-python.html
+  ;;
+  ;; Q:emacs Org-Mode Evaluation of code disabled
+  ;; A:delete *.elc
+  ;; https://github.com/syl20bnr/spacemacs/issues/7641
+  ;; http://emacs.stackexchange.com/questions/28441/org-mode-9-unable-to-eval-code-blocks
+  ;; (with-eval-after-load 'org
+  ;;   (require 'ob-python)
+  ;;   (org-babel-do-load-languages
+  ;;    'org-babel-load-languages
+  ;;    '((C . t)
+  ;;      (emacs-lisp . t)
+  ;;      (python . t)))
+  ;;   )
+  ;; (eval-after-load 'org
+  ;;     (lambda()
+  ;;       (require 'ess-site)
+  ;;       (require 'ob-R)
+  ;;       (require 'ob-emacs-lisp)
+  ;;       (require 'ob-latex)
+  ;;       (require 'octave)
+  ;;       (require 'ob-python)
+  ;;       (require 'ob-sql)
+  ;;       (require 'ob-shell)
+  ;;       (require 'ob-sqlite)
+  ;;       (require 'ob-julia)
+  ;;       (require 'ob-perl)
+  ;;       (require 'ob-org)
+  ;;       (require 'ob-awk)
+  ;;       (require 'ob-sed)
+  ;;       (require 'ob-css)
+  ;;       (require 'ob-js)
+  ;;       (require 'ob-stata)
+  ;;       (setq org-export-babel-evaluate nil)
+  ;;       (setq org-startup-indented t)
+  ;;       ;; increase imenu depth to include third level headings
+  ;;       (setq org-imenu-depth 3)
+  ;;       ;; Set sensible mode for editing dot files
+  ;;       (add-to-list 'org-src-lang-modes '("dot" . graphviz-dot))
+  ;;       ;; Update images from babel code blocks automatically
+  ;;       (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
+  ;;       (setq org-src-fontify-natively t)
+  ;;       (setq org-src-tab-acts-natively t)
+  ;;       (setq org-confirm-babel-evaluate nil)))
+
+  ;; C-c C-c
+  #+BEGIN_SRC emacs-lisp
+(defun org-xor (a b)
+"Exclusive or."
+(if a (not b) b))
+  #+END_SRC
+
+  #+RESULTS:
+  : org-xor
+
+
+  #+BEGIN_SRC python
+import time
+print("Hello, today's date is %s" % time.ctime())
+print('Two plus two is')
+return 2 + 2
+  #+END_SRC
+
+  #+RESULTS:
+  : 4
+
+  #+BEGIN_SRC shell
+ls
+  #+END_SRC
+
+  http://ftp.gnu.org/old-gnu/Manuals/emacs-lisp-intro/html_mono/emacs-lisp-intro.html
+
+* debug
+  https://github.com/syl20bnr/spacemacs/wiki/Debugging
+
+* highlight symbol at point
+  http://stackoverflow.com/questions/22434484/emacs-modes-highlighting-uses-of-variable-under-point
+  http://onthecode.com/post/2014/03/06/emacs-on-steroids-for-python-elpy-el.html
+  https://github.com/hlissner/evil-snipe

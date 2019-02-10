@@ -1,0 +1,89 @@
+#+TITLE: HBase 应急处理和经验总结
+#+AUTHOR: Jerry
+#+OPTIONS: ^:nil
+
++ 设置开关不写入hbase并不生效
+  #+BEGIN_SRC 
+代码初上线，增加了开关，万一hbase有问题则关闭掉开关。但是出现问题了发现程序卡死，目前认为原因是不断加长的retry机制，60秒超时，1-32秒的10次retry，万一出问题，切换开关也没有用。
+需要配置rpc超时参数和retry time解决它
+  #+END_SRC
+
++  flush、split、compact导致stop-the-world
+   #+BEGIN_SRC 
+出现长时间的flush split操作导致hbase服务器端无法响应请求。需要调整region大小，并测试获取flush次数
+   #+END_SRC
+
++ region server crush
+  #+BEGIN_SRC 
+  Regionserver crash的原因是因为GC时间过久导致Regionserver和zookeeper之间的连接timeout。
+  Zookeeper内部的timeout如下：
+  minSessionTimeout 单位毫秒，默认2倍tickTime。
+  maxSessionTimeout 单位毫秒，默认20倍tickTime。
+  （tickTime也是一个配置项。是Server内部控制时间逻辑的最小时间单位）
+  如果客户端发来的sessionTimeout超过min-max这个范围，server会自动截取为min或max，然后为这个Client新建一个Session对象。
+  默认的tickTime是2s，也就是客户端最大的timeout为40s，及时regionserver的zookeeper.session.timeout设置为60s也没用。
+   *改动：*
+  将zookeeper集群的tickTime修改为9s，最大的timeout为180s，同时修改zookeeper.session.timeout为120s，这样可以避免GC引发timeout。
+  添加参数hbase.regionserver.restart.on.zk.expire为true，改参数的作用是当regionserver和zookeeper之间timeout之后重启regionserver，而不是关掉regionserver。
+  #+END_SRC
+
++ 请求不存在的region，重新建立tablepool也不起作用
+  #+BEGIN_SRC 
+
+  请求的时间戳 1342510667
+  最新region rowkey相关时间戳 1344558957
+  最终发现维持region location表的属性是在HConnectionManager中
+  Get，Delete，incr Increment 是在 ServerCallable类 withRetries处理
+  情景1 若有出错（SocketTimeoutException ConnectException RetriesExhaustedExcetion），则清理regionServer location
+  情景2 numRetries 若设置为1 ，则 循环只执行一次，connect(tries!=0) 为connect(false),即reload=false，不会进行location更新，当为numRetries>1的时候才会重新获取
+  get Gets List, put Put或Puts List，delete Deletes List 则调用HConnectionManager的 processBatch去处理，当发现批量get或者put、delete操作结果有问题，则刷新regionServer location
+  设置 numRetries为>1次， 我这里是3次，解决问题
+  #+END_SRC
+
++ zookeeper.RecoverableZooKeeper(195): Possibly transient ZooKeeper exception: org.apache.zookeeper.KeeperException$ConnectionLossException: KeeperErrorCode = ConnectionLoss for /hbase/master
+  #+BEGIN_SRC 
+  这是在我单机做测试时出现的，无论是从ide或是bin启动hbase，从shell里可以正常连接，从测试程序中无法连接，zookeeper端口是2181,客户端端口应该与zookeeper无关才对，
+  最终更改配置21818端口换为2181 运行正常，应该是单机环境才要做这种更改。
+    <property>
+      <name>hbase.zookeeper.property.clientPort</name>
+      <value>2181</value>
+      <description>Property from ZooKeeper's config zoo.cfg. The port at which the clients will connect.
+      </description>
+    </property>
+  #+END_SRC
+  
++ 为什么有服务器进程挂了？
+  #+BEGIN_SRC 
+  regionserver发生abort的场景很多，除了系统bug引起的以外，线上遇到最多的就是fullgc引起的zk节点超时和文件系统异常。 
+  1、查看regionserver日志查询FATAL异常，确定异常类型 
+  2、查看gc日志确定是否发生fullgc或者ygc时间过长 
+  3、如果没有征兆，日志突然中断，首先需要考虑是否发生了OOM（0.94版本会直接kill -9）。 
+  4、可以通过系统内存监控判断是否出现被占满的情况 
+  5、查看datanode是否出现异常日志，regionserver可能由于roll log或者flush时的文件系统异常导致abort 
+  6、排除人为调用stop的情况 
+  #+END_SRC
+  
++ HBase集群经验总结
+  #+BEGIN_SRC 
+  HBase健康体检 
+  一个集群似乎否健康，大体可以从以下几个方面来判断 
+  1、单region的storefile数量是否合理 
+  2、memstore是否得到合理的利用，此项指标与hlog的数量和大小相关 
+  3、compact和flush的流量比值是否合理，如果每天仅flush 1G却要compact几十上百G就是明显的浪费 
+  4、split似乎否过频，能否采取pre-sharding的方式来预分配region 
+  5、集群的region是否过多，zk在默认参数下无法支撑12w以上的region个数，并且region过多也会影响regionserver failover的时间 
+  6、读写相应时间是否合理，datablock的读取延时是否符合预期 
+  7、flush队列、callqueue长度、compact队列是否符合预期。前两者的积压都会造成系统不稳定。 
+  8、failedRequest和maxResponseTime 
+  9、gc状况，过长的ygc和过频的cms都需要警惕 
+  
+  运维工具 
+  HBase官方版本的可运维性的确很差，为了能最大限度的保证线上系统安全，快速定位故障原因，阿里做了很多建设性的工作。 
+  1、建立了完整的监控体系，根据日常测试和线上运行经验，加入了很多监控点。 
+  2、监控的粒度达到region级别 
+  3、call dump和线上慢请求追踪功能 
+  4、btrace脚本体系，出现问题直接运行查看程序内部信息 
+  5、日志收集和报警 
+  6、在线表维护工具和storefile、logs分析工具 
+  #+END_SRC
+                                                                                                                                          

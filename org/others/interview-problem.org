@@ -1,0 +1,47 @@
+#+TITLE: 今天出的一道面试题
+
+* 今天面试了一个人，除了2道题，这是其中的一个，我改编的。
+#+BEGIN_SRC 
+注意yeepay的pay由’p’,’a’,’y’ 3 个字母组成, 现在指定一个字符串，长度小于50，只包含'p', 'a', 'y'这3个字母，
+例如，apyapyay，第一个字母的position为1，从头到尾找出p，a，y的字母，要求按照顺序p,a,y的出现顺序，
+如上例，’p', 'a', ‘y’出现的位置是（2，4，6），(2，4，8)（2，7，8），（5，7，8）共可以组成4组，pay，位置顺序递增。
+给任意字符串, 请问可以组合成多少个pay?
+#+END_SRC
+
+
+用java写，答案是这样的：
+#+BEGIN_SRC java
+    public static void main(String[] args) {
+        char[] s = "apyapyay".toCharArray();
+        int p = 0;
+        int pa = 0;
+        int pay = 0;
+        for (int i = 0; i < s.length; ++i) {
+            if (s[i] == 'p') {
+                p++;
+            } else if (s[i] == 'a') {
+                pa = p + pa;
+            } else {
+                pay = pay + pa;
+            }
+        }
+        System.out.println("pay : " + pay);
+    }
+#+END_SRC
+
+用Python是这样的
+#+BEGIN_SRC python
+def getPayNum(seq):
+    p =0
+    pa = 0
+    pay = 0
+    for val in seq:
+        if val == 'p':
+            p += 1
+        elif val == 'a':
+            pa += p
+        else:
+            pay += pa
+    return pay
+#+END_SRC
+

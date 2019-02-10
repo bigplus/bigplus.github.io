@@ -1,0 +1,14 @@
+Clear the cache directory where appropriate for your system
+
+Linux and Unix
+
+~/.cache/pip  # and it respects the XDG_CACHE_HOME directory.
+OS X
+
+~/Library/Caches/pip
+Windows
+
+<CSIDL_LOCAL_APPDATA>\pip\Cache
+
+http://stackoverflow.com/questions/10638886/how-to-refresh-a-local-pip-cache
+http://stackoverflow.com/questions/9510474/removing-pips-cache

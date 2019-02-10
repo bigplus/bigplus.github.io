@@ -1,0 +1,7 @@
+brew 安装指定小版本
+1. brew search abc
+2. brew install abc@version
+http://stackoverflow.com/questions/3987683/homebrew-install-specific-version-of-formula
+
+mac 键盘自定义
+https://zhuanlan.zhihu.com/p/20038926?columnSlug=lijigang

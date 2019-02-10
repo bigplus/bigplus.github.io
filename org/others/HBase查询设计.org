@@ -1,0 +1,74 @@
+#+TITLE: HBase查询设计之主键设计
+#+AUTHOR: Jerry
+#+OPTIONS: ^:nil
+
+HBase – Hadoop Database，是一个高可靠性、高性能、面向列、可伸缩的分布式存储系统，利用HBase技术可在廉价PC Server上搭建起大规模结构化存储集群。在次我们看作一个巨大的KeyValue数据库。\\
+* 问题描述
+
+** problem1 : 写热点问题
+在生产数据库DB2中，交易数据主键为自增长的ID，这意味着主键是连续的。在我们同步数据到HBase的时候，会产生一个普遍的问题：HBase的RegionServer热点问题（Hotspotting）。\\
+写热点可以简单描述为：写主键(即rowkey)连续的数据时，写操作会落在一个节点上，给一个节点造成过大压力。\\
+数据平台的一个职责之一的持久化历史数据。如果我们单纯的以id作rowkey，将产生热点问题。\\
+比如如下两种情况：
+#+BEGIN_SRC html
+Examples of such keys are:
+time-based format: Long.MAX_VALUE – new Date().getTime()
+increasing/decreasing sequence: ”001”, ”002”, ”003”,… or ”499”, ”498”, ”497”, …
+#+END_SRC
+写热点问题对于HBase来说是必须要避免的。
+因为写热点将失去hbase作为分布式集群存在的优势，把整个集群写IO限制在一个节点。
+
+              #+CAPTION: 此图表示了写热点问题：一个节点繁忙，而其他节点空闲的情况
+              [[./img/hotspotting.png]]
+
+
+** problem2 : 查询服务如何做
+上面的写热点问题是连续rowkey导致的，那么连续的对立就是非连续。\\
+至于非连续的实现，我们有多种方式：比如Hash， MD5， 等。（已经实践：MD5后数据是非常均匀的分配在每个节点）\\
+但是现在我们同样面对一个问题，如果把原来连续的数据全部打散，也就意味着我们的数据，只能通过rowkey有针对性的查询了，这对查询服务来说也是糟糕的。\\
+
+* 解决方案
+对于问题1和问题2，似乎是一对相互矛盾的问题。实时就是如此。
+
+对于毫无规律（Hash，MD5）散列的数据，虽然可以有效的解决问题1.但是会失去快速Scan这个API给我提供的便利。\\
+因此我们采用一种折中的方式。即添加前缀:
+
+#+BEGIN_SRC html
+new_row_key = (++index % BUCKETS_NUMBER) + original_key
+#+END_SRC
+              #+CAPTION: 我们把这种方式看作是连续与散列的折中
+              [[./img/saltedkey.png]]
+
+公式解释如下：
++ index: 即记录中的原始ID
++ buckets_number : “buckets” 数，即分割数
++ original_key : 相当于原记录ID
++ new_row_key : 实际写入数据库的key， 也被称为 “distributed key” 
+此时节点负载为：
+              #+CAPTION: HBase DataNode Load
+              [[./img/saltedimg.png]]
+
+	      从图中可以看出来，我们先把数据分成若干块，然后快与块之间是散列的\\
+在此，我们注意如下事实：
+分割后的新rowkey被分到多个buckets中，最终这些数据落到不到的region中.\\
+新数据虽然失去了原有的一致性连续，但是buckets内数据保持了原有的顺序,
+
+接下来，我们来解决第二个问题：\\
+关于如何查询。原始HBase API内部的底层实现已经将GET和SCAN统一为SCAN操作。\\
+因为我们有了bucket的方式，因此几乎原有连续的数据打乱到每个节点。\\
+在我们scan数据的时候，需要并行的去每个节点执行查询操作，这样就充分的利用了分布式的特点，做到了并行。\\
+
+* 如何实现
+至于如何实现呢?\\
+在此我们采用非入侵式的方式，引入新技术 *[phoenix]*.\\
+至于如何使用phoenix这里就不废话了，可参考其他文档.\\
+phoenix同时实现了上述功能和HBase协处理器的工程，在HBase-Cluster的服务端为我们做了大量的封装，比如sum，count， top-N等操作。
+总结优点如下：
++ 快速接入hbase解决方案phoenix
++ 业务逻辑优化过后的匹配特征的高查询性能
++ 强大的sql语法、功能支持
++ 专业团队持续维护、改进
+
+  
+*本文的重点在于：如何根据业务，合理设计HBase主键.* \\
+_/至于想深入了解phoenix的，可mail:zhuyu.deng@gmail.com./_

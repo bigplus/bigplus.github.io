@@ -1,0 +1,6 @@
+#+TITLE: NLP Standford
+#+AUTHOR: Jerry
+
+https://www.cnblogs.com/arkenstone/p/6064196.html
+http://web.stanford.edu/class/cs224n/syllabus.html
+https://web.stanford.edu/~jurafsky/NLPCourseraSlides.html

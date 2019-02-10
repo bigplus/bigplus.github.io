@@ -1,0 +1,18 @@
+#+TITLE: WINDOW-NUMBERING-MODE
+
+* window-numbering.el
+
+first, read the article
+http://blog.binchen.org/posts/moving-focus-and-buffer-between-emacs-window.html
+
+window-numbering.el is the best. It uses hot key "M-NUM" to switch window (for example, "M-3" to select window with number 3). So I can press only one key to switch window. Besides, it has some extra features like "M-0" to jump to the minbuffer.
+
+Here is my configuration of window-numbering.el:
+
+#+BEGIN_SRC 
+
+(require 'window-numbering)
+;; highlight the window number in pink color
+(custom-set-faces '(window-numbering-face ((t (:foreground "DeepPink" :underline "DeepPink" :weight bold)))))
+(window-numbering-mode 1)
+#+END_SRC

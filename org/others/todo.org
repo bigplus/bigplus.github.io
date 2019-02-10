@@ -1,0 +1,890 @@
+https://github.com/nmrksic/neural-belief-tracker.git
+https://github.com/dennybritz/cnn-text-classification-tf.git
+https://github.com/bigplus/backup.git
+
+
+
+http://cs.stanford.edu/people/karpathy/convnetjs/demo/rldemo.html
+https://zhuanlan.zhihu.com/p/23142799
+http://www.sohu.com/a/211138922_355140
+
+https://github.com/oplatek/cleverobot
+
+http://science.sciencemag.org/content/358/6368/eaag2612
+
+https://yq.aliyun.com/articles/175739
+
+http://charleshm.github.io/2016/03/Model-Performance/
+
+https://zhuanlan.zhihu.com/p/29024978
+
+https://www.zhihu.com/search?type=content&q=nlp
+
+
+https://github.com/wiseodd/generative-models/tree/master/GAN
+
+https://github.com/search?l=Python&o=desc&p=2&q=gan&s=stars&type=Repositories&utf8=%E2%9C%93
+
+http://www.usyiyi.cn/translate/theano_09/library/gradient.html
+http://blog.csdn.net/wangjian1204/article/details/50518591
+http://www.sohu.com/a/144843442_473283
+https://www.zhihu.com/question/57668112
+http://baijiahao.baidu.com/s?id=1568663805038898&wfr=spider&for=pc
+http://www.jianshu.com/p/2acb804dd811
+https://www.zhihu.com/question/63493495/answer/212218657
+http://www.sohu.com/a/153963550_651893
+https://zhuanlan.zhihu.com/p/31843600
+https://www.gatesnotes.com/Books
+https://www.zhihu.com/question/40403377?sort=created
+http://blog.csdn.net/u010105243/article/details/53352155
+https://zhuanlan.zhihu.com/p/29504856
+https://www.zhihu.com/question/27974418
+https://github.com/lzjun567/note/blob/master/note/python/write-2x-3x-compatible-code.md
+http://blog.csdn.net/mao_xiao_feng/article/details/73991787
+https://zhuanlan.zhihu.com/p/29024978
+
+http://www.jianshu.com/p/cbce2dd60120
+
+https://www.zhihu.com/question/48615510
+https://www.cnblogs.com/jzy996492849/p/7229083.html
+
+http://blog.csdn.net/hungryof/article/details/71440266
+https://zhuanlan.zhihu.com/p/26670032
+
+https://zhuanlan.zhihu.com/p/25781797
+
+https://www.google.com/search?q=tensorflow+convolution+%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF+4-d&oq=tensorflow+convolution+%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF+4-d&aqs=chrome..69i57.14919j0j7&sourceid=chrome&ie=UTF-8
+
+
+http://blog.csdn.net/xierhacker/article/details/53174594
+
+http://www.jeyzhang.com/tensorflow-learning-notes-2.html
+
+https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=0&rsv_idx=1&tn=baidu&wd=%E6%B1%A0%E5%8C%96%E5%9C%A8%E6%AF%8F%E4%B8%AA%E9%80%9A%E9%81%93&rsv_pq=d1e12cdb00033349&rsv_t=d546EZymOeRLtcMqLkCfSqkG19lImMmkZWzBoZH%2FnSC8apmLryAoRCyOIao&rqlang=cn&rsv_enter=1&rsv_sug3=26&rsv_sug1=17&rsv_sug7=100
+
+https://zhuanlan.zhihu.com/p/27188969
+
+http://www.infoq.com/cn/news/2017/06/jd-618-Intelligent-robot-JIMI
+
+http://blog.csdn.net/baimafujinji/article/details/51281816'
+
+http://blog.csdn.net/dev_csdn/article/details/78841624
+
+https://www.zhihu.com/question/20695804
+
+https://mp.weixin.qq.com/s?__biz=MzU0NTAyNTQ1OQ==&mid=2247484981&idx=1&sn=c21bad2840ce56d4da71c5c8c400ceb0&chksm=fb727ae9cc05f3ffaf55c9c72a4e47c4690f53f2ec9ed82a9e658fc80999ec68ba9147ab7f10&mpshare=1&scene=23&srcid=1122dbNu6lsOY1MXSPE2oyhQ#rd
+http://blog.csdn.net/joshuaxx316/article/details/52062291
+
+http://blog.csdn.net/luo123n/article/details/48239963
+
+http://blog.csdn.net/u012759136/article/details/52302426
+
+https://www.cnblogs.com/neopenx/p/4768388.html
+
+https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=0&rsv_idx=1&tn=baidu&wd=n-gram%20feature%20extractor&rsv_pq=9c50e7450000ec23&rsv_t=8be6XqQmioqcSjloXyFuwn55LM4wwkT6hZ1DQB2k0R3LkMyw3exfAAbDJic&rqlang=cn&rsv_enter=1&rsv_sug3=24&rsv_sug1=1&rsv_sug7=100&rsv_sug2=0&inputT=7888&rsv_sug4=7889
+
+https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=0&rsv_idx=1&tn=baidu&wd=n-gram%20feature%20extractor&rsv_pq=9c50e7450000ec23&rsv_t=8be6XqQmioqcSjloXyFuwn55LM4wwkT6hZ1DQB2k0R3LkMyw3exfAAbDJic&rqlang=cn&rsv_enter=1&rsv_sug3=24&rsv_sug1=1&rsv_sug7=100&rsv_sug2=0&inputT=7888&rsv_sug4=7889
+
+
+https://zhuanlan.zhihu.com/p/25005808
+
+https://www.researchgate.net/publication/277411157_Deep_Learning
+
+https://mp.weixin.qq.com/s?__biz=MzI0ODcxODk5OA==&mid=2247491749&idx=1&sn=c1c0cda45bf0be70984e3784a0e3f7d5
+
+https://github.com/nmrksic/neural-belief-tracker
+https://github.com/search?l=Python&p=2&q=belief_state&type=Code&utf8=%E2%9C%93
+
+https://github.com/aquadrop/memory_py
+
+https://github.com/MiuLab/KB-InfoBot
+
+http://www.jianshu.com/p/67f597ed0c4f
+
+https://zhuanlan.zhihu.com/p/23790374
+
+http://www.jianshu.com/p/29948a5c5560
+
+https://xyang35.github.io/2017/08/22/GAN-1/
+
+https://www.jiqizhixin.com/articles/2017-09-11-6
+
+https://xyang35.github.io/2017/08/22/GAN-1/
+
+https://github.com/aquadrop/memory_py
+
+https://www.oreilly.com/learning/generative-adversarial-networks-for-beginners
+
+https://github.com/zsdonghao/tensorlayer
+
+https://zhuanlan.zhihu.com/p/23812077
+
+http://bluewhale.cc/2016-12-15/use-python-to-capture-and-analyze-jingdong-product-reviews-data.html
+
+http://kylin.apache.org/docs20/
+
+http://blog.csdn.net/John_xyz/article/details/54744413
+
+http://deeplearning.net/software/theano/library/tensor/basic.html
+
+https://github.com/nmrksic?tab=repositories
+
+http://blog.csdn.net/colorant/article/details/74923577
+
+https://www.google.com/search?q=gensim+MatrixSimilarity+small+memory&oq=gensim+MatrixSimilarity+small+memory&aqs=chrome..69i57.6547j0j7&sourceid=chrome&ie=UTF-8
+
+https://www.google.com/search?q=gensim+MatrixSimilarity+small+memory&oq=gensim+MatrixSimilarity+small+memory&aqs=chrome..69i57.6547j0j7&sourceid=chrome&ie=UTF-8
+
+http://blog.csdn.net/luoyexuge/article/details/78209670
+
+https://zhuanlan.zhihu.com/dlalchemy
+
+https://github.com/shawnwun/RNNLG
+
+https://indico.io/blog/tensorflow-data-inputs-part1-placeholders-protobufs-queues/
+
+http://blog.csdn.net/ying86615791/article/details/72731372
+
+https://www.zhihu.com/search?type=content&q=task-oriented
+
+https://weibo.com/2678093863/E6zKXiyB7?type=comment&sudaref=www.baidu.com&display=0&retcode=6102
+https://zhuanlan.zhihu.com/p/29933242
+http://blog.csdn.net/baimafujinji/article/details/51281816
+
+https://mp.weixin.qq.com/s/TsuQaBKhl3PwBbFen2Pb2w
+
+http://m.blog.csdn.net/u010555997/article/details/76039971
+
+http://blog.csdn.net/u014519377/article/details/54354088
+
+http://blog.csdn.net/thriving_fcl/article/details/71423039
+
+http://www.chongchonggou.com/g_640549094.html
+
+https://my.vultr.com/deploy/
+
+http://blog.csdn.net/lujiandong1/article/details/53376134
+
+https://zhuanlan.zhihu.com/p/28450111
+
+https://github.com/search?p=4&q=org%3Atensorflow+parsing_ops&type=Code
+
+https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=0&rsv_idx=1&tn=baidu&wd=tensorflow%20%E5%8A%A0%E8%BD%BD%E6%A8%A1%E5%9E%8B%E5%81%9A%E9%A2%84%E6%B5%8B&rsv_pq=c756f3460000fcb0&rsv_t=9792svF9k%2BhA8ZmDCN%2Fe22oAVzNpr3QL9WUPT4pnq%2BWKHWvS8hHT2dQHl4E&rqlang=cn&rsv_enter=1&rsv_sug3=34&rsv_sug1=14&rsv_sug7=100&rsv_sug2=0&inputT=6716&rsv_sug4=6716
+
+https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=0&rsv_idx=1&tn=baidu&wd=tensorflow%20%E5%8A%A0%E8%BD%BD%E6%A8%A1%E5%9E%8B%E5%81%9A%E9%A2%84%E6%B5%8B&rsv_pq=c756f3460000fcb0&rsv_t=9792svF9k%2BhA8ZmDCN%2Fe22oAVzNpr3QL9WUPT4pnq%2BWKHWvS8hHT2dQHl4E&rqlang=cn&rsv_enter=1&rsv_sug3=34&rsv_sug1=14&rsv_sug7=100&rsv_sug2=0&inputT=6716&rsv_sug4=6716
+
+https://www.zhihu.com/question/51011199/answer/124989009
+
+https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=0&rsv_idx=1&tn=baidu&wd=adadelta&rsv_pq=d70e235600000666&rsv_t=538aRauGJin8V06Bg%2BUvxopWc3%2BzRL3Yrx7hDbXlGHvKmhMiPma1yQanYnA&rqlang=cn&rsv_enter=1&rsv_sug3=45&rsv_sug1=38&rsv_sug7=100
+
+https://weibo.com/u/2045933955?is_hot=1&sudaref=login.sina.com.cn&sudaref=login.sina.com.cn
+
+https://weibo.com/2678093863/E6zKXiyB7?sudaref=www.baidu.com&display=0&retcode=6102&type=comment
+
+https://zhuanlan.zhihu.com/p/22062882
+
+https://zhuanlan.zhihu.com/p/21626875
+
+https://github.com/majoressense/dgk_lost_conv
+
+https://zhuanlan.zhihu.com/p/27889420
+http://www.52nlp.cn/forgetnlp4
+
+http://blog.csdn.net/eastmount/article/details/50323063
+
+https://arxiv.org/abs/1609.00777
+
+https://zhuanlan.zhihu.com/p/22795635
+
+https://zhuanlan.zhihu.com/p/22062882
+
+https://www.cnblogs.com/yymn/articles/4969848.html
+
+https://www.zhihu.com/question/20700012
+
+https://www.zhihu.com/question/264020389
+
+https://www.zhihu.com/question/264045259
+
+https://www.zhihu.com/question/63881885
+
+https://zhuanlan.zhihu.com/p/27470864
+
+https://zhuanlan.zhihu.com/bupt-pris731
+
+https://www.reddit.com/r/spacemacs/comments/7aera8/symbol_value_as_variable_is_void/?st=jauvpkwe&sh=684fe37b
+
+https://www.cnblogs.com/arkenstone/p/6064196.html
+
+https://www.zhihu.com/question/20700012
+
+https://www.zhihu.com/collection/38887091
+
+https://www.cnblogs.com/arkenstone/p/6064196.html
+
+https://www.zhihu.com/people/z-shawn/activities
+
+https://zhuanlan.zhihu.com/p/27470864
+
+https://mp.weixin.qq.com/s?__biz=MzI1NTcxNjcyNg==&mid=2247484424&idx=1&sn=2fe05c5ba474c705ea7b064c5b761718&chksm=ea30f811dd4771071eccb578db3515d05d4972fa2a40165f34662aa3d35aa4b3658c5e4c65a8&mpshare=1&scene=23&srcid=1211F66UHxRzu2zAzbUdbiad#rd
+
+https://www.cnblogs.com/yelbosh/p/5808706.html
+
+https://zhuanlan.zhihu.com/p/31673647
+
+https://zhuanlan.zhihu.com/p/29024978
+
+https://www.zhihu.com/question/65578911/answer/249995561
+
+https://www.zhihu.com/question/55720139
+
+http://python3-cookbook.readthedocs.io/zh_CN/latest/c08/p05_encapsulating_names_in_class.html
+
+https://programtalk.com/python-examples/theano.tensor.signal.pool.pool_2d/
+https://programtalk.com/python-examples/theano.tensor.signal.pool.pool_2d/
+
+https://www.zhihu.com/question/51011199/answer/124989009
+
+
+时间序列异常检测 EGADS Surus iForest
+
+http://www.jianshu.com/p/99b0452e55a4
+http://geek.csdn.net/news/detail/194237
+
+推荐算法
+http://geek.csdn.net/news/detail/195714
+
+性能测试
+http://geek.csdn.net/news/detail/195559
+
+加密
+http://geek.csdn.net/news/detail/195968
+
+* 2018数据驱动
+
+计算资源优化                Q1 优化计算引擎
+olap与etl开发优化与升级     Q1 etl报警升级，etl数据权限，执行逻辑审计 Q2 olap引擎优化与升级
+数据血统管理与设计           一个Q的时间血统设计与研发测试
+可视化设计                  1个Q时间，改造etl交互， 1个Q时间改造H5可视化交互
+
+* 2017 before
+** yarn 理解
+** hbase 优化：compaction
+** docker
+
+* <2017-01-18 Wed>
+** mysql
+** spark
+** python
+** superset
+
+* <2017-01-19 Thu>
+** spark 的 withScope 可以用在 java、scala等代码中用于监控性能
+* <2017-01-25 Wed>
+** http断点续传
+
+
+
+* python ide
+* ai ml
+
+* 2017健身计划
+  每天100个俯卧撑
+  每天100个单词
+  每天一个vim命令
+  每天一篇英文技术文章 databricks
+
+* vim && emacs
+* python shell exe
+
+
+
+  body { color: #233232; }
+  a { color: #233232; }
+  strong { color: #233232; }
+
+  dfa fadfda dafa fd fsa ak
+
+* play happy
+  http://ahogrammer.com/2016/11/15/deep-learning-enables-you-to-hide-screen-when-your-boss-is-approaching/
+  https://github.com/Hironsan/BossSensor
+
+
+* java gc for hbase
+  http://blog.cloudera.com/blog/2014/12/tuning-java-garbage-collection-for-hbase/
+  http://unixboy.iteye.com/blog/174173/
+  http://visionsky.blog.51cto.com/733317/566844/
+  http://www.cnblogs.com/zlingh/p/4152931.html
+  http://blackproof.iteye.com/blog/2188952
+
+
+
+* 图像识别，门禁
+
+* spark and tf
+
+* deep learning
+  http://blog.csdn.net/tanhongguang1/article/details/46056663
+
+  http://blog.csdn.net/horstlinux/article/details/7857123
+  http://wenshanren.org/?p=687
+  https://github.com/emacs-helm/helm-cmd-t
+  http://planet.emacsen.org/
+  http://www.cnblogs.com/cheukyin/p/4208621.html
+
+  http://cheukyin.github.io/python/2014-08/pygments-highlight-src-export-html.html
+  http://wenshanren.org/?p=327
+  http://www.jianshu.com/p/c5cc672aae63
+
+  http://blog.csdn.net/google19890102/article/details/51755242
+  http://blog.csdn.net/dinosoft/article/details/50893291
+  http://blog.csdn.net/dinosoft/article/details/50893291
+  http://blog.csdn.net/lin360580306/article/details/51240398#马尔可夫链
+  http://blog.csdn.net/flyingworm_eley/article/details/6517851
+
+  http://blog.csdn.net/google19890102/article/details/51785156
+  http://blog.csdn.net/pipisorry/article/details/49515215
+
+  hbase
+  https://www.cloudera.com/documentation/enterprise/5-8-x/topics/admin_hbase_garbage_collection.html
+  https://software.intel.com/en-us/blogs/2014/06/18/part-1-tuning-java-garbage-collection-for-hbase
+  https://blogs.apache.org/hbase/entry/tuning_g1gc_for_your_hbase
+  http://hadoop-hbase.blogspot.jp/2014/03/hbase-gc-tuning-observations.html
+  http://www.ibm.com/support/knowledgecenter/SSPT3X_4.2.0/com.ibm.swg.im.infosphere.biginsights.analyze.doc/doc/bigsql_gentune.html
+  http://www.slideshare.net/HBaseCon/dev-session-7-49202969
+
+  dp
+  http://mlbase.org/
+  https://github.com/databricks/tensorframes
+  https://databricks.com/blog/2016/01/25/deep-learning-with-apache-spark-and-tensorflow.html
+  http://www.tensorfly.cn/
+
+  jvm
+  http://blog.csdn.net/zhangjianying/article/details/7461563
+
+* good
+https://raft.github.io/
+
+http://www.infoq.com/cn/articles/the-data-science-behind-ai?1487641300099
+https://zhuanlan.zhihu.com/p/25249694
+http://geek.csdn.net/news/detail/138103
+http://blog.csdn.net/defonds/article/details/55664657
+
+
+http://zhaoce.name/2017/02/24/spider_python/
+
+* 心得
+
+deeplearningbook.org
+
+
+动词
+名词
+场景
+------------------------------------------
+定义名词，动词
+名词是一个大的，有点面向对象的意思
+动词是一个工作，受限于一个名词
+
+比如 git 
+git add
+git set
+那么 git是一个大的名词
+小名词是 file， 后面跟着的是小名词的动作
+
+git remote add
+git 是大名词， remote是小名词， add是小名词的动作
+
+remote是远程仓库
+
+证明算法正确性
+
+* 一些指标架构指标参考
+http://www.jianshu.com/p/fbf56ccb4ebe
+1 背景
+
+武林中，“天下武功出少林”指中国各门各派的武功都与少林武学有一定的渊源，技术也是相同的道理，所有的技术最终体现在计算机知识的基本功上，这些基本功是技术的易筋经，是“内功”，一些年轻的攻城狮更热衷于追崇高大上的框架，过去在炒SSH，现在在炒Spring Cloud，这些对框架掌握的程度体现在“剑术”上，我推荐每个技术研发人员在修炼好内功的基础上，再去练“剑术”。回头看IT行业的发展，先有传统行业，再有互联网，传统行业和互联网是少林与武当的关系，他们的技术相辅相成，并不一定是互联网的技术要比传统行业的技术高深很多，而是它们有自己的侧重点，传统行业更偏向于企业级开发，项目具有业务复杂、流程丰富、中心化管理、企业级抽象度高、业务重用率高的特点，而互联网倾向于把复杂的业务进行拆分成单一的职责，对于单一职责模块的非功能质量进行大幅度的优化，这包括高可用性、高性能、可伸缩、可扩展、安全性、稳定性、可维护性、健壮性等。
+
+这篇文章提供一个基本的面向互联网技术评审的方法论，它主要论述在互联网的行业里，如何在完成产品功能的前提下，更好的满足非功能质量的需求，是每个互联网程序设计人员和架构设计人员都应该掌握的一项基本技能。
+
+本文的目的是为了初入互联网或者有意愿踏入互联网的研发人员起到抛砖引玉的效果，如果想全面了解互联网非功能质量设计的方方面面，可以参考美国互联网方法论Architecture Tradeoff Analysis Method，相关的书籍可以从这里下载ATAM: Method for Architecture Evaluation。
+
+2 目标
+
+2.1 非功能质量需求的概述
+
+通过参考技术评审指标，保证系统架构设计满足用户和系统对非功能质量的需求：
+
+核心非功能质量：
+
+核心质量	描述
+高性能	运行效率高，性价比高
+可用性	持续可用性，缩短宕机时间，出错恢复，可靠性
+可伸缩	垂直伸缩，水平伸缩
+可扩展	可插拔，组件重用
+安全性	数据安全，加密，熔断，防攻击
+其他非功能质量：
+
+其他质量	描述
+可监控性	快速发现，快速定位，快速解决
+可测试性	可灰度，可预览，可Mock，可拆解
+鲁棒性	容错性，可恢复性
+可维护性	易于维护，监控，运营，扩展
+可重用性	可移植性，解耦
+易用性	可操作性
+2.2 非功能质量需求的具体指标
+
+主要分为4部分：应用服务器、数据库、缓存和消息队列。
+
+2.2.1 应用服务器
+
+应用服务器是服务的入口，请求流量从这里进入系统，数据库，缓存和消息队列的访问量取决于应用服务器的访问量，对应用服务器的访问量进行评估至关重要，应用服务器主要关心每秒请求的峰值，请求响应时间等指标，通过这些指标可以评估需要的应用服务器资源的数量。
+
+全面考虑下列指标：
+
+指标分类	部署结构	容量和性能	其他
+1	负载均衡策略	每天请求量	请求的内容是否包含大对象
+2	高可用策略	各接口访问峰值	GC收集器的选型和配置
+3	IO模型（NIO/BIO）	平均请求相应时间	
+4	线程池模型	最大请求相应时间	
+5	线程池线程数量	在线用户量	
+6	是否多业务混布	请求大小	
+7		网卡IO流量	
+8		磁盘IO负载	
+9		内存使用情况	
+10		CPU使用情况
+2.2.2 数据库
+
+根据应用层的访问量和访问峰值，计算出需要的数据库资源的QPS，TPS，每天的数据总量等，由此来评估所需数据库资源的数量和配置，部署结构等。
+
+全面考虑下列指标：
+
+指标分类	部署结构	容量和性能	其他
+1	复制模型	当前数据容量	查询是否走索引
+2	失效转移策略	每天数据增量（预估容量）	有没有大数据量的查询
+3	容灾策略	每秒读峰值	有没有多表关联，关联是否用到索引
+4	归档策略	每秒写峰值	有没有使用悲观锁，是否可以改造成乐观锁，或者是否可以利用数据库内置行级锁
+5	读写分离策略	事务量	事务和一致性级别
+6	分库分表(分片)策略		使用的JDBC数据源类型，连接数等配置
+7	静态数据和半静态数据是否使用缓存		是否开启JDBC诊断日志
+8	有没有考虑缓存穿透压垮数据库的情况		有没有存储过程
+9	缓存失效和缓存数据预热策略		伸缩策略（分区表，自然时间分表，水平分库分表）
+10	缓存失效和缓存数据预热策略		水平分库分表实现方法（客户端，代理，Nosql）
+2.2.3 缓存
+
+根据应用层的访问量和访问峰值，通过评估热数据占比，计算出的缓存资源的大小，存取缓存资源的峰值，由此来计算所需缓存资源的数量和配置，部署结构等。
+
+全面考虑下列指标：
+
+序号/指标分类	部署结构	容量与性能	其他
+1	复制模型	缓存内容的大小	冷热数据比例
+2	失效转移	缓存内容的数量	是否有可能缓存穿透
+3	持久策略	缓存内容的过期时间	是否有大对象
+4	淘汰策略	缓存的数据结构	是否使用缓存实现分布式锁
+5	线程模型	每秒读峰值	是否使用缓存支持的脚本
+6	预热方法	每秒写峰值	是否避免了Race Condition
+7	分片Hash策略		缓存分片方法（客户端，代理，集群）
+2.2.4 消息队列
+
+根据应用层的访问量和访问峰值，计算需要消息队列传递的数据内容和数据量，计算出的消息队列资源的数量和配置，部署结构等。
+
+全面考虑下列指标：
+
+指标分类	部署结构	容量与性能	其他
+1	复制模型	每天平均数据增量	消费线程池模型
+2	失效转移	消息持久的过期时间	分片策略
+3	持久策略	每秒读峰值	消息的可靠投递
+4		每秒写峰值	
+5		每条消息的大小	
+6		平均延迟	
+7		最大延迟
+3 技术评审提纲
+
+业务项目千差万别，没有一个统一的方法论完成架构设计和技术评审，架构设计只需要从某些关键点来表达系统即可，提纲就是用来帮助大家做架构评审的工具，帮助大家整理思路并形成可实施的方案，因此在做系统设计时，可有选择性的参考此提纲，根据业务特点来完成一个可实现的有效的架构设计。
+
+3.1 现状
+
+业务背景
+
+项目名称
+业务描述
+技术背景
+
+架构描述
+当前系统容量（系统调用量平均值）
+当前系统调用量峰值
+3.2 需求
+
+业务需求
+
+要改造的内容
+要实现的新需求
+性能需求
+
+预估系统容量（预估系统调用量平均值）
+预估系统调用量峰值
+其他非功能质量，例如：安全性、可伸缩等
+3.3 方案描述
+
+方案1
+
+整个方案需要参考技术评审指标提出的各方面指标来考虑满足系统的非功能质量需求。
+
+概述
+
+一句话概括方案的亮点，比如说: 双写，主从分离，分库分表，扩容，归档等。
+详细说明
+
+方案的具体描述，文字描述不清楚的话可以结合图（任何图：UML，概念图，框图等）的方式说明，如果是改造方案最好突出变动的地方，以下列举了几种描述的角度：
+
+中间件架构（应用服务器、数据库、缓存、消息队列等）
+逻辑架构（模块划分、模块通信、信息流、时序等）
+数据架构（数据结构、数据分布、拆分策略、缓存策略、读写分离策略、查询策略、数据一致性策略）
+异常处理，容灾策略，灰度发布
+性能评估
+
+给出方案的基准数据，并按性能需求评估需要使用的资源数量。
+
+单机并发量
+单机容量
+按照预估性能需求，预估资源数量(应用服务器、缓存、存储、队列等)
+伸缩方式
+方案优缺点
+
+列出方案的优缺点，优缺点要具有确定性，不要有“存在一定风险”这种描述，也就是要量化。
+方案2
+
+整个方案需要参考技术评审指标提出的各方面指标来考虑满足系统的非功能质量需求。
+
+......
+
+3.4 方案对比
+
+对比可选方案，并给出选择这种方案的理由，选择倾向的方案，
+
+3.5 风险评估
+
+标识所选方案的风险，提出解决此风险发生时候的应对策略，比如：上线失败时的回滚策略。
+
+3.6 工作量评估
+
+描述使用所选方案需要做的具体工作，并评估开发、测试等细化任务需要的时间，形成可实施的任务计划表，任务计划表推荐采用简单的表格形式，减少工具使用和学习的成本。
+
+4 性能和容量评估经典案例
+
+4.1 背景
+
+物流系统包含如下两个质量优先需求：
+
+维护会员常用地址，下单时提供会员地址列表。
+下单时异步产生物流订单，物流系统后台任务从第三方物流轮循拉取物流状态，已经下单用户查询订单的物流订单和物流记录。
+由于会员数量较大，可能有较快的增长速度，订单数量更是巨大，促销期峰值的订单产生量可能很高，这两个业务模块的数据存储需要分库分表，并借助消息队列和缓存抗写和读的流量，因此，本方案主要涉及这两个业务的容量评估。
+
+4.2 目标数据量级
+
+选取行业内一线电商平台的量级作为目标：
+
+会员量2亿，平均增长5万/天。
+平时订单量400万/天，所有订单下单时段集中在9:00-23:00，促销日订单量1400万/天，50%订单下单时段集中在晚上7:30-8:30和晚上22:00-23:00。
+4.3 量级评估标准
+
+通用标准
+
+容量按照峰值5倍冗余计算。
+会员常用地址容量按照30年计算，而物流订单时效性较强按照3年计算。
+第三方查询接口5000 QPS。
+Mysql
+
+单端口读：1000 QPS
+单端口写：700 TPS
+单表容量：5000万条
+Redis
+
+单端口读：4万 QPS
+单端口写：4万 TPS
+单端口内存容量：32G
+Kafka
+
+单机读：3万 QPS
+单机写：5000 TPS
+应用服务器
+
+请求量每秒峰值：5000 QPS
+4.4 方案
+
+方案1. 最大性能方案
+
+由于整个电商网站刚刚上线，数据量级还无法清晰的确定，我们根据行业内知名电商当前数据量级设计最大性能方案，本方案可以应对行业内电商巨头的各种促销所带来的服务请求峰值，并且拥有最快的响应时间，达到服务性能的最大化。
+
+需求1. 会员常用地址
+
+整体流程：
+
+提供Restful服务增加会员常用地址。
+提供Restful服务获取会员常用地址列表。
+数据库资源评估：
+
+读QPS：
+
+会员每次下单，拉取一次会员地址列表，按照促销日订单量1400万/天，50%订单下单时段集中在两个小时内计算：
+
+(1400万 × 0.5) / (2 × 60 × 60) = 1000/秒
+容量评估按照5倍冗余计算，读QPS峰值1000/秒 * 5 = 5000/秒，需要5端口数据库服务读。
+
+写TPS：
+
+假设每天增加的会员全部添加一次常用地址，并且高峰期会员下订单时有20%的会员会增加一条常用地址：
+
+(1400万 × 0.2 + 5万) / (2 × 60 × 60) = 400/秒
+容量评估按照5倍冗余计算，400/秒 * 5 = 2000/秒，需要3端口数据库服务写。
+
+数据容量：
+
+当前有2亿会员，每天增长5万会员，平均每个会员有5个常用地址，30年会员常用地址表数量计算：
+
+（2亿 + 5万 × 365 × 30年） × 5 = 35亿
+容量评估按照5倍冗余计算，35亿 * 5 = 175亿，需要350张表即可容纳。
+
+根据以上读QPS、写TPS的评估，如果读写混布我们共需要8端口，可以使用8主8备，如果读写分离，我们需要做主从部署，需要3主6从，与2倍数对齐，使用4主8从即可。
+
+根据表容量，需要350张表，和2的指数对齐，选择512张表，上面计算需要主库端口为4，考虑到将来端口扩展不用拆分数据库，尽量设计更多的库，使用32个库。
+
+设计结果：4端口 × 32库 × 4表， 4主8从
+缓存资源评估：
+
+为了提高用户下单的体验，需要使用Redis缓存活跃用户的常用地址。
+
+定义当天下订单的会员为活跃会员，活跃会员的地址缓存24小时，假定每天下订单的会员均为不同会员，每个会员有5个常用地址，缓存大小计算如下：
+
+1400万 × 5 × 1k = 70G
+容量评估按照5倍冗余计算，70G×5=350G，按照每台Redis 32G内存计算，需要11台机器，根据数据库对数据存取QPS/TPS的设计，11台机器完全可以满足5000/秒的读QPS和2000/秒的写TPS。
+
+设计结果：11台，主从
+应用服务器资源评估：
+
+根据数据库的读QPS（5000/s）峰值和写TPS（2000/s）峰值计算，单台应用服务器即可，选择2台避免单点。
+
+设计结果：2台
+需求2. 物流订单和物流记录
+
+整体流程：
+
+订单提交后，通过消息队列产生物流订单，消息传入物流系统，物流系统消费物流订单消息然后入库。
+后台任务轮循未完成物流订单，查询第三方物流接口状态，填写物流记录信息。按照每天1400万的订单，订单平均3天到货，第三方查询接口5000 QPS，每次状态查询需要时间计算如下： 1400万 × 3 / 5000 = 8400 / 60 / 60 = 2小时，定时任务2小时查一次。
+提供REST服务获取物流订单信息。
+提供REST服务获取物流记录信息。
+提供REST服务获取物流订单和物流记录信息。
+数据库资源评估：
+
+读QPS：
+
+会员下单三天到货，三天内50%客户会查询一次物流订单和一次物流记录，计算如下：
+
+(1400万 × 3 × 0.5) / (24 × 60 × 60) = 250/秒
+容量评估按照5倍冗余计算，2 × 250/秒 × 5倍 = 2500/秒，需要3端口数据库服务读。
+
+写TPS：
+
+会员每次下单，产生一次物流订单，按照促销日订单量1400万/天，50%订单下单时段集中在两个小时内计算：
+
+(1400万 × 0.5) / (2 × 60 × 60) = 1000/秒
+按照每天1400万的订单，订单平均3天到货，每条物流订单产生8条物流记录，并且8条物流记录在三天内均匀产生，物流记录写TPS计算如下：
+
+1400万 × 3 × 8 / 3 / （24 × 60 × 60） = 1200/秒
+容量评估按照5倍冗余计算，(1000/秒 + 1200/秒) * 5 = 11000/秒，需要15端口数据库服务写。
+
+数据容量：
+
+当前2亿物流订单积累，每天增长400万订单，30年订单数量计算：
+
+2亿 + 400万 × 365天 × 3年 = 46亿
+容量评估按照5倍冗余计算，46亿 * 5 = 230亿，需要460张表即可容纳, 物流记录表是物流订单的8倍，460 × 8 = 3680张表。
+
+根据以上读QPS和写TPS，如果读写混布，我们共需要18端口，18主18备，如果读写分离，我们需要16主16从。
+
+根据表容量，需要3680张表，和2的指数对齐，选择4096张表，上面计算需要主库端口为16，考虑到将来端口扩展不用拆分数据库，尽量设计更多的库，使用32个库。
+
+设计结果：16端口 × 32库 × 8表，16主16从
+消息队列资源评估：
+
+为了让系统能够应对峰值的突增，采用消息队列Kafka接收物流订单。
+
+根据上面对写TPS的计算，考虑5倍冗余后，峰值为5000/秒，单台Kafka和单台处理机即可处理。
+
+如果峰值有突增，可以增加Kafaka集群的节点来抗写流量，处理机根据后端入库性能来决定。例如写峰值增加10倍，达到5万/秒，需要10台Kafka，每台Kafka读QPS可达3万，理论上需要2台处理机，然而，处理机的瓶颈是后端入库的写TPS，根据上面计算，入库的写TPS峰值按照5000/秒设计，因此，单台处理机即可，这个场景下会有消息的堆积，但是最终会处理完毕，达到消峰的效果。
+
+设计结果：1台Kafka，主从，1台处理机
+应用服务器资源评估：
+
+根据数据库的读QPS（2500/s）峰值和写TPS（11000/s）峰值计算，3台应用服务器即可。
+
+用于查询第三方接口的后台任务服务器，由于受到第三方接口5000/s的QPS的限制，单台机器即可，为了避免单点，2台处理机即可。
+
+设计结果：2台
+方案2. 最小资源方案
+
+由于当前系统线上数据量并不多，增长量也不大，读QPS和写TPS单台机器完全可以处理，暂时不考虑使用缓存和消息队列，但是保留使用缓存和消息队列的接口，如果缓存和消息队列的资源可用，可以通过开关进行切换。
+
+当前的数据量使用单库单表即可处理，然而，考虑到将来扩容方便，数据库端口暂时使用一个，但是保留我们在最大性能方案中对数据库的分库分表，当读QPS和写TPS突增时，DBA可以把库重新拆分到多个端口来抗请求流量。
+
+因此，方案如下：
+
+会员常用地址
+
+设计结果：1端口 × 32库 × 16表， 1主1从
+物流订单和物流记录
+
+设计结果：1端口 × 128库 × 32表，1主1从
+4.5 总结
+
+倾向于采用最小资源方案：
+
+当前线上流量并不大，使用最小资源方案节省成本。
+最小资源方案充分的考虑了数据库的分库分表，当读QPS和写TPS突增时，DBA可以拆分库到不同的端口，也就是增加端口来应对。
+最小资源方案在应用层设计了开关，如果性能突增可以临时申请和开启缓存和消息队列。
+5 性能评估参考标准
+
+以下标准是使用PC X86机器的经验值，仅供参考，评审时应该随着机器的不同而做调整。
+
+通用标准
+
+容量按照峰值5倍冗余计算。
+分库分表后的容量一般可存储30年的数据。
+第三方查询接口5000 QPS。
+单条数据库记录占用大约1K空间。
+Mysql
+
+单端口读：1000 QPS
+单端口写：700 TPS
+单表容量：5000万条
+Redis
+
+单端口读：4万 QPS
+单端口写：4万 TPS
+单端口内存容量：32G
+Kafka
+
+单机读：3万 QPS
+单机写：5000 TPS
+DB2
+
+单机读峰值：20000
+单机写峰值：20000
+单表容量：1亿数据
+6 总结
+
+本文以互联网企业重点关注的非功能质量为主线，总结了非功能质量需求的总体目标，并针对不同的服务和资源列举了不同的非功能质量需求，帮助读者在做技术评审的过程整理思路，尽量穷举评审时关注的评审点，并随后提供了一个简单有效的评审提纲，最后根据提纲实现一个互联网容量和性能评估的经典案例，大家可以在案例中了解高并发互联网系统是如何进行拆分的，以及依据哪些数据进行拆分。
+
+由于本文的数据完全是基于笔者在某个互联网平台下的经验而记录的，并不代表可以直接应用在任何企业和平台上，这里重点突出进行容量和性能评估的方法论，帮助大家整理实现高并发互联网系统的思路。
+
+根据本文的容量评估，我们需要分布式的中间件支持对数据库、缓存和消息队列的水平伸缩和分片，想了解分布式中间件的原理，请参考开源项目。
+
+kylin
+
+2017.01.06 spark streaming 邓瞩彧
+2017.02.24 spark sql 吴文祥
+2017.03.03 监督学习 邓瞩彧
+2017.03.10 线性分类 吴文祥
+2017.03.17 svm 邓瞩彧
+2017.03.24 逻辑回归 吴文祥
+2017.04.07 adaboost 邓瞩彧
+2017.04.14 em 吴文祥
+2017.04.21 感知机 邓瞩彧
+2017.05.05 高斯密度 吴文祥
+2017.05.12 svm非监督 邓瞩彧
+2017.06.02 kmeans 吴文祥
+2017.06.09 孤立森林 邓瞩彧
+2017.06.16 dnn 吴文祥
+
+* 2017-10-30
+http://baijiahao.baidu.com/s?id=1571337069258357&wfr=spider&for=pc
+http://blog.csdn.net/amds123/article/details/54632901
+https://www.zhihu.com/search?type=content&q=%E6%B7%B1%E5%BA%A6%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0
+https://zhuanlan.zhihu.com/p/29489067
+https://zhuanlan.zhihu.com/lightaime
+https://zhuanlan.zhihu.com/p/29080505?refer=c_125238795
+https://zhuanlan.zhihu.com/p/25239682
+http://blog.csdn.net/songrotek/article/details/50951537
+https://zhuanlan.zhihu.com/p/21421729?refer=intelligentunit
+http://blog.csdn.net/songrotek/article/details/50580904
+https://github.com/yenchenlin/DeepLearningFlappyBird
+https://zhuanlan.zhihu.com/lightaime
+https://github.com/lc222/key-value-MemNN
+https://zhuanlan.zhihu.com/p/29489067
+https://zhuanlan.zhihu.com/p/29023209
+https://zhuanlan.zhihu.com/p/30030487
+https://github.com/barronalex/Dynamic-Memory-Networks-in-TensorFlow
+https://www.zhihu.com/question/60751553
+https://www.zhihu.com/collection/111656141?page=7
+https://www.zhihu.com/question/31785984
+https://zhuanlan.zhihu.com/p/29023209
+https://github.com/white127/insuranceQA-cnn-lstm/blob/master/cnn/tensorflow/insqa_cnn.py
+http://colah.github.io/posts/2014-10-Visualizing-MNIST/
+https://arxiv.org/abs/1502.05698
+https://zhuanlan.zhihu.com/p/29023209
+https://zhuanlan.zhihu.com/p/28498670
+https://zhuanlan.zhihu.com/p/30030487
+https://github.com/siyuanzhao/key-value-memory-networks
+https://zhuanlan.zhihu.com/p/29080505?refer=c_125238795
+http://blog.csdn.net/songrotek/article/details/50581011
+http://blog.csdn.net/guotong1988/article/details/56672843
+http://blog.csdn.net/amds123/article/details/77834561
+http://blog.csdn.net/songrotek/article/details/51167632
+
+http://www.52nlp.cn/category/%E9%97%AE%E7%AD%94%E7%B3%BB%E7%BB%9F
+https://github.com/Samurais/insuranceqa-corpus-zh
+http://blog.csdn.net/u013713117/article/details/54974363
+https://www.zhihu.com/question/36591394
+https://www.zhihu.com/question/66861459
+https://zhuanlan.zhihu.com/p/30172503
+http://www.52nlp.cn/category/%E9%97%AE%E7%AD%94%E7%B3%BB%E7%BB%9F
+http://blog.csdn.net/u013713117/article/details/54974363
+http://rsarxiv.github.io/2017/01/17/%E8%BF%91%E6%9C%9F%E5%AF%B9%E8%AF%9D%E7%B3%BB%E7%BB%9F%E9%A2%86%E5%9F%9F%E9%AB%98%E8%B4%A8%E9%87%8Fpaper%E6%B1%87%E6%80%BB/
+http://blog.csdn.net/qq_40027052/article/details/78331816
+https://www.zhihu.com/question/32673260
+https://www.zhihu.com/question/32673260
+http://blog.csdn.net/u013713117/article/details/54974363
+https://www.coursera.org/
+https://www.zhihu.com/search?type=content&q=%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C+%E6%80%BB%E7%BB%93
+http://rsarxiv.github.io/2017/01/17/%E8%BF%91%E6%9C%9F%E5%AF%B9%E8%AF%9D%E7%B3%BB%E7%BB%9F%E9%A2%86%E5%9F%9F%E9%AB%98%E8%B4%A8%E9%87%8Fpaper%E6%B1%87%E6%80%BB/
+
+https://github.com/Samurais/insuranceqa-corpus-zh
+https://www.zhihu.com/search?type=content&q=%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C+%E6%80%BB%E7%BB%93
+
+https://www.zhihu.com/question/26006703
+http://www.wildml.com/2016/04/deep-learning-for-chatbots-part-1-introduction/
+baidu: Yoshua Bengio Attention ppt
+
+https://www.zhihu.com/question/38344787
+https://zhuanlan.zhihu.com/p/26287235
+http://blog.csdn.net/vbskj/article/details/71713204
+https://zhuanlan.zhihu.com/p/27663139
+https://github.com/shawnwun/NNDIAL
+https://mp.weixin.qq.com/s?__biz=MzI1MDY1OTc0Ng==&mid=2247484398&idx=1&sn=2f38f60ec81d7899708f501243cb3102&chksm=e9ff9523de881c35bef098da5d5d71f64b81b70660aa15efc3aadbc1663aafa0bd06008a4734#rd
+
+https://zhuanlan.zhihu.com/p/21626875
+https://zhuanlan.zhihu.com/p/27762254
+
+nlp
+https://github.com/jennyzhang0215/DKVMN
+https://zhuanlan.zhihu.com/p/28616862
+http://rsarxiv.github.io/page/2/
+http://blog.csdn.net/liuchonge/article/details/78143756?locationNum=9&fps=1
+https://zhuanlan.zhihu.com/p/26758890
+http://blog.csdn.net/xizero00/article/details/51386667
+http://blog.csdn.net/wanzew/article/details/52973638
+http://blog.csdn.net/abcjennifer/article/details/53428053
+http://rsarxiv.github.io/page/2/
+https://zhuanlan.zhihu.com/p/26758890
+http://blog.csdn.net/xizero00/article/details/51386667
+
+http://www.cnblogs.com/hujiapeng/p/6235722.html
+https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=0&rsv_idx=1&tn=baidu&wd=%E4%B8%8D%E4%B8%80%E6%A0%B7%E7%9A%84%E6%8A%80%E6%9C%AF%E5%88%9B%E6%96%B0-%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B42016%E5%8F%8C11%E8%83%8C%E5%90%8E%E7%9A%84%E6%8A%80%E6%9C%AF&rsv_pq=c65007240000e3f7&rsv_t=8b7asQ2VqpwjYykNbABmsqofG2uZ9A%2BXpPzOrFzrUI1Ia3m1tTEqLhPlFok&rqlang=cn&rsv_enter=1&rsv_sug3=1
+http://blog.csdn.net/ying86615791/article/details/76215363
+
+http://www.xinwenge.net/know/zhihu/206bdc72.html
+http://blog.csdn.net/xizero00/article/details/51386667
+
+https://mp.weixin.qq.com/s?__biz=MzI1MDY1OTc0Ng==&mid=2247484398&idx=1&sn=2f38f60ec81d7899708f501243cb3102&chksm=e9ff9523de881c35bef098da5d5d71f64b81b70660aa15efc3aadbc1663aafa0bd06008a4734#rd
+
+https://zhuanlan.zhihu.com/p/28616862

@@ -1,0 +1,41 @@
+#+TITLE: Elasticsearch Plugins
+
+* 安装elasticsearch插件
+** 安装方式
++ 在确保你网络顺畅的情况下，执行如下格式的命令即可：
+plugin --install <org>/<user/component>/<version>
+具体的<org>/<user/component>/<version>可参加各插件的使用说明。
++ 如果网络不太顺畅，可以下载好插件的压缩包后以如下方式安装：
+bin/plugin --url file://path/to/plugin --install plugin-name
++ 你也可以直接将插件的相关文件拷贝到plugins目录下面，需要注意的是，这种方式需要特别留意插件的种类。
+
+** 如何查看当前已经加载的插件
++ curl -XGET 'http://localhost:9200/_nodes/plugin'
++ 或者可以指定某个实例
+curl -XGET 'http://localhost:9200/_nodes/10.0.0.1/plugin'
+
+/ 插件列表: http://www.elasticsearch.org/guide/reference/modules/plugins/  /
+** head
+github: https://github.com/mobz/elasticsearch-head
+安装方式：
++ sudo elasticsearch/bin/plugin -install mobz/elasticsearch-head
++ open http://localhost:9200/_plugin/head/
+
+* 安装本地插件
+./plugin -url file:///Users/yp-tc-m-2505/Desktop/tttttttttttttttttt/es-plugin-demo/target/elasticsearch-es-plugin-demo-1.1.1.zip  -install es-plugin-demo
+
+
+* es-paramedic
+路由功能的简单应用
+
+我们将通过一个例子来说明ElasticSearch是如何分配分片，哪些文档会存储在特定的分片上这一过程，为了使细节更清楚，我们借助一个第三方插件。这个插件将帮助我们更生动形象地了解ElasticSearch处理数据的过程。用如下的命令来安装插件：
+
+bin/plugin -install karmi/elasticsearch-paramedic
+重启ElasticSearch后，用浏览器打开http://localhost:9200/_plugin/paramedic/index.html 我们将能看到显示索引的各种信息的统计结果的页面。例如：最值得关注的信息是集群的状态和每个索引下分片及分片副本的相关信息。 启动两个节点的ElasticSearch集群，用如下的命令创建索引：
+
+curl -XPUT localhost:9200/documents -d '
+    settings: {
+        number_of_replicas: 0,
+        number_of_shards: 2
+    }
+}'

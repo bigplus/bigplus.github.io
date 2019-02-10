@@ -1,0 +1,15 @@
+# zsh : zsh manage plugin
+https://github.com/zplug/zplug
+
+# terminal iterms vim
+https://superuser.com/questions/1360220/is-it-possible-to-use-vim-key-bindings-in-iterm2
+https://danielmiessler.com/blog/enhancements-to-shell-and-vim-productivity/
+google : iterm2 vim commands
+http://vim.wikia.com/wiki/Use_vi_shortcuts_in_terminal
+https://dougblack.io/words/zsh-vi-mode.html
+可视化
+https://github.com/b4b4r07/zsh-vimode-visual
+https://balinterdi.com/blog/switch-to-command-line-vim-on-iterm/
+
+https://github.com/robbyrussell/oh-my-zsh/tree/master/plugins/vi-mode
+

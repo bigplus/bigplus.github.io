@@ -1,0 +1,5 @@
+#+TITLE: np api
+#+AUTHOR: Jerry
+
+* np.transpose()
+https://www.cnblogs.com/sunshinewang/p/6893503.html

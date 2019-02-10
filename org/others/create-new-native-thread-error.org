@@ -1,0 +1,1 @@
+http://stackoverflow.com/questions/39480621/unable-to-create-new-native-thread-in-spark-application

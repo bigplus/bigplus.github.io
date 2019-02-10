@@ -1,0 +1,98 @@
+* Reload init.el
+** http://stackoverflow.com/questions/31614316/how-can-i-reload-spacemacs-file-after-editing-without-restart-emacs
+** spc f e R
+
+* zoom font
+  spc z x [- + 0]
+
+* indent buffer
+  spc j =
+
+* '' jump to last cursor position
+  ''
+
+* $ go to the end of line
+  n$ go to the end of next n line
+
+* count selectd words
+  spc x c [https://www.zhihu.com/question/54118781]
+
+* surround operation
+  ysiw + [' " ( [ {] [https://www.linuxzen.com/tui-jian-ji-kuan-zui-jin-fa-xian-fei-chang-ku-de-vimcha-jian.html]
+  https://github.com/tpope/vim-surround
+  http://www.vim.org/scripts/script.php?script_id=1697
+
+  还没看
+  https://www.linuxzen.com/tui-jian-ji-kuan-zui-jin-fa-xian-fei-chang-ku-de-vimcha-jian.html
+  http://ihacklog.com/post/vim-plugins-you-should-know-about-surround.html
+* 比较有用 http://www.dabu.info/vim-shortcut-key-operation.html
+
+  -----------------------------
+  spacemacs
+  改动
+
+  core 中copy了init-core
+  core-spacemacs.el 写了行 （require ‘init-org）
+
+  教程
+  http://ergoemacs.org/emacs/elisp_eval_lisp_code.html
+
+
+  https://learnxinyminutes.com/docs/elisp/
+
+  follow-mode
+
+
+
+
+
+  文档翻译
+  http://blog.csdn.net/xh_acmagic/article/details/52081549
+  http://blog.csdn.net/vduoluo/article/details/49623679
+
+  https://github.com/emacs-china
+
+  http://book.emacs-china.org/#orgheadline73
+
+  http://emacs.sexy/
+
+  平滑
+  http://forum.ubuntu.org.cn/viewtopic.php?p=2469566
+  http://emacser.com/ann77/Emacs/EmacsScrollPage.html
+
+  emacs
+  http://www.cnblogs.com/yjie/p/4059145.html
+  https://www.zhihu.com/question/29692328
+
+
+  afdsafdsafda
+
+  emacs统计时长
+  http://www.jianshu.com/p/bdd64fecddce
+
+* cheat
+  https://www.cheatography.com/logcat/cheat-sheets/spacemacs-basics/
+  https://www.cheatography.com/witek/cheat-sheets/spacemacs/
+
+* 论坛
+  https://gitter.im/syl20bnr/spacemacs/archives/2016/02/07
+
+* layer for spacemacs
+  不懂的一律看官网
+** M-x : configuration-layer/create-layer
+   创建一个layer，写入 layer 名字
+** packages
+*** add your package to
+    添加layer需要的package
+*** write code for <your-layer>/init-<package> function
+    init-<package>意味着可以自动下载和加载
+*** use the 宏 : (use package <package>)
+    在init-<package>内部，使用 use-package 宏
+    将需要的操作放在
+    #+BEGIN_SRC elisp
+
+(use-package
+    :config
+    (progn
+         your code))
+    #+END_SRC

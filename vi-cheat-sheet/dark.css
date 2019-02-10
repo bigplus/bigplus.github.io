@@ -1,0 +1,126 @@
+@import url(base.css);
+@import url(terse.css) all and (max-width: 79em);
+
+body {
+	background: #000;
+	color: #CCC;
+}
+a, a:visited {
+	color: #BBB;
+}
+.l:hover a:active, .l:hover a:hover, /* prevent override */
+a:active, a:hover {
+	color: #44E;
+	text-decoration: none;
+}
+
+dl.legend dt,
+.keys td {
+	border-color: #888;
+}
+dl.legend-options dt {background: #333}
+
+/* code syntax */
+.sy-comment    { color: #888 }
+.sy-constant   { color: #8AC }
+.sy-type,
+.sy-identifier { color: #C9B }
+.sy-special    { color: #A9C }
+.sy-error      { font-weight: bold; background-color: #800; color: #EEE }
+.sy-todo       { background-color: #880 }
+
+/* character properties */
+
+th, td {
+	border-color: #555;
+	background: #222;
+}
+.mapped tbody, .mapped colgroup,
+.dimap tbody, .dimap colgroup {
+	border-color: #665;
+}
+
+.glyphs small.digraph {
+	background: #444;
+	color: #AAA;
+	opacity: 0.5;
+}
+.glyphs small.value {
+	background: #633;
+	color: #AAA;
+	opacity: 0.4;
+}
+
+.X  {background: #000} /* unidentified */
+.Xr {background: #111} /* reverse */
+.Co {background: #322} /* private */
+
+/* implementation-based alternatives */
+.l1 {background: #411} /* bmp */
+.l2 {background: #321} /* proposed digraph */
+.l3 {background: #330} /* rfc-1345 digraph */
+.l4 {background: #030} /* ascii */
+.l5 {background: #00331D} /* ascii */
+.l0 {background: #222}
+.ex {     color: #777} /* disfavoured */
+.u-invalid {background: #333} /* impossible */
+
+.p4::after {color: #F44}
+.p3::after {color: #E66}
+.p2::after {color: #C88}
+.p1::after,
+.p0::after {color: #CCC}
+
+/* general colorization */
+
+.c-sa,
+.ci,
+.g0 {background: #044}
+.c-na,
+.pm,
+.g1 {background: #040}
+.po,
+.g2 {background: #340}
+.c-af,
+.co,
+.g3 {background: #440}
+.c-eu,
+.cp,
+.g4 {background: #530}
+.mi,
+.g5 {background: #520}
+.c-as,
+.mo,
+.g6 {background: #500}
+.c-an,
+.mv,
+.g7 {background: #503}
+.c-oc,
+.me,
+.g8 {background: #205}
+.no {background: #222}
+
+.X:hover,
+.l:hover a, .l:hover a:visited,
+.pm a:hover, .pm[onclick]:hover,
+.po a:hover, .po[onclick]:hover,
+.ci a:hover, .ci[onclick]:hover,
+.co a:hover, .co[onclick]:hover,
+.mi a:hover, .mi[onclick]:hover,
+.mo a:hover, .mo[onclick]:hover,
+.mv a:hover, .mv[onclick]:hover,
+.me a:hover, .me[onclick]:hover,
+.g8 a:hover, .g8[onclick]:hover,
+.g7 a:hover, .g7[onclick]:hover,
+.g6 a:hover, .g6[onclick]:hover,
+.g5 a:hover, .g5[onclick]:hover,
+.g4 a:hover, .g4[onclick]:hover,
+.g3 a:hover, .g3[onclick]:hover,
+.g2 a:hover, .g2[onclick]:hover,
+.g1 a:hover, .g1[onclick]:hover,
+.g0 a:hover, .g0[onclick]:hover {
+	color: #000; /* on default (light) background hover */
+}
+.legend .ex:hover {background: #666}
+.X:hover small {color: #FFF}
+

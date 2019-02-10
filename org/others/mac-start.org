@@ -1,0 +1,40 @@
+* brew 安装
+* emacs 安装
+** spacemacs
+** .spacemacs.d
+   1. 配置 melpa 路径
+* zsh
+** .zshrc
+** .zshenv
+** aufu
+* idea
+idea tomcat 热部署
+  #+TITLE: Idea Tomcat JRebel
+  #+AUTHOR: Jerry
+
+  热部署
+  http://my.oschina.net/u/2457218/blog/609985
+  http://my.oschina.net/u/2457218/blog/609985
+
+  idea depoy tomcat
+  http://blog.csdn.net/miaoy220/article/details/53450179
+  http://www.07net01.com/2015/10/937858.html
+
+
+  http://blog.csdn.net/rznice/article/details/40779155
+  http://wibiline.iteye.com/blog/2073399
+  http://showlike.iteye.com/blog/1680034
+
+  http://blog.csdn.net/first_reclls/article/details/50878838
+
+  baidu : idea tomcat mvn profile
+
+* RAR extractor Free
+* Chrome
+** vim plugin
+** omit ad
+* appcleaner
+* wechat,qq
+* music
+  https://github.com/darknessomi/musicbox
+* ranger

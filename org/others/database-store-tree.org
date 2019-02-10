@@ -1,0 +1,1 @@
+http://stackoverflow.com/questions/935098/database-structure-for-tree-data-structure

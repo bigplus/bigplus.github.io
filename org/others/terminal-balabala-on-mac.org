@@ -1,0 +1,5 @@
+#+TITLE: Mac terminal 乱码
+#+AUTHOR: Jerry
+
+https://segmentfault.com/q/1010000002397378
+https://www.zhihu.com/question/20117388

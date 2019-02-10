@@ -1,0 +1,25 @@
+* Akka
+响应式编程
+http://www.csdn.net/article/2014-12-17/2823174
+
+akka demo
+http://samchu.logdown.com/posts/617636-akka-cluster-example
+
+akka 场景
+http://shiyanjun.cn/archives/1168.html
+--------------------------------------------------------------------------------
+http://zuohongbin.com/2014/12/16/Akka-Tutorial-with-Code-Conncurrency-and-Fault-Tolerance/
+http://studygolang.com/articles/6250
+https://gist.github.com/Diego81/9887105
+http://www.tuicool.com/articles/YzyUziy
+http://shiyanjun.cn/archives/1186.html
+--------------------------------------------------------------------------------
+
+akka spring
+http://blog.csdn.net/beliefer/article/details/53841919
+
+** spray
+http://ibruce.info/2014/04/06/hello-spray/?utm_source=tuicool&utm_medium=referral
+
+* disruptor
+https://github.com/LMAX-Exchange/disruptor

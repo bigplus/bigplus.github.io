@@ -1,0 +1,13 @@
+#+TITLE: P, NP Problems
+#+AUTHOR: Jerry
+
+
+多项式时间
+https://www.zhihu.com/question/24653072
+
+zhihu : p, np
+https://www.zhihu.com/question/27039635
+https://www.zhihu.com/question/27039635
+http://www.matrix67.com/blog/archives/105
+
+bilibili

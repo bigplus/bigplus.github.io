@@ -1,0 +1,192 @@
+#+TITLE: HBase-Bulkload
+#+AUTHOR: Jerry
+
+*h 简介
+/我们知道，在第一次海量数据批量入库时，我们会选择使用BulkLoad的方式。/ \\
+简介一下BulkLoad原理方式:
++ 通过MapReduce的方式，在Map或者Reduce端将输出格式化为HBase的底层存储文件HFile。
++ 调用BulkLoad将第一个Job生成的HFile导入到对应的HBase表中。
+
+ps
+/请注意/
++ HFile方式是所有的加载方案里面是最快的，前提是：数据必须第一个导入，表示空的！如果表中已经有数据，HFile再次导入的时候，HBase的表会触发split分割操作。
++ 最终输出结果，无论是Map还是Reduce，输出建议只使用<ImmutableBytesWritable, KeyValue>。
++ 写入HFile的时候，qualifier必须有序。
+
+* Bulkload 框架
+** Mapper
++ Mapper 部分主要用于读取文本数据，设定rowkey
+#+BEGIN_SRC java
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Mapper;
+import yeepay.util.HBaseUtil;
+
+public class LoadMapper extends Mapper<LongWritable, Text, ImmutableBytesWritable, Text> {
+
+    protected void map(LongWritable key, Text value, Context context) {
+
+        try {
+            String line = value.toString();
+            if (Strings.isNullOrEmpty(line)) {
+                return;
+            }
+            String[] arr = line.split("\t", 9);
+            if (arr.length != 9) {
+                throw new RuntimeException("line.splite() not == 9");
+            }
+            if (arr.length < 1) {
+                return;
+            }
+            /**
+                   指定 arr[0] 作为 rowkey
+            */
+            String k1 = arr[0];
+            ImmutableBytesWritable keyH = new ImmutableBytesWritable(HBaseUtil.getRowKey(k1));
+            context.write(keyH, new Text(line));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+#+END_SRC
+** Reduce
++ 用于生成 HFile
+#+BEGIN_SRC java
+import com.google.common.base.Splitter;
+import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Reducer;
+
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
+
+public class LoadReducer extends Reducer<ImmutableBytesWritable, Text, ImmutableBytesWritable, KeyValue> {
+
+    final static String[] fileds = new String[]{
+            "ID",
+            "A_ACCOUNT_ID",
+            "A_TRX_ID",
+            "P_ID",
+            "P_TRXORDER_ID",
+            "P_FRP_ID",
+            "O_PRODUCTCAT",
+            "O_RECEIVER_ID",
+            "O_REQUESTID"
+    };
+
+    @Override
+    public void reduce(ImmutableBytesWritable rowkey, Iterable<Text> values, Context context) throws java.io.IOException, InterruptedException {
+
+        try {
+            Text vv = values.iterator().next();
+            String vs = vv.toString();
+            Splitter splitter = Splitter.on("\t").limit(9);
+            Iterable<String> iterable = splitter.split(vs);
+            Iterator<String> iterator = iterable.iterator();
+//            String[] arr = vs.split("\\t", 9);
+
+            int i = 0;
+//            Put put = new Put(rowkey.get());
+
+            /**
+             *       值的写入必须按照顺序。
+             */
+            Map<String, String> map = new TreeMap<String, String>();
+            while (iterator.hasNext()) {
+                map.put(fileds[i++], iterator.next());
+            }
+
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                KeyValue kv = new KeyValue(rowkey.copyBytes(), Bytes.toBytes("f"), entry.getKey().getBytes(), 0L, entry.getValue().getBytes());
+                context.write(rowkey, kv);
+            }
+        } catch (Exception e) {
+            new RuntimeException(e);
+        }
+    }
+}
+#+END_SRC
+
+
+** Job & BulkLoad
++ 调度 Mapper 和 Reducer， 然后 bulkload 到 HBase
+#+BEGIN_SRC java
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
+import org.apache.hadoop.hbase.mapreduce.HFileOutputFormat;
+import org.apache.hadoop.hbase.mapreduce.LoadIncrementalHFiles;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import yeepay.util.HdfsUtil;
+import yeepay.util.YeepayConstant;
+
+import java.util.Date;
+
+public class AbstractJobBulkLoad {
+
+    public static Configuration conf = HBaseConfiguration.create();
+
+    public void run(String[] args) throws Exception {
+        if (args.length < 2) {
+            System.err.println("please set input dir");
+            System.exit(-1);
+            return;
+        }
+        String txtPath = args[0];
+        String tableName = args[1];
+        Job job = new Job(conf, "txt2HBase");
+        HTable htable = null;
+        try {
+            htable = new HTable(conf, tableName); //set table name
+            // 根据region的数量来决定reduce的数量以及每个reduce覆盖的rowkey范围
+            HFileOutputFormat.configureIncrementalLoad(job, htable);
+            htable.close();
+            job.setJarByClass(AbstractJobBulkLoad.class);
+            FileSystem fs = FileSystem.get(conf);
+
+            System.out.println("input file :" + txtPath);
+            Path inputFile = new Path(txtPath);
+            if (!fs.exists(inputFile)) {
+                System.err.println("inputFile " + txtPath + " not exist.");
+                throw new RuntimeException("inputFile " + txtPath + " not exist.");
+            }
+            FileInputFormat.addInputPath(job, inputFile);
+            job.setMapperClass(getMapperClass());
+            job.setMapOutputKeyClass(ImmutableBytesWritable.class);
+            job.setMapOutputValueClass(Text.class);
+            job.setInputFormatClass(TextInputFormat.class);
+            job.setReducerClass(getReducerClass());
+            Date now = new Date();
+            Path output = new Path("/output/" + tableName + "/" + now.getTime());
+            System.out.println("/output/" + tableName + "/" + now.getTime());
+            FileOutputFormat.setOutputPath(job, output);
+            job.waitForCompletion(true);
+            //执行BulkLoad
+            HdfsUtil.chmod(conf, output.toString());
+            HdfsUtil.chmod(conf, output + "/" + YeepayConstant.COMMON_FAMILY);
+            htable = new HTable(conf, tableName);
+            new LoadIncrementalHFiles(conf).doBulkLoad(output, htable);
+            htable.close();
+            System.out.println("HFile data load success!");
+            System.out.println(getJobName() + " end!");
+
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
+    }
+
+}
+#+END_SRC

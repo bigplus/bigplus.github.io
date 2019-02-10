@@ -1,0 +1,124 @@
+#+STYLE: <link rel="stylesheet" type="text/css" href="http://files.cnblogs.com/csophys/orgstyle.css" />
+#+STYLE: #+STYLE: <link rel="stylesheet" type="text/css" href="./org.css" />
+#+TITLE:查询Module
+#+AUTHOR: Jerry
+#+STYLE: <link rel="stylesheet" type="text/css" href="org.css" />
+
+* 组成成分
+  + HBase， Elasticsearch， Report-Engine， Data-Handler, Cache
+
+*  HBase
+** 参考
+*** 集群搭建
+    根据经验
+    + 将 Hadoop-Cluster 分析集群与 HBase-Cluster 查询数据库，做 /分析/, /在线查询/ 分离
+    + Hadoop 对HBase的数据传输影响需要进一步测试比对
+    + 我们的使用场景对rowkey查询的影响，稍微分析下就知道原因。
+      [[./img/03.png]]
+*** 根据易宝 DataNode 结点硬件配置
+    + 做 HBase-Client 端多线程结合HBase特点（比如，block caches）开发 HBase-Client module
+    + 对于 HBase 查询这类IO为主的App，建议将线程数设置为2 * N_cpu。
+*** 研发过程，应该针对hbase的特点做开发
+    可以参见上图，对于原始表，主键为完全随机；对于领域表，主键为顺序结构；
+    以上2种情况，决定了采用不同的底层调用方式，对相应速度有很大影响
+    + 例如， Sequential Key可以采用Round Robin的方式进行查询,灵活使用多线程。
+    + HBase-Table-Pool, 自己开发做缓存
+*** 灵活使用HBase Filter 功能
+    Filter功能的使用较主键查询，灵活性更大。
+*** HBase网络IO
+    查询时，Get方式或者Scan方式的配置，如，setFamily(), setQualifier()可以减少网络IO
+
+* Elasticsearch
+** 搭建独立的 Elasticsearch 集群，做为 HBase-Cluster 索引
+*** /采用 ES 作为索引 优于 HBase之处在于可建立 组合索引/
+** Elasticsearch 使用优点
+   + 简单 
+   + RESTful 
+   + json 格式 Response 
+   + 天生分布式 
+   + Querydsl 风格查询
+** Es能为我们做什么？
++ 多维度查询
++ sum/avg/min/max/count（stat represent all）
++ group-by, sort
++ boolean过滤
+** 数据
+   + 针对历史数据采用一次 /river2hbase/ 的方式
+   + 实时数据（可用于包括T+1), 一致性双写，同时写入HBase和Elasticsearch
+
+* 查询场景解析
+对外接口依据查询场景分类，分决策执行：
+** 场景一 主键类查询, 经过SQL解析，决策判断，只查询HBase。
+   + 当查询为
+        + 单点查询（直接定位款表主键）
+        + 范围查询，比如一个商户查一段时间，具有某种属性交易的数据，即查询范围可以被主键确定场景。\\
+
+     此时不经过ES索引，底层采用HBase-Filter方式，即可完成查询结果。
+   + 解释如下：当HBase表主键信息和属性列为 ： 
+        + 主键 = 商户ID + 时间 \\ 
+        + 属性 = qualifier \\ 
+
+     采用如下查询方式 HBase-Filter
+   + 整体流程
+                 #+CAPTION: 单点查询
+                 [[./img/query-design2.png]]
+
+   + 查询放入内存，由 Report-Engine 实现 Group-by， Sort， limit等操作。
+** 场景二
+   + 当查询维度符合Es的二级索引，如索引维度的聚合，决策判断，只查Es
+** 场景三 多维度查询, 同时考虑ES和HBase信息，将SQL解析后，落在此决策。
+   + 从任意维度查询数据，不考虑具体主键（即不考虑 商户信息，查询时间等作为主键的因素）
+   + 数据流向为： 客户端发出请求，[分析组件]分析后，交给[DataHandler], [DataHandler]完成Es，HBase查询，将结果交给 Report-Engine处理，实现 GROUP-BY, SORT, SUM, MAX, MIN等操作。
+     + 流程图 \\
+       #+CAPTION: 多维度查询流程
+       [[./img/query-design1.png]]
+     + 细节
+       [分析组件]查询条件后，按照执行顺序依次调用[DataHandler]，其中[Datahandler]在结束Es的处理之后，的执行策略将依据随机rowkey，顺序rowkey等特点，做并发查询。顺序执行直接使用round-robin做查询，效率最好。
+*** 
+  
+#+CAPTION: 决策
+[[./img/query-design-sql.png]]
+* Archetecture
+  [[./img/query-design.png]]
+
+* 附录
+** HBase
+Hbase基本组件说明：
++ Client
+ 包含访问HBase的接口，并维护cache来加快对HBase的访问，比如region的位置信息
++ Master
+为Region server分配region
+负责Region server的负载均衡
+发现失效的Region server并重新分配其上的region
+管理用户对table的增删改查操作
++ Region Server
+Regionserver维护region，处理对这些region的IO请求
+Regionserver负责切分在运行过程中变得过大的region
++ Zookeeper作用
+通过选举，保证任何时候，集群中只有一个master，Master与RegionServers 启动时会向ZooKeeper注册
+存贮所有Region的寻址入口
+实时监控Region server的上线和下线信息。并实时通知给Master
+存储HBase的schema和table元数据
+默认情况下，HBase 管理ZooKeeper 实例，比如， 启动或者停止ZooKeeper
+Zookeeper的引入使得Master不再是单点故障
+
+** HBase Archetecture
+   [[./img/hbase-arch.png]]
+** Elasticsearch
+es术语介绍：
++ cluster：
+代表一个集群，集群中有多个节点，其中有一个为主节点。这个主节点是可以通过选举产生的。注意，主从节点是对于集群内部来说的。es的一个概念就是去中心化，字面上理解就是无中心节点，这是对于集群外部来说的，因为从外部来看es集群，在逻辑上是个整体，你与任何一个节点的通信和与整个es集群通信是等价的。
++ shards
+代表索引分片。es可以把一个完整的索引分成多个分片，这样的好处是可以把一个大的索引拆分成多个，分布到不同的节点上。构成分布式搜索。分片的数量只能在索引创建前指定，并且索引创建后不能更改。
++ replicas
+代表索引副本，es可以设置多个索引的副本。副本的作用，一是提高系统的容错性，当某个节点的某个分片损坏或丢失时可以从副本中恢复，二是提高es的查询效率，es会自动对搜索请求进行负载均衡。
++ recovery
+代表数据恢复或叫数据重新分布，es在有节点加入或退出时会根据机器的负载对索引分片进行重新分配，挂掉的节点重新启动时也会进行数据恢复。
++ river
+代表es的一个数据源，也是其他存储方式（如：数据库）同步数据到es的一个方法。它是以插件方式存在的一个es服务，通过读取river中的数据并把它索引到es中，官方的river有couchDB的，RabbitMQ的，Twitter的，Wikipedia的。
++ gateway
+代表es索引快照的存储方式。es默认是先把索引存放到内存中，当内存满了时再持久化到本地硬盘。gateway对索引快照进行存储，当这个es集群关闭再重新启动时，就会从gateway中读取索引备份数据。es支持多种类型的gateway，有本地文件系统（默认），分布式文件系统，Hadoop的HDFS和amazon的s3云存储服务。
++ discovery.zen
+代表es的自动发现节点机制。es是一个基于p2p的系统，它先通过广播寻找存在的节点，再通过多播协议来进行节点之间的通信，同时也支持点对点的交互。
++ Transport
+代表es内部节点或集群与客户端的交互方式。默认内部是使用tcp协议进行交互，同时它支持http协议（json格式）、thrift、servlet、memcached、zeroMQ等的传输协议（通过插件方式集成）。

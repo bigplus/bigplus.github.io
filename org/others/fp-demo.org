@@ -1,0 +1,43 @@
+#+TITLE: 一个demo：从命令式到函数式
+
+* 对一个数组求和，用java写，是这样的：
+#+BEGIN_SRC
+    public int sum(int[] numbers) {
+        int accumulator = 0;
+        for (int x : numbers) {
+            accumulator += x;
+        }
+        return accumulator;
+    }
+#+END_SRC
+
+/PS:注意，这里的 accmulator 是个变量，每次for循环都会被更新，所以它不是函数式的。/
+
+* 下面，开始看我七十二变。从命令式，编程函数式，然后变得非常的简洁。
+代码写漂亮了，还是很有魅力的。
+
+** 首先用一个递归的方式求解：
+#+BEGIN_SRC 
+(defn recursive-num [numbers]
+  (if (empty? numbers)
+    0
+    (+ (first numbers) (recursive-num (rest numbers)))))
+#+END_SRC
+如大家所看到的，其实也没减少多少代码量。
+** 我们继续优化
+我们使用reduce函数进行优化
+#+BEGIN_SRC 
+(defn reduce-sum [numbers]
+  (reduce (fn [x y] (+ x y)) 0 numbers))
+#+END_SRC
+简单解释一下：reduce中定义了一个匿名函数， 接受2个参数， 然后函数体进行相加；同时提供了一个0初始值，和一个numbers集合
+
+** 现在是终极方案了
+#+BEGIN_SRC 
+(defn reduce-sum2 [numbers]
+  (reduce + numbers))
+#+END_SRC
+
+* Hi
+是不是感觉简单了很多
+

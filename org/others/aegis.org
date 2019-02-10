@@ -1,0 +1,241 @@
+#+TITLE: 商户智能检测-模型
+#+AUTHOR: Jerry
+
+* 概述
+** 术语
++ 模型:机器学习算法
++ scikit, tensorflow
++ 异常检测
+
+** 需求
+依据机器学习算法，检测到违规交易：
++ 二清
++ 混业
++ 虚假
++ 违法违规
+** 目标
+引导业务人员，使用机器学习策略，责权让渡给数据辅助做决策。
+分阶段实现：
++ 异常检测
++ 有目标的检测到具体的异常类型
+
+* 业务架构
+** 功能单元 (**************** 需要完善的地方)
+*** 模型管理
++ model 查看
++ model 添加
++ model 修改
++ model 启用
++ model 停用
++ model 执行控制
+*** 任务管理
++ job 增删改查
++ job 定时控制
++ job 执行控制
+*** 报告管理
++ report 针对不同结果结果展现
++ 具体看需求文档
+*** 结果分析（校验成功率等）
+针对报告中的异常商户，进行实际核查后，反馈实际信息与模型结果进行校验，确定准确性.
+** 系统架构
+以下独立存储与独立子系统部署为基本单元模块
++ model-web与用户交互，提供基本model管理，报告分析功能
++ model-algo后端模型算法，python rest + scikit/tensorflow
++ feature-engineering, 特征库
++ spark-preprocess, 使用spark app实现数据预处理
++ feature-web提供用户与spark交互实现数据预处理定义
+#+BEGIN_SRC 
+
+model-web
+    |
+    |
+    v
+model-algo                                  feature-web
+    |                                           |
+    |                                           |
+    V                                           V
+[database:feature-engineering]   <------  spark-preprocess
+
+#+END_SRC
+** 业务流程
+从数据流角度写写吧
+*** 后端数据流
++ 依据业务前提下，了解数据，分析数据，定义数据清洗规则, 进行特征工程构建
++ 模型选择，校验，比较，确定
++ 构建特征库
+*** 交互式数据流
++ 模型选择，数据选择，触发模型任务执行（人工or定时）
++ 任务查看, 模型报告生成
++ 结果反馈
+* 模块or子系统功能实现
+** model-web
+
+**** 模型筛选
+即根据模型自定义名称，算法名称，任务状态，任务类型，选择建立的模型
++ 模型名称，即自己起一个名字，用于识别
++ 应用算法，即支持向量，孤立森林，高斯密度中的一个，未来可以增加
++ 任务状态，即分为， 运行，失败，成功
+对任务的整体选择，最后可以取消，or进行查询
+**** 对模型的控制
++ 模型状态：启用 <--> 停止
+**** 任务状态的控制
++ 任务状态：运行中 --> 成功/失败
+**** 模型操作：修改，运行，查看
+- 修改，即编辑
+  + 提供3种算法：支持向量， 孤立森林，高斯密度
+  + 商户一级分类
+  + 商户二级分类
+  + 商户等级
+  + 商户分级
+  + 商户级别
+  + 任务类型
+    + 单次执行 即只执行一次
+    + 日循环 即每天执行一次
+    + 月循环 即每月执行一次
+  + 数据源范围，即决定了取多少数据执行
+  + 备注， 即用于写明其他模型信息
+  + 取消 or 保存并启用
+- 运行，即立即运行，在查看列表可见
+- 查看
+  即查看模型运行结果
+  分4个模块
+  + 页面顶级展现模型基本信息
+    提供异常数，覆盖商户数，异常占比（这些信息全部以商户为基本单位，不以任何交易数据为单位）
+  + 查询模块
+    提供时间范围， 即模型指定范围内的任意范围
+    数据展示维度， 即三维可视化展示时候，xyz不同坐标轴的定义
+    商编范围，即全部，异常，非异常，为了更清晰有针对性的分析商户交易异常
+  + 模型可视化：模型检测明细
+      可视化展示
+  + 列表展示
+      可翻页查看，可下载（暂时不支持）
+      即带有是否异常标签的数据展示
+
+  
+
+
+* 数据库
+#+BEGIN_SRC sql
+
+-- MySQL dump 10.13  Distrib 5.7.17, for macos10.12 (x86_64)
+--
+-- Host: 10.151.11.4    Database: bigdata_ml
+-- ------------------------------------------------------
+-- Server version	5.6.19-log
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `ml_predict_result`
+--
+
+DROP TABLE IF EXISTS `ml_predict_result`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ml_predict_result` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `MEC_NO` varchar(45) DEFAULT NULL,
+  `PAY_TM` datetime DEFAULT NULL,
+  `TASKID` varchar(100) DEFAULT NULL,
+  `TYPE` varchar(45) DEFAULT NULL,
+  `FLAG` int(1) DEFAULT NULL,
+  `UUID` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `ix_ml_predict_result_index` (`id`),
+  KEY `idx_ml_predict_result_TASKID` (`TASKID`),
+  KEY `idx_ml_predict_result_UUID` (`UUID`)
+) ENGINE=InnoDB AUTO_INCREMENT=4432 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ml_preprocess_his`
+--
+
+DROP TABLE IF EXISTS `ml_preprocess_his`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ml_preprocess_his` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `task_name` varchar(50) DEFAULT NULL,
+  `session_id` int(11) DEFAULT NULL,
+  `application_id` varchar(45) DEFAULT NULL,
+  `params` mediumtext,
+  `state` varchar(45) DEFAULT NULL,
+  `create_time` timestamp(6) NULL DEFAULT NULL,
+  `update_time` timestamp(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `model_conf`
+--
+
+DROP TABLE IF EXISTS `model_conf`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `model_conf` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `model_name` varchar(200) DEFAULT NULL,
+  `model_alg` varchar(45) DEFAULT NULL,
+  `cat_id` int(11) DEFAULT NULL,
+  `subcat_id` int(11) DEFAULT NULL,
+  `cu_level` int(11) DEFAULT NULL,
+  `cu_vmark` int(11) DEFAULT NULL,
+  `task_type` varchar(45) DEFAULT NULL,
+  `description` varchar(200) DEFAULT NULL,
+  `time_range` varchar(45) DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL,
+  `update_time` datetime DEFAULT NULL,
+  `active` int(11) DEFAULT '1',
+  `cu_vip` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `model_task_his`
+--
+
+DROP TABLE IF EXISTS `model_task_his`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `model_task_his` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `task_id` varchar(100) DEFAULT NULL,
+  `uuid` varchar(45) DEFAULT NULL,
+  `state` varchar(45) DEFAULT NULL,
+  `create_time` datetime DEFAULT NULL,
+  `update_time` datetime DEFAULT NULL,
+  `conf` mediumtext,
+  `model_id` int(11) DEFAULT NULL,
+  `time_range` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_model_task_his_task_id_uuid` (`task_id`,`uuid`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2017-08-23 17:44:27
+
+#+END_SRC
+
+* 性能
+* 部署

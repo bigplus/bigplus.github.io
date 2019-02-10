@@ -1,0 +1,21 @@
+#+TITLE: tf api
+#+AUTHOR: Jerry
+
+* tf.reduce_mean
+
+* softmax
+多分类， 归一化, 转变为介于(0, 1）
+https://www.zhihu.com/question/23765351
+https://www.zhihu.com/question/40403377?sort=created
+
+* tf.argmax()
+求某个维度的最大值，返回最大值的坐标
+
+
+* tf.softmax_cross_entropy_with_logits(logits, label)
+logits = 网络层最后一层的输出
+label = 标签
+http://blog.csdn.net/mao_xiao_feng/article/details/53382790
+
+* tf.concat([], axis)
+http://blog.csdn.net/mao_xiao_feng/article/details/53366163

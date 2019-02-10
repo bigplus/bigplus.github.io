@@ -1,0 +1,45 @@
+http://blog.csdn.net/mchdba/article/details/38313881
+
+mysqldump -h 192.168.1.93 -uroot -phuawei --database --no-data virus > getddl.sql
+
+* dml
+** CREATE DATABASE chatbot DEFAULT CHARACTER SET utf8;
+** 设置自动更新时间戳
+** create table
+
+#+BEGIN_SRC SQL
+
+CREATE TABLE `corpus_raw` (
+`id` bigint NOT NULL,
+`num` bigint,
+`question` varchar(255),
+`answer` varchar(255),
+`update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+PRIMARY KEY (`id`)
+);
+
+#+END_SRC
+
+#+BEGIN_SRC SQL
+
+CREATE TABLE `corpus_splitted` (
+`id` bigint NOT NULL,
+`num` bigint,
+`question` varchar(255),
+`answer` varchar(255),
+`update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+PRIMARY KEY (`id`)
+);
+
+#+END_SRC
+* MySQL性能
+  select * from information_schema.innodb_trx limit 1;
+  
+* MySQL enging
+  http://www.jb51.net/article/57132.htm
+
+* backup
+mysqldump -h[ip] -u[username] -p[password] -P 3306 [database] [tbl]--no-data >log.sql
+mysqldump -hlocalhost  -uroot  -p -P 3306 bigdata-daportal  auth_user --no-create-info -w id=100 >log.sql
+
+

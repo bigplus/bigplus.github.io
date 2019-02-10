@@ -1,0 +1,112 @@
+#+TITLE: binary-heap
+#+AUTHOR: Jerry
+
+* binaryheap 实现
+#+BEGIN_SRC java
+public class BinaryHeap<T extends Comparable<? super T>>
+{
+	private T[] array;
+	private int currentSize;
+	private static final int DEFAULT_CAPACITY = 10;
+	
+	BinaryHeap()
+	{
+		this(DEFAULT_CAPACITY);
+	}
+	BinaryHeap(int size)
+	{
+		T tmp = array[hole];
+		int child = 0;
+		for (; hole * 2 <= currentSize; hole = child)
+		{
+			child = hole * 2;
+			if (child + 1 <= currentSize && array[child+1].compareTo(array[child]) < 0)
+				child++;
+			if (array[child].compareTo(tmp) < 0)
+				array[hole] = array[child];
+			else
+				break;
+		}
+		array[hole] = tmp;
+	}	currentSize = 0;
+		array = (T[]) new Comparable[size+1];
+	}
+	
+	public void insert(T x)
+	{
+		if (currentSize == array.length - 1)
+			enlargeArray(array.length * 2 + 1);
+//		int hole = ++currentSize;  // 大小加1
+
+		siftup(++currentSize, x);
+	}
+	private void siftup(int hole, T x)
+	{
+		for (; hole > 1 && x.compareTo(array[hole/2]) < 0; hole /= 2)
+			array[hole] = array[hole/2];
+		array[hole] = x;
+	}
+	private void enlargeArray(int size)
+	{
+		T[] old = array;
+		array = (T[]) new Comparable[size];
+		for (int i = 0; i < old.length; ++i)
+			array[i] = old[i];
+	}
+	
+	public T findMin()
+	{
+		if (currentSize < 1)
+			return null;
+		return array[1];
+	}
+	
+	public boolean isEmpty()
+	{
+		return currentSize == 0;
+	}
+	
+	public void makeEmpty()
+	{
+		currentSize = 0;
+	}
+	
+	public T deleteMin()
+	{
+		if (isEmpty())
+			return null;
+		T minItem = findMin();
+		array[1] = array[currentSize--];
+		
+		siftdown(1);
+		return minItem;
+	}
+	
+	private void siftdown(int hole)
+	{
+		T tmp = array[hole];
+		int child = 0;
+		for (; hole * 2 <= currentSize; hole = child)
+		{
+			child = hole * 2;
+			if (child + 1 <= currentSize && array[child+1].compareTo(array[child]) < 0)
+				child++;
+			if (array[child].compareTo(tmp) < 0)
+				array[hole] = array[child];
+			else
+				break;
+		}
+		array[hole] = tmp;
+	}
+	public int size()
+	{
+		return currentSize;
+	}
+	public void buildHeap()
+	{
+		for (int i = currentSize / 2; i > 0; --i)
+			siftdown(i);
+	}
+}
+
+#+END_SRC

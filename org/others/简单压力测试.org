@@ -1,0 +1,113 @@
+#+TITLE: 简单压力测试
+#+AUTHOR: Jerry
+
+* maven dependency
+#+BEGIN_SRC maven
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.3.1</version>
+        </dependency>
+#+END_SRC
+
+* 统计信息类
+#+BEGIN_SRC Java
+import java.util.Arrays;
+
+/**
+ * 功能描述:存储用户访问信息，包括响应时间，递增访问次数等
+ */
+public class MoreInfo {
+
+	private long totalResponseTime = 0L;
+	private long visitedNum = 0L;
+	private long minResponseTime = Long.MAX_VALUE;
+	private long maxResponseTime = Long.MIN_VALUE;
+	
+//	用于计算响应时间分布
+	private long[] timeRange_sec = new long[10];
+	private long[] timeRange_100ms = new long[10];
+	private long[] timeRange_10sec = new long[10];
+	private long largerThan10Sec = 0;
+
+	/**
+	 * 进行时间分布，结果为统计区间段内响应时间个数
+	 * @param responseTime
+	 */
+	private void distributeTime(long responseTime) {
+
+		if (responseTime < 100) {
+			int index = (int) responseTime / 10;
+			timeRange_100ms[index]++;
+		} else if (responseTime < 1000) {
+			int index = (int) responseTime / 100;
+			timeRange_sec[index]++;
+		} else if (responseTime < 10000) {
+			int index = (int) responseTime / 1000;
+			timeRange_10sec[index]++;
+		} else {
+			largerThan10Sec++;
+		}
+	}
+
+	/**
+	 *      print result to console 
+	 */
+	public void printResult2Console() {
+		System.out.println("<100ms分布 : " + Arrays.toString(timeRange_100ms));
+		System.out.println("< 1s分布       : " + Arrays.toString(timeRange_sec));
+		System.out.println("<10s分布       : " + Arrays.toString(timeRange_10sec));
+		System.out.println(">10s分布       : " + (largerThan10Sec));
+		System.out.println();
+	}
+
+	public synchronized void addResponseTimeVisitedNum(long time) {
+		totalResponseTime += time;
+		if (time > maxResponseTime)
+			maxResponseTime = time;
+		else if (time < minResponseTime) {
+			minResponseTime = time;
+		}
+		visitedNum++;
+		distributeTime(time);
+	}
+
+	public synchronized void addResponseTime(long time) {
+		totalResponseTime += time;
+		if (time > maxResponseTime)
+			maxResponseTime = time;
+		else if (time < minResponseTime) {
+			minResponseTime = time;
+		}
+		distributeTime(time);
+	}
+
+	public synchronized long getResponseTime() {
+		return totalResponseTime;
+	}
+
+	public synchronized void addVisitedNum() {
+		visitedNum++;
+	}
+
+	public synchronized long getVisitedNum() {
+		return visitedNum;
+	}
+
+	public long getAvarageResponseTime() {
+        if (visitedNum == 0) {
+            return  totalResponseTime / 1;
+        }
+        return totalResponseTime / visitedNum;
+    }
+
+	public long getMinResponseTime() {
+		return minResponseTime;
+	}
+
+	public long getMaxResponseTime() {
+		return maxResponseTime;
+	}
+}
+
+#+END_SRC

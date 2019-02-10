@@ -1,0 +1,15 @@
+#+TITLE: info theory
+#+AUTHOR: Jerry
+
+* entropy
+熵 随机变量的不确定性度量
+https://www.zhihu.com/question/22178202
+
+* KL
+
+* Cross-Entropy
+http://blog.csdn.net/boxuerixin/article/details/72393518
+https://www.zhihu.com/question/65288314
+https://www.zhihu.com/question/41252833
+
+

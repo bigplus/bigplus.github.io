@@ -1,0 +1,13 @@
+http://stackoverflow.com/questions/27026169/maven-ignoring-java-home-on-osx
+
+http://www.wang1314.com/doc/topic-912522-1.html
+
+mvn war-plugin
+http://blog.csdn.net/lw_power/article/details/52495296
+
+http://www.importnew.com/17673.html
+
+http://guangda.iteye.com/blog/2304704
+
+plugin
+http://blog.csdn.net/bluishglc/article/details/50380880

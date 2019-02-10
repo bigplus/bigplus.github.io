@@ -1,0 +1,209 @@
+运维手册
+http://wenku.baidu.com/link?url=2_f4A5hO8krdFwZV9NVgiyAg16WiFh2DiYfxndg_HkBg-as_rKVXC_QuI8KGmVL9Kw0_7hhdcyhgLg9Etq7WDjnCPFc-ieWeZ7ZZV6IgZ5K
+
+http://jingyan.baidu.com/article/7c6fb42832124a80642c90f4.html
+
+hbase architecture
+http://www.cnblogs.com/hark0623/p/5571193.html
+
+http://wenku.baidu.com/link?url=wZeImkdsKkpArtx1sytj3rn00SCXIRQRcsuHtyA-4HrQ_Wkr8JlVTsBOwYaiUof0JL54R2bFS0ehwFu1oroAKXsa83ijp5hqE15ClbOcfEa
+http://blog.csdn.net/javajxz008/article/details/51913533
+http://www.blogjava.net/DLevin/archive/2015/08/22/426877.html
+
+http://blog.csdn.net/yangjinming24/article/details/51918132
+
+http://blog.jobbole.com/91913/
+
+http://ygydaiaq-gmail-com.iteye.com/blog/1733367
+
+http://blog.csdn.net/woshiwanxin102213/article/details/17584043
+hbase architecture
+hbase architecture
+
+http://www.tuicool.com/articles/R3UB73
+
+系列文章
+http://www.binospace.com/index.php/hbase-in-depth-analysis-of-the-regionserver/?utm_source=tuicool&utm_medium=referral
+
+系列文章 技巧
+http://blog.csdn.net/javajxz008/article/details/51913533
+
+--------------------------------------------------------------------------------
+参数解释
+http://www.aboutyun.com/thread-7914-1-1.html
+
+HBase单个RegionServer的region数目上限
+http://blog.csdn.net/xinxiangsui2008/article/details/53580081
+
+HBase单个RegionServer的region数目上限
+http://www.linuxidc.com/Linux/2011-12/50232.htm
+
+hbase
+http://blog.csdn.net/weihongrao/article/details/17297303
+
+test 有点用
+http://blog.csdn.net/zhouleilei/article/details/8500938
+
+hadoop fs -dus /hbase/tablename    这个是查当前regionserver中表的大小 hadoop fs -du /hbase/tablename 这个是查所有regionserver中表的大小的
+
+-----------------------------
+To get the region info about the table, you need to scan hbase:meta table.
+
+scan 'hbase:meta',{FILTER=>"PrefixFilter('table_name')"}
+This command will give details of all the regions. Row key will have region name and there will be four column qualifiers. You may need following two column qualifiers:
+
+info:regioninfo - This qualifier contains STARTKEY and ENDKEY.
+
+info:server - This qualifier contains region server details
+-----------------------------
+
+hbase 建表预分区
+http://blog.csdn.net/chaolovejia/article/details/46375849
+
+宕机原理
+http://blog.csdn.net/yongjian_luo/article/details/53084257
+
+happybase
+http://classfoo.com/ccby/article/rfJ3bVG
+
+** demo
+Hbase连接
+
+
+HappyHabse连接分为自动连接和非自动连接
+1).自动连接
+#thrift服务器地址:192.168.0.220,默认端口9090
+connection = happybase.Connection('192.168.0.220')
+
+2).非自动连接
+connection = happybase.Connection('192.168.0.220', autoconnect=False)
+
+connection.open()
+
+3).指定table_prefix
+#指定table_prefix以后,所涉及的表实际上都是以这个table_prefix  + '_' 开头的
+#后面再访问表的时候，就不需要再加   table_profux + '_' 了
+connection  = happybase.Connection('192.168.0.220',
+table_prefix='lynn')
+
+
+表结构相关
+
+
+1).新建表，connection.create_table()
+创建一个表，可能会有多个列族，每一个列族又会有多个属性的配置（属性有名称和值），用 map 表示列族的信息, 再合适不过.比如这里我们创建两张表，jiuwen_students(studentinfo, classinfo), jiuwen_grades(Courseinfo,Gradesinfo)
+connection.create_table(
+    'jiuwen_students',
+    {'studentinfo':  dict(max_versions=10),
+      'classinfo'  :  dict(max_versions=1,  block_cache_enabled=False),}) 
+ 
+connection.create_table(
+    'jiuwen_grades',
+    {'Courseinfo  ': dict(max_versions=10),
+      'Gradesinfo':  dict(max_versions=1,  block_cache_enabled=False),}) 
+
+2).获取表connection.tables()
+ connection.tables()返回Hbase相应的表名列表
+import happybase
+ 
+connection = 
+happybase.Connection('192.168.0.220',
+table_prefix='jiuwen')
+ 
+tables = connection.tables()
+ 
+print tables
+ 
+connection.close()
+
+执行上述代码后，返回jiuwen_开头的表名，即：
+['grades', 'students']
+#注，如果不加table_prefix则返回Hbase内所有表名列表
+
+3).连接connection.tables(tablename,
+use_prefix=True)
+ 连接表在日常使用中最多，后面大幅篇章介绍，这里暂不表述。use_prefix为可选参数，当有相同的表头的时候，可以方便使用。
+
+4).表状态设置(禁用/启用)
+A.  启用表：
+connection. enable_table(tablename)
+#启用’grades’表
+import happybase
+ 
+connection = happybase.Connection('192.168.0.220',table_prefix='jiuwen')
+ 
+connection.enable _table('grades')
+ 
+connection.close()
+
+B.  禁用表:：connection. disable_table (tablename)
+#禁用’grades’表
+import happybase
+ 
+connection = happybase.Connection('192.168.0.220',table_prefix='jiuwen')
+ 
+connection.disable_table('grades')
+ 
+connection.close()
+
+5).表状态判断connection.is_table_enabled(tablename)
+#判断表’grades’是否启用
+import happybase
+ 
+connection = happybase.Connection('192.168.0.220',table_prefix='jiuwen')
+ 
+connection.is_table_enabled('grades')
+ 
+connection.close()
+
+6).删除表connection.delete_table(tablename)
+import happybase
+ 
+connection = happybase.Connection('192.168.0.220',table_prefix='jiuwen')
+ 
+connection.delete_table('grades')
+ 
+connection.close()
+
+7).释放连接connection.close()
+一般来说，环境的资源总是有限的。程序执行完以后，需要释放连接资源，如上述例子。需要注意的是，close以后，tcp连接就会断开，下次使用需要重新连接。
+hbase book
+http://hbase.apache.org/book.html#thrift
+
+hbase split
+https://hortonworks.com/blog/apache-hbase-region-splitting-and-merging/
+
+move
+http://blog.csdn.net/lxf310/article/details/21038851
+
+
+
+http://www.aboutyun.com/thread-7914-1-1.html
+
+* google paper
+https://static.googleusercontent.com/media/research.google.com/en//archive/bigtable-osdi06.pdf
+
+* cmd
+  查看表信息
+hadoop fs -du -h /hbase/data/default/VV > vv
+
+* Cloudera
+http://archive.cloudera.com/cdh5/cdh/5/hbase-0.98.6-cdh5.2.3/book/regions.arch.html
+http://hbase.apache.org/0.94/book/regions.arch.html
+http://hbase.apache.org/0.94/book/important_configurations.html#bigger.regions
+http://archive-primary.cloudera.com/cdh5/cdh/5/hbase-0.98.1-cdh5.1.5/book/ops.capacity.html
+http://archive-primary.cloudera.com/cdh5/cdh/5/hbase-0.98.1-cdh5.1.5/book/jvm.html#gcpause
+http://www.linuxidc.com/Linux/2011-12/50232.htm
+* HBase Regions 大小设置
+java heap: 16G
+global.memstore: 0.5
+regions.memstore.size : 128M = 0.8G
+==> heapsize * global.memstore / regions.memstore.size 
+==> 100 regions
+===> 但是，不是每个region的memstore都要被写满的, 所以可以 scale at 2X or 3X
+region.filesize: 10G
+==> regions * region.filesize
+==> 100 * 10G
+==> 1T
+block.cache ? disable/enable
+

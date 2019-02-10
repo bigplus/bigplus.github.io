@@ -1,0 +1,30 @@
+#+TITLE: 1.1
+
+#+BEGIN_SRC 
+
+原文：
+
+Implement an algorithm to determine if a string has all unique characters. What if you can not use additional data structures?
+
+译文：
+
+实现一个算法来判断一个字符串中的字符是否唯一(即没有重复).不能使用额外的数据结构。 (即只使用基本的数据结构)
+
+#+END_SRC
+
+没有做检查之类的判断
+#+BEGIN_SRC Java
+    public static boolean isUniqueChar(String string) {
+        boolean[] flag = new boolean[256];
+        for (char x : string.toCharArray()) {
+            if (flag[x] == true) {
+                return false;
+            } else {
+                flag[x] = true;
+            }
+        }
+        return true;
+    }
+
+
+#+END_SRC

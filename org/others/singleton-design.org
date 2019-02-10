@@ -1,0 +1,84 @@
+#+TITLE: 如何写一个单例模式
+
+* 第一点 给出结论
+#+BEGIN_SRC demo
+
+单例模式最后，不管采取何种方案，请时刻牢记单例的三大要点：
+
+线程安全
+延迟加载
+序列化与反序列化安全
+
+#+END_SRC
+
+
+
+* 第二点 枚举实现
+
+使用枚举实现的好处， 线程安全，自由序列化
+
+ps：为什么enum是线程安全的
+http://blog.jobbole.com/94074/
+
+#+BEGIN_SRC Java
+public enum  Singleton {
+
+    INSTANCE;
+
+    private Singleton() {
+
+    }
+    
+}
+
+#+END_SRC
+
+* 第三点 双重检查
+#+BEGIN_SRC demo
+
+volitile 的语义有：
+   1.可见性
+   2.禁止jvm排序优化
+ps :
+     1.jdk1.5 之前 volitile 没有 禁止jvm排序优化的功能
+     2.synchronized 关键字之前的第一重判断， 是为了防止多线程的情况下都在调用getSingleton()的时候，多线程排队。因为 new 的时候比较少， 恩。
+
+优点：延迟加载， 线程安全
+缺点：都需要额外的工作(Serializable、transient、readResolve())来实现序列化，否则每次反序列化一个序列化的对象实例时都会创建一个新的实例。
+#+END_SRC
+#+BEGIN_SRC Java
+public class Singleton {
+    private static volatile Singleton singleton = null;
+    
+    private Singleton(){}
+    
+    public static Singleton getSingleton(){
+        if(singleton == null){
+            synchronized (Singleton.class){
+                if(singleton == null){
+                    singleton = new Singleton();
+                }
+            }
+        }
+        return singleton;
+    }    
+}
+#+END_SRC
+
+* 第四点 静态内部类
+延时加载，保证线程安全
+我们可以把Singleton实例放到一个静态内部类中，这样就避免了静态实例在Singleton类加载的时候就创建对象，并且由于静态内部类只会被加载一次，所以这种写法也是线程安全的：
+避免了静态field在单例类加载时即进入到堆内存的permanent代而永远得不到回收的缺点(大多数垃圾回收算法是这样)。
+#+BEGIN_SRC Java
+public class Singleton {
+    private static class Holder {
+        private static Singleton singleton = new Singleton();
+    }
+    
+    private Singleton(){}
+        
+    public static Singleton getSingleton(){
+        return Holder.singleton;
+    }
+}
+#+END_SRC

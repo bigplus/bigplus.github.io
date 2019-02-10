@@ -1,0 +1,5011 @@
+#+TITLE: ETL 设计文档
+#+AUTHOR: Jerry
+
+* 项目说明 
+  #+BEGIN_SRC 
+  ETL，Extraction-Transformation-Loading的缩写，即数据抽取（Extract）、转换（Transform）、装载（Load）的过程，它是构建数据仓库的重要环节。
+  ETL是将业务系统的数据经过抽取、清洗转换之后加载到数据仓库的过程，目的是将企业中的分散、零乱、标准不统一的数据整合到一起，为企业的决策提供分析依据。ETL是BI项目重要的一个环节。通常情况下，在BI项目中ETL会花掉整个项目的1/3的时间,ETL设计的好坏直接关接到BI项目的成败。 　　
+
+  在数据仓库的构建中，ETL贯穿于项目始终，它是整个数据仓库的生命线，包括了数据清洗、整合、转换、加载等各个过程。如果说数据仓库是一座大厦，那么ETL就是大厦的根基。ETL抽取整合数据的好坏直接影响到最终的结果展现。所以ETL在整个数据仓库项目中起着十分关键的作用，必须摆到十分重要的位置。 　　
+  通过ETL，我们可以基于源系统中的数据来生成数据仓库。ETL为我们搭建了OLTP系统和OLAP系统之间的桥梁，是数据从源系统流入数据仓库的通道。在数据仓库的项目实施中，它关系到整个项目的数据质量，所以马虎不得，必须将其摆到重要位置，将数据仓库这一大厦的根基筑牢! 　
+  #+END_SRC
+* 设计说明
+** 总体架构说明
+   #+BEGIN_SRC 
+   
+  ETL主要是利用转换服务器的处理能力，从源表抽取数据后，在转换服务器中进行数据清洗、转换，完成后加载到目标库中。它的转换过程都是在转换服务器中进行的，所以它的性能瓶颈在中间的转换服务器中。 　　
+  ETL的设计分三部分：数据抽取、数据的清洗转换、数据的加载。在设计ETL的时候我们也是从这三部分出发。数据的抽取是从各个不同的数据源抽取到ODS（OperationalDataStore，操作型数据存储） 中——这个过程也可以做一些数据的清洗和转换），在抽取的过程中需要挑选不同的抽取方法，尽可能的提高ETL的运行效率。ETL三个部分中，花费时间最长的是“T”（Transform，清洗、转换）的部分，一般情况下这部分工作量是整个ETL的2/3。数据的加载一般在数据清洗完了之后直接写入DW （DataWarehousing，数据仓库）中去。 　　
+  ETL的实现有多种方法，常用的有三种。一种是借助ETL工具实现，一种是SQL方式实现，另外一种是ETL工具和SQL相结合。前两种方法各有各的优缺点，借助工具可以快速的建立起ETL工程，屏蔽了复杂的编码任务，提高了速度，降低了难度，但是缺少灵活性。SQL的方法优点是灵活，提高ETL运行效率，但是编码复杂，对技术要求比较高。我们的ETL是综合了前面二种的优点，将业务逻辑放在了数据转换阶段，这样既可以极大的适应公司的各种需求，又可以提高ETL的开发速度和效率。
+   #+END_SRC
+  以下是我们的 ETL的结构流程：
+  #+CAPTION: ETL流程图
+  [[./img/etl-all]]
+
+** 数据的抽取 　　
+这一部分需要在调研阶段做大量的工作，首先要搞清楚数据是从几个业务系统中来,各个业务系统的数据库服务器运行什么DBMS,是否存在手工数据，手工数据量有多大，是否存在非结构化的数据等等，当收集完这些信息之后才可以进行数据抽取的设计。 　　
+首先，要把不同的来源数据抽取过来，经过最基本的清洗，存放起来。格式类似于：select *, count(*), sum(*) from multi table
+第二个问题就是要注意抽取数据的时间类型，全量还是增量，增量需选取一个时间列。
+
+** 数据的清洗转换 　　
+   #+BEGIN_SRC 
+   
+通常的做法是从业务系统到数据源做清洗，将脏数据和不完整数据过滤掉，再进行一些业务规则的计算和聚合。 　　
+1、数据清洗 　　
+数据清洗的任务是过滤那些不符合要求的数据，将过滤的结果交给业务主管部门，确认是否过滤掉还是由业务单位修正之后再进行抽取。不符合要求的数据主要是有不完整的数据、错误的数据、重复的数据三大类。 　　
+格式清洗：空值处理，规范化数据格式，无效数据替换，（过滤和排序）
+清洗时首先是要将数据存放在内存中，数据结构为Table<String,String,Object>（队列中）或文件。
+2、数据转换 　　
+数据转换的任务主要进行不一致的数据转换、数据粒度的转换，以及一些商务规则的计算。 　　
+（1）不一致数据转换：这个过程是一个整合的过程，将不同业务系统的相同类型的数据统一，比如同一个供应商在结算系统的编码是XX0001,而在CRM中编码是YY0001，这样在抽取过来之后统一转换成一个编码。 　　
+（2）数据粒度的转换：业务系统一般存储非常明细的数据，而数据仓库中数据是用来分析的，不需要非常明细的数据。一般情况下，会将业务系统数据按照数据仓库粒度进行聚合。 　　
+（3）商务规则的计算：不同的企业有不同的业务规则、不同的数据指标，这些指标有的时候不是简单的加加减减就能完成，这个时候需要在ETL中将这些数据指标计算好了之后存储在数据仓库中，以供分析使用。
+我们的数据转换包含几个基本类型：横纵合并，替换=有条件的替换+无条件替换，关联，支持扩展。
+   #+END_SRC
+
+** 数据加载
+将统一格式数据导入数据仓库。并且我们支持多库同时加载。
+
+四、我们的ETL不同之处
+首先，我们的ETL具有定时功能模块，可以定时跑任务，这样能够保证作业的周期性执行。其次，我们的ETL最重要之处在于数据转换类型。我们定义了几种特殊的转换类型来使用我们公司的需求，这样能够保证ETL的有效执行，而如果选用市场上的ETL有可能出现不满足公司业务需求的问题。再次我们的ETL支持业务自由开发，只要编写，添加ETL的转换器就可以实现对于特定需求的满足。可以提供较强大的连接功能（connectivity）来连接来源及目的端，开发人员不用去熟悉各种相异的平台及数据的结构，亦能进行开发。
+* 使用说明
+** ETL模块（抽取extract, 转换transform, 存储Load） 
+ETL登录以后可以看到做以下几个操作。（登录之后默认进入任务管理界面。） 
+#+CAPTION: etl功能
+[[./img/etl-function.png]]
+*** 任务管理 
+ETL登录之后首先进入任务管理界面。好，这是我们的第一个产品，一会会由谢超为大家做具体的产品解读。
+任务管理界面可以用来配置ETL任务。 
+
+ETL任务配置： 
+点击页面右上角操作按钮，选择创建新任务，出现如图所示。 
+
+**** Job配置 
+     #+CAPTION: Job配置
+     [[./img/etl-job.png]]
++ 任务标识：任务名称，给你的ETL任务起一个名字。 
++ 任务描述：描述该任务所要做的事情 
++ 是否可用：默认值为可用（配置任务时就默认可用就ok了） 
++ 时间粒度、时间范围、时间类型： 
++ 时间粒度是你从数据库捞取数据的单位，如果你只需要捞取一天那么久选“日”，如果你想全部捞取就选择“所有”。 
++ 时间范围根据时间粒度划分，比如你选择按“日”捞取的话，时间范围就选择捞取的起止日期。 
++ 时间类型，根据来定。
+
+**** E配置 
+点击添加可以看到E配置信息。（不知道怎么填写的尽量默认） 
+E配置可以配置多个，（需要从几个表里拿数据就配置几个 e）每一个分为数据源配置和E配置两部分。下面我们来看一个： 
+
+**** Extracter配置 
+     #+CAPTION:Extracter配置
+     [[./img/etl-e.png]]
+#+BEGIN_SRC 
+数据源配置： 
+数据源配置为捞取的数据库相关的配置。 
+任务标识：默认为Job配置的任务名称，不可更改。 
+数据源标识：自己给这个E配置起的名称。 
+sql语句：通过sql语句来向数据库中的某些表select数据。 
+是否可用：默认可用。 
+数据库：该 e任务从哪个数据库中捞取数据。（如果选项中没有你所需的数据库则从菜单栏的增加数据源来增加数据库，操作请看下面） 
+是否全部捞取：根据自己所需情况选择。 
+是否加密：根据自己表中的字段是否加密来判断。 
+期望捞取行数：不用填。 
+E配置： 
+字段名称类型：你的sql当中所用到的字段应该由对应的类型，将对用的类型用jason格式表示出来，顺序不区分。 
+抽取类型：默认RdbExtractor。 
+是否可用：默认可用 
+是否需要清洗：默认清洗。 
+#+END_SRC
+**** Transformation配置 
+T配置是和E配置一一对应的，也就是你有几个 E配置就要有几个T配置。 
+
+     #+CAPTION:Transformation配置
+[[./img/etl-t.png]]
+#+BEGIN_SRC 
+转换标识：与对应的E配置的数据源标识一致 
+任务标识：默认与Job一致 
+是否可用：默认可用 
+转换类型：（接下来会介绍） 
+数据源标识：与E配置的数据源标识一致 
+
+
+接下来：（转换类型） 
+转换类型选项： 
+主表 
+默认合并转换器 
+列替换转换器 
+主键替换转换器 
+其他（特殊任务需要，不需要了解） 
+
+主表：第一个T配置，转化类型要配置成主表，即为合成宽表的基础表。 
+默认合并转换器： 
+将两个表合并 
+规则：后面的数据集中的数据覆盖前面的数据集中有相同rowkey的值 
+列替换转换器： 
+表1: 字段1 =>表2: 字段2 
+规则：把表1的字段2替换成表2的字段2，条件是字段1等于表2的主键 
+主键替换转换器： 
+表1: 字段1 =>表2: 字段2  
+规则：把表1的字段1替换成表2的字段2，条件是字段1等于表2的主键 
+
+#+END_SRC
+
+**** Loader配置 
+
+     #+CAPTION:Loader配置
+[[./img/etl-l.png]]
+#+BEGIN_SRC 
+加载标识：自己起一个名字 
+加载驱动类: 默认RdbBatchLoader 
+数据库：需要load到的数据库名称 
+表名称： 
+是否包含加密：依自身任务决定 
+isEtlTaskIdNeeded：默认是 
+updatesqlList：如需更新宽表数据，及在此处填写相应的sql 
+
+#+END_SRC
+#+BEGIN_SRC 
+加载标识：自己起一个名字 
+加载驱动类: 默认RdbBatchLoader 
+数据库：需要load到的数据库名称 
+表名称： 
+是否包含加密：依自身任务决定 
+isEtlTaskIdNeeded：默认是 
+updatesqlList：如需更新宽表数据，及在此处填写相应的sql 
+
+#+END_SRC
+**** 增加数据源
+     如果ETL任务中没有所需数据库，则在此添加 
+[[./img/etl-as.png]]
+**** 定时任务
+[[./img/etl-timer.png]]
+#+BEGIN_SRC 
+定时任务：设置任务跑的时间点 
+例： 0 30 2 * * ? 
+代表每天的2:30:00开始执行任务 
+例：18 30 12 * * ? 
+代表每天的12:30:18开始执行任务 
+（注：定时任务设定时间尽量避开其他定时任务，以防高峰期） 
+
+显示定时任务：可以查看定时设置状态，同时可以对定时任务进行修改 
+
+#+END_SRC
+* 源码
+  #+BEGIN_SRC Java
+  
+package com.yeepay.dp.etl.common.conf.extract;
+public class EConf implements Cloneable, Serializable {
+	private static final long serialVersionUID = 5659707490831749288L;
+	/**
+     *   数据源id
+     */
+    private String sourceId;
+    /**
+     *    任务id
+     */
+    private String taskId;
+    /**
+            提取器名字,类型
+     */
+    private String extractorType;
+    /**
+     *      是否可用
+     */
+    private boolean isActive;
+    /**
+     *       是否需要清洗字段
+     */
+    private boolean isTypeCleanNeeded = false;
+    /**
+     * 提取字段 between select and from
+     */
+    private LinkedHashMap<String, String> colNameType;//clone浅
+    public String getTaskId() {
+        return this.taskId;
+    }
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+    public boolean isActive() {
+        return this.isActive;
+    }
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+    public String getExtractorType() {
+        return this.extractorType;
+    }
+    public void setExtractorType(String extractorType) {
+        this.extractorType = extractorType;
+    }
+    public boolean isTypeCleanNeeded() {
+        return this.isTypeCleanNeeded;
+    }
+    public void setTypeCleanNeeded(boolean isTypeCleanNeeded) {
+        this.isTypeCleanNeeded = isTypeCleanNeeded;
+    }
+    public String getSourceId() {
+        return sourceId;
+    }
+    public void setSourceId(String sourceId) {
+        this.sourceId = sourceId;
+    }
+    public LinkedHashMap<String, String> getColNameType() {
+        return this.colNameType;
+    }
+    public void setColNameType(LinkedHashMap<String, String> colNameType) {
+        this.colNameType = colNameType;
+    }
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this,
+                ToStringStyle.SHORT_PREFIX_STYLE);
+    }
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+    public EConf shallowClone() throws CloneNotSupportedException {
+        return (EConf) clone();
+    }
+}
+
+
+package com.yeepay.dp.etl.common.conf.extract;
+/**
+ * 从文件提取
+ */
+public class FileSourceConf extends SourceConf implements Serializable{
+	private static final long serialVersionUID = 3403669196817408583L;
+	private String path;
+    private int colNum;
+    public String getPath() {
+        return this.path;
+    }
+    public void setPath(String path) {
+        this.path = path;
+    }
+    public int getColNum() {
+        return this.colNum;
+    }
+    public void setColNum(int colNum) {
+        this.colNum = colNum;
+    }
+}
+
+
+package com.yeepay.dp.etl.common.conf.extract;
+/**
+ * @date Dec 16, 2015 2:21:09 PM
+ */
+public class RdbSourceConf extends SourceConf implements Serializable {
+	private static final long serialVersionUID = 7607964331007725966L;
+	private String sql;
+    private String driverClassName;
+    private String url;
+    private String username;
+    private String password;
+    private boolean isWhole;
+    private boolean isEncrypted = true;
+    public String getDriverClassName() {
+        return this.driverClassName;
+    }
+    public void setDriverClassName(String driverClassName) {
+        this.driverClassName = driverClassName;
+    }
+    public String getUrl() {
+        return this.url;
+    }
+    public void setUrl(String url) {
+        this.url = url;
+    }
+    public String getUsername() {
+        return this.username;
+    }
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    public String getPassword() {
+        return this.password;
+    }
+    public void setPassword(String password) {
+        this.password = password;
+    }
+    public String getSql() {
+        return this.sql;
+    }
+    public void setSql(String sql) {
+        this.sql = sql;
+    }
+    public boolean isWhole() {
+        return this.isWhole;
+    }
+    public void setWhole(boolean isWhole) {
+        this.isWhole = isWhole;
+    }
+    public boolean isEncrypted() {
+        return this.isEncrypted;
+    }
+    public void setEncrypted(boolean isEncrypted) {
+        this.isEncrypted = isEncrypted;
+    }
+    /**
+     * 把动态日期按规则转换成sql用的日期字段串
+     *
+     * @return
+     */
+}
+
+
+package com.yeepay.dp.etl.common.conf.extract;
+/**
+ *       关于数据源
+ */
+public class SourceConf implements Cloneable , Serializable{
+	private static final long serialVersionUID = 8932311790245983201L;
+	/**
+     *     任务id
+     */
+    private String taskId;
+    /**
+     *      数据源id
+     */
+    private String id;
+    private boolean isActive;
+    private String sourceType;
+    public String getId() {
+        return this.id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
+    public String getTaskId() {
+        return this.taskId;
+    }
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+    public boolean isActive() {
+        return this.isActive;
+    }
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+    public String getSourceType() {
+		return sourceType;
+	}
+	public void setSourceType(String sourceType) {
+		this.sourceType = sourceType;
+	}
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    }
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+    public SourceConf shallowClone() throws CloneNotSupportedException {
+        return (SourceConf) clone();
+    }
+}
+
+
+package com.yeepay.dp.etl.common.conf.load;
+public class ColNameTypeParse {
+    /**
+     * IDNOUSE:String;RECEIVERID:Long;TRXDATE:Date;TRXCHANNELID:String,50;ORDERTYPE:String,20
+     *
+     * @param colNameType
+     * @return
+     */
+    public static LinkedHashMap<String, String> parse2(String colNameType) {
+        LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
+        String[] colNameTypes = colNameType.split(";");
+        for (int i = 0; i < colNameTypes.length; i++) {
+            String key = colNameTypes[i].split(":")[0];
+            String value = colNameTypes[i].split(":")[1];
+            map.put(key, value);
+        }
+        return map;
+    }
+    /**
+     * {IDNOUSE=String, RECEIVERID=Long, TRXDATE=Date, TRXCHANNELID=String,50, ORDERTYPE=String,20}
+     *
+     * @param colNameType
+     * @return
+     */
+    public static LinkedHashMap<String, String> parse(String colNameType) {
+        JSONObject jSONObject = null;
+        try {
+            jSONObject = new JSONObject(colNameType);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return parse(jSONObject);
+    }
+    /**
+     * {IDNOUSE=String, RECEIVERID=Long, TRXDATE=Date, TRXCHANNELID=String,50, ORDERTYPE=String,20}
+     *
+     * @param colNameType
+     * @return
+     */
+    public static LinkedHashMap<String, String> parse(JSONObject colNameType) {
+        LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
+        Iterator<String> keys = colNameType.keys();
+        while (keys.hasNext()) {
+            String key = keys.next().toString();
+            String value = null;
+            try {
+                value = colNameType.getString(key);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            map.put(key.toUpperCase(), value);
+        }
+        return map;
+    }
+    public static void main(String[] args) throws JSONException {
+        String colNameType = "{\"IDNOUSE\":\"String\",\"RECEIVERID\":\"Long\",\"TRXDATE\":\"Date\",\"TRXCHANNELID\":\"String,50\",\"ORDERTYPE\":\"String,20\"}";
+        JSONObject jSONObject = new JSONObject(colNameType);
+        LinkedHashMap<String, String> map = parse(jSONObject);
+        System.out.println(map.toString());
+    }
+}
+
+
+
+package com.yeepay.dp.etl.common.conf.load;
+public class CsvFileConf extends LConf implements Serializable{
+	private static final long serialVersionUID = -7336588504761430012L;
+	public CsvFileConf(Map<String, Object> data) {
+		super(data);
+	}
+	private String localPath;
+	  private String separator = "\t";
+	  private String fileName;
+	  private String fileType = "csv";
+	  public String getLocalPath() {
+	    return localPath;
+	  }
+	  public void setLocalPath(String localPath) {
+	    this.localPath = localPath;
+	  }
+	  public String getFileType() {
+	    return fileType;
+	  }
+	  public void setFileType(String fileType) {
+	    this.fileType = fileType;
+	  }
+	  public String getFileName() {
+	 	return fileName;
+ 	  }
+	  public void setFileName(String fileName) {
+		this.fileName = fileName;
+	  }
+	public String getSeparator() {
+		return separator;
+	}
+	public void setSeparator(String separator) {
+		this.separator = separator;
+	}
+}
+
+
+
+package com.yeepay.dp.etl.common.conf.load;
+/**
+ * 数据加载到文件的配置
+ * 
+ * @date Oct 12, 2015 10:09:20 AM
+ */
+public class FileLConf extends LConf implements Serializable {
+	private static final long serialVersionUID = 553753561705908891L;
+	public FileLConf(Map<String, Object> data) {
+		super(data);
+	}
+	private String localPath;
+	private String separator = "\t";
+	private String fileType = "csv";
+	public String getLocalPath() {
+		return localPath;
+	}
+	public void setLocalPath(String localPath) {
+		this.localPath = localPath;
+	}
+	public String getSeparator() {
+		return separator;
+	}
+	public void setSeparator(String separator) {
+		this.separator = separator;
+	}
+	public String getFileType() {
+		return fileType;
+	}
+	public void setFileType(String fileType) {
+		this.fileType = fileType;
+	}
+}
+
+
+
+package com.yeepay.dp.etl.common.conf.load;
+public class FixLConf extends LConf implements Serializable {
+	private static final long serialVersionUID = 8123327590859340078L;
+	private String zk ="yp-name01,yp-name02,yp-data01,yp-data07,yp-data08:2181";
+	private String tableName = "econf_test";
+	public FixLConf() {
+		super();
+	}
+	public FixLConf(Map<String, Object> data) {
+		super(data);
+		setZk(data.get("dbname").toString());
+		setTableName(data.get("tableName").toString());
+	}
+	public String getZk() {
+		return zk;
+	}
+	public void setZk(String zk) {
+		this.zk = zk;
+	}
+	public String getTableName() {
+		return tableName;
+	}
+	public void setTableName(String tableName) {
+		this.tableName = tableName;
+	}
+}
+
+
+
+package com.yeepay.dp.etl.common.conf.load;
+public class InvalidTypeException extends RuntimeException {
+	private static final long serialVersionUID = 1L;
+	public InvalidTypeException(int type){
+		super("无效的类型:"+S.toString(type));
+	}
+}
+
+
+
+package com.yeepay.dp.etl.common.conf.load;
+/**
+ * 加载数据的配置
+ * 
+ * @date Oct 10, 2015 2:43:48 PM
+ */
+public class LConf implements Cloneable, Serializable {
+	private static final long serialVersionUID = -4649987480084053304L;
+	/**
+	 * 标识本次加载
+	 */
+	private String id;
+	/**
+	 * 所属任务Id
+	 */
+	private String taskId;
+	/**
+	 * 是否生效
+	 */
+	private boolean isActive;
+	/**
+	 * 加载器的名字，如RdbBatchLoader,CsvBatchLoader
+	 */
+	private String loaderClassName;
+	/**
+	 * 抽取或加载的字段，及类型 空默认为String
+	 */
+	private LinkedHashMap<String, String> colNameType;
+	/**
+	 * 是否给某些字段加密
+	 */
+	private boolean isColEncrypt = false;
+	private String dbname;
+	public LConf() {
+	}
+	public LConf(Map<String, Object> data){
+		setId(data.get("id").toString());
+		setTaskId(data.get("taskId").toString());
+		setColNameType(ColNameTypeParse.parse(data.get("colNameType").toString()));
+		setActive(Boolean.parseBoolean(data.get("isActive").toString()));
+		setLoaderClassName(data.get("loaderClassName").toString());
+		setColEncrypt(Boolean.parseBoolean(data.get("isColEncrypt").toString()));
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getTaskId() {
+		return taskId;
+	}
+	public void setTaskId(String taskId) {
+		this.taskId = taskId;
+	}
+	public LinkedHashMap<String, String> getColNameType() {
+		return colNameType;
+	}
+	public void setColNameType(LinkedHashMap<String, String> colNameType) {
+		this.colNameType = colNameType;
+	}
+	public boolean isActive() {
+		return isActive;
+	}
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
+	}
+	public String getLoaderClassName() {
+		return loaderClassName;
+	}
+	public void setLoaderClassName(String loaderClassName) {
+		this.loaderClassName = loaderClassName;
+	}
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this,
+				ToStringStyle.SHORT_PREFIX_STYLE);
+	}
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		return super.clone();
+	}
+	public LConf shallowClone() throws CloneNotSupportedException {
+		LConf lconf = (LConf) clone();
+		LinkedHashMap<String, String> colNameType = new LinkedHashMap<String, String>();
+		colNameType.putAll(lconf.getColNameType());
+		lconf.setColNameType(colNameType);
+		return lconf;
+	}
+	public String getDbname() {
+		return dbname;
+	}
+	public void setDbname(String dbname) {
+		this.dbname = dbname;
+	}
+	public boolean isColEncrypt() {
+		return isColEncrypt;
+	}
+	public void setColEncrypt(boolean isColEncrypt) {
+		this.isColEncrypt = isColEncrypt;
+	}
+}
+
+
+
+package com.yeepay.dp.etl.common.conf.load;
+/**
+ * 数据加载到关系数据库的配置
+ * 
+ * @date Oct 10, 2015 4:17:47 PM
+ */
+public class RdbLConf extends LConf implements Serializable {
+	private static final long serialVersionUID = 3942661876266675931L;
+	private String driverClassName;
+	private String url;
+	private String username;
+	private String password;
+	//2016-06-03去掉
+	/**
+	 * 加载的表名
+	 */
+	private String tableName;
+	/**
+	 * 加载表的自己更新，只能用数据仓库所在模式中
+	 */
+	private List<String> updatesqlList;
+	private boolean isEtlTaskIdNeeded;
+	public RdbLConf() {
+		super();
+	}
+	public RdbLConf(Map<String, Object> data) {
+		super(data);
+	}
+	public RdbLConf(Map<String, Object> data, JdbcTemplate jdbc) {
+		super(data);
+		String dbname = data.get("dbname").toString();
+		setDbname(dbname);
+		setDriverClassName(data.get("driverClassName").toString());
+		setUrl(data.get("url").toString());
+		setUsername(data.get("username").toString());
+		setPassword(data.get("password").toString());
+		setTableName(data.get("tableName").toString());
+		setEtlTaskIdNeeded(Boolean.parseBoolean(data.get("isEtlTaskIdNeeded").toString()));
+		if (data.get("updatesqlList") != null) {
+			setUpdatesqlList(U.convetStringList(data.get("updatesqlList").toString(), ";"));
+		}
+	}
+	public boolean isEtlTaskIdNeeded() {
+		return isEtlTaskIdNeeded;
+	}
+	public void setEtlTaskIdNeeded(boolean isEtlTaskIdNeeded) {
+		this.isEtlTaskIdNeeded = isEtlTaskIdNeeded;
+	}
+	public List<String> getUpdatesqlList() {
+		return updatesqlList;
+	}
+	public void setUpdatesqlList(List<String> updatesqlList) {
+		this.updatesqlList = updatesqlList;
+	}
+	public String getTableName() {
+		return tableName;
+	}
+	public void setTableName(String tableName) {
+		this.tableName = tableName;
+	}
+	public String getDriverClassName() {
+		return driverClassName;
+	}
+	public void setDriverClassName(String driverClassName) {
+		this.driverClassName = driverClassName;
+	}
+	public String getUrl() {
+		return url;
+	}
+	public void setUrl(String url) {
+		this.url = url;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
+}
+
+
+
+package com.yeepay.dp.etl.common.conf.load;
+public class S {
+	public static final int MILLISECONDS=101;
+	public static final int SECONDS=102;
+	public static final int MINUTES=103;
+	public static final int HOUR=104;
+	public static final int DAY=105;
+	public static final int MONTH=106;
+	public static final int YEAR=107;
+	public static final int DEBUG=201;
+	public static final int INFO=202;
+	public static final int WARNING=203;
+	public static final int ERROR=204;
+	public static final String UTF="utf-8";
+	public static final String ISO="iso-8859-1";
+	public static final String GBK="gbk";
+	public static final String SPLIT="`";
+	public static ObjectMapper MAPPER=new ObjectMapper();
+	static{
+		MAPPER.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS"));
+	}
+	public static String toString(int k) {
+		try {
+			Field[] fields = S.class.getDeclaredFields();
+			for (int i = 0; i < fields.length; i++) {
+				Field f = fields[i];
+				int e;
+				try{
+					e = f.getInt(null);
+				}catch(IllegalArgumentException ex){
+					continue;
+				}
+				if (e == k) {
+					return f.getName();
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return String.valueOf(k);
+	}
+	/**
+	 * 测试方法
+	 * @param args
+	 * @throws UnsupportedEncodingException 
+	 */
+	public static void main(String[] args) throws UnsupportedEncodingException {
+		/*String sql="select * from ACCOUNTHISTORY_DO where (ACCOUNT_ID=12345 and name='谢超') limit 10";
+		String ensql=URLEncoder.encode(sql,"utf-8");
+		String desql=URLDecoder.decode(ensql,"utf-8");
+		System.out.println(ensql);
+		System.out.println(desql);*/
+		String s="啊哦";
+		System.out.println(new String(s.getBytes(),"ISO-8859-1"));
+		System.out.println(new String(s.getBytes(),"UTF-8"));
+		System.out.println(new String(s.getBytes(),"US-ASCII"));
+		System.out.println(new String(s.getBytes(),"UTF-16"));
+		//System.out.println(new String(s.getBytes(),Charset.forName()));
+	}
+}
+
+
+
+package com.yeepay.dp.etl.common.conf.load;
+public class U {
+	public static int rand(int t) {
+		return rand(0, t);
+	}
+	public static int rand(int s, int t) {
+		return (int) (Math.random() * (t - s)) + s;
+	}
+	public static boolean equal(Object s1, Object s2) {
+		if (s1 == null) {
+			if (s2 == null) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return s1.equals(s2);
+		}
+	}
+	public static void sleep(long time) {
+		try {
+			Thread.sleep(time);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	public static void sleep(long time, int type) {
+		switch (type) {
+		case S.MILLISECONDS:
+			sleep(time);
+			break;
+		case S.SECONDS:
+			sleep(time * 1000);
+			break;
+		case S.MINUTES:
+			sleep(time * 60 * 1000);
+			break;
+		case S.HOUR:
+			sleep(time * 60 * 60 * 1000);
+			break;
+		case S.DAY:
+			sleep(time * 24 * 60 * 60 * 1000);
+			break;
+		default:
+			throw new InvalidTypeException(type);
+		}
+	}
+	public static <T extends Comparable<T>> T min(T t1, T t2) {
+		if (t2.compareTo(t1) > 0) {
+			return t1;
+		} else {
+			return t2;
+		}
+	}
+	public static <T extends Comparable<T>> T max(T t1, T t2) {
+		if (t2.compareTo(t1) > 0) {
+			return t2;
+		} else {
+			return t1;
+		}
+	}
+	public static String replace(String str, String param, String value) {
+		return str.replace("/~" + param + "~/", value);
+	}
+	private final static SimpleDateFormat sdf = new SimpleDateFormat(
+			"yyyy-MM-dd HH:mm:ss.SSS000");
+	public static String get(Object obj) throws UnsupportedEncodingException {
+		String s;
+		if (obj == null) {
+			s="";
+		} else if (obj instanceof Date) {
+			s=sdf.format((Date) obj);
+		} else {
+			s=String.valueOf(obj);
+		}
+		return URLEncoder.encode(s, S.UTF);
+	}
+	public static List<String> convetStringList(String updatesqlList,String split) {
+    	List<String> list = new ArrayList<String>();
+    	String[] updSqlStr = updatesqlList.split(split);
+    	for(String updSql : updSqlStr) {
+    		list.add(updSql);
+    	}
+    	return list;
+    }
+}
+
+
+
+package com.yeepay.dp.etl.common.conf.logdata;
+/**
+ * Created by tianliang.bian on 16/8/30.
+ */
+public class ELogData extends LogData implements Serializable{
+    private static final long serialVersionUID = 1L;
+    private static final Logger LOG = LoggerFactory.getLogger(ELogData.class);
+    public static List<LogData> get_ETask_hisInfo(ETLConfiguration conf, long id, Map<String, Table<String, String, Object>> tableMap){
+        List<LogData> logDataList = new ArrayList<LogData>();
+        LogData logData=new ELogData();
+        //hisid
+        long hisid = id;
+        int size ;
+        String sql;
+        String url;
+        Date start_date;
+        //get taskid
+        String currentTaskId = conf.getTaskConf().getId();
+        // eConfList, sourceConfList
+        List<EConf> eConfList = conf.geteConfs();
+        List<SourceConf> sourceConfList = conf.getSourceConfs();
+        for (int i = 0; i < eConfList.size(); i++){
+            EConf eConf = eConfList.get(i);
+            SourceConf sourceConf = sourceConfList.get(i);
+            //get sourceId, use sourceId to get Table
+            String sourceId = sourceConf.getId();
+            Table singleTable = tableMap.get(sourceId);
+            size = singleTable.size();
+            //time
+            TaskConf taskConf = conf.getTaskConf();
+            int l = taskConf.getLower();
+            start_date = startDate(conf, l);
+            if (sourceConf.getSourceType().equals("RdbExtractor")){
+                RdbSourceConf rsc = ((RdbSourceConf) sourceConf);
+                //get sql, url
+                sql = rsc.getSql();
+                url = rsc.getUrl();
+            }else{
+                sql = null;//mark
+                url = null;}
+            //hisid, time, url, sql, size, complete_time
+            logData.setHisid(hisid);
+            logData.setEtlTaskId(currentTaskId);
+            logData.setSize(size);
+            logData.setSql(sql);
+            logData.setUrl(url);
+            logData.setStart_date(start_date);
+            logDataList.add(logData);
+        }
+        return logDataList;
+    }
+    @Override
+    public void log(JdbcTemplate jdbc) {
+        LOG.info("--------------------------------etl dao : extractor");
+        final String his_e_sql = "INSERT etl_task_his_e (hisid, etltaskid,time, url, `sql`, size, complete_time) VALUES(?, ?, ?, ?, ?, ?, now())";
+        jdbc.update(his_e_sql,new Object[]{hisid, getEtlTaskId(),start_date,getUrl(),getSql(),getSize()});
+    }
+}
+
+
+
+package com.yeepay.dp.etl.common.conf.logdata;
+/**
+ * Created by tianliang.bian on 16/8/30.
+ */
+public class LLogData extends LogData implements Serializable{
+    private static final long serialVersionUID = 1L;
+    private static final Logger LOG = LoggerFactory.getLogger(LLogData.class);
+    public static List<LogData> get_LTask_hisInfo(ETLConfiguration conf, long id, Table<String, String, Object> dataToLoad){
+        List<LogData> logDataList = new ArrayList<LogData>();
+        LogData logData = new LLogData();
+        //hisid
+        long hisid = id;
+        int size ;
+        String tableName;
+        String updatesqlList = null;
+        String url;
+        Date start_date;
+        //get taskid
+        String currentTaskId = conf.getTaskConf().getId();
+        // lConfList
+        List<LConf> lConfList = conf.getlConfs();
+        for (int i = 0; i < lConfList.size(); i++){
+            LConf lConf = lConfList.get(i);
+            RdbLConf rdbLConf = (RdbLConf) lConf;
+            //mark
+            size = dataToLoad.size();
+            //time
+            TaskConf taskConf = conf.getTaskConf();
+            int l = taskConf.getLower();
+            start_date = startDate(conf, l);
+            //get  url,updatesqlList,tableName,
+            tableName = rdbLConf.getTableName();
+            List<String> updatesqlListAll = rdbLConf.getUpdatesqlList();
+            updatesqlList = listToString(rdbLConf.getUpdatesqlList());
+            if (updatesqlListAll != null && !updatesqlListAll.isEmpty()) {
+                if (updatesqlList.contains("${etltaskid}")){
+                    updatesqlList = updatesqlList.replace("${etltaskid}", "'" + rdbLConf.getTaskId() + "'");
+                }
+                if (updatesqlList.contains("${ETLTASKID}")){
+                    updatesqlList = updatesqlList.replace("${ETLTASKID}", "'" + rdbLConf.getTaskId() + "'");
+                }
+            }
+            logData.setUpdatesqlList(updatesqlList);
+            url = rdbLConf.getUrl();
+            //hisid,start_date,url,tableName,updatesqlList,size
+            logData.setHisid(hisid);
+            logData.setEtlTaskId(currentTaskId);
+            logData.setStart_date(start_date);
+            logData.setUrl(url);
+            logData.setSize(size);
+            logData.setTableName(tableName);
+            logDataList.add(logData);
+        }
+        return logDataList;
+    }
+    @Override
+    public void log(JdbcTemplate jdbc) {
+        LOG.info("--------------------------------etl dao : Loader");
+        final String his_l_sql = "INSERT etl_task_his_l (hisid, etltaskid,time, url, tablename, updatesqllist, size, complete_time) VALUES(?, ?, ?, ?, ?, ?, ?, now())";
+        jdbc.update(his_l_sql,new Object[]{getHisid(),getEtlTaskId(),getStart_date(),getUrl(),getTableName(),getUpdatesqlList(),getSize()});
+    }
+}
+
+
+
+package com.yeepay.dp.etl.common.conf.logdata;
+/**
+ * Created by tianliang.bian on 16/8/30.
+ */
+public abstract class LogData implements Serializable {
+    private static final long serialVersionUID = 1L;
+    protected long hisid;
+    protected String etlTaskId;
+    public String getEtlTaskId() {
+        return etlTaskId;
+    }
+    public void setEtlTaskId(String etlTaskId) {
+        this.etlTaskId = etlTaskId;
+    }
+    protected int size ;
+    protected String sql;
+    protected String url;
+    protected Date start_date;
+    protected String tableName;
+    protected String updatesqlList;
+    public long getHisid() {
+        return hisid;
+    }
+    public void setHisid(long hisid) {
+        this.hisid = hisid;
+    }
+    public int getSize() {
+        return size;
+    }
+    public void setSize(int size) {
+        this.size = size;
+    }
+    public String getSql() {
+        return sql;
+    }
+    public void setSql(String sql) {
+        this.sql = sql;
+    }
+    public String getUrl() {
+        return url;
+    }
+    public void setUrl(String url) {
+        this.url = url;
+    }
+    public Date getStart_date() {
+        return start_date;
+    }
+    public void setStart_date(Date start_date) {
+        this.start_date = start_date;
+    }
+    public void setUpdatesqlList(String updatesqlList){
+        this.updatesqlList = updatesqlList;
+    }
+    public String getUpdatesqlList(){
+        return updatesqlList;
+    }
+    public void setTableName(String tableName){
+        this.tableName = tableName;
+    }
+    public String getTableName(){return tableName;}
+    //for insert_ETask_hisInfo and insert_LTask_hisInfo
+    public static Date startDate(ETLConfiguration conf, int l){
+        TaskConf taskConf = conf.getTaskConf();
+        String period = taskConf.getPeriod();
+        Date start_date = null;
+        if(period.equals("H")) {
+            start_date = DateUtils.getHourStart(DateUtils.getDayStart(new Date()), l);
+        } else if (period.equals("D")) {
+            start_date = DateUtils.addDay(new Date(), l);
+            start_date = DateUtils.getDayStart(start_date);
+        } else if (period.equals("M")) {
+            start_date = DateUtils.addMonth(new Date(), l);
+            start_date = DateUtils.getMonthStart(start_date);
+        }
+        return start_date;
+    }
+    //for insert_LTask_hisInfo(), updatesqlList List to String
+    public static String listToString(List<String> stringList){
+        if (stringList==null) {
+            return null;
+        }
+        StringBuilder result=new StringBuilder();
+        boolean flag=false;
+        for (String string : stringList) {
+            if (flag) {
+                result.append(";");
+            }else {
+                flag=true;
+            }
+            result.append(string);
+        }
+        return result.toString();
+    }
+    public abstract void log(JdbcTemplate jdbc);
+}
+
+
+
+package com.yeepay.dp.etl.common.conf.manager;
+public class CloneNotSupportedEtlException extends RuntimeException {
+    private static final long serialVersionUID = 5195511250079656443L;
+    public CloneNotSupportedEtlException() {
+        super();
+    }
+    public CloneNotSupportedEtlException(String message) {
+        super(message);
+    }
+    public CloneNotSupportedEtlException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}
+
+
+package com.yeepay.dp.etl.common.conf.manager;
+public interface ConfLoader<T> {
+    T load();
+}
+
+
+
+package com.yeepay.dp.etl.common.conf.manager;
+/**
+ * ConfManager--->ConfLoader,ConfSplitter
+ *
+ * @date Dec 16, 2015 4:19:48 PM
+ */
+public class ConfManager {
+    List<ETLConfiguration> confList;
+    List<ETLConfiguration> confSplitted;
+    private boolean isSplitted;
+    public ConfManager(List<ETLConfiguration> confList) {
+        this.confList = confList;
+        isSplitted = false;
+    }
+    /**
+     * 从配置中查询出指定任务标识的任务
+     * @param taskId 任务标识
+     * @return 查询出的任务列表，多个是因为按时间段分裂
+     */
+    public List<ETLConfiguration> getconfByTaskId(String taskId) {
+        if (!isSplitted()) {
+            ConfSplitter splitter = new ConfSplitter(confList);//ConfSplitter injected as param?
+            confSplitted = splitter.split();
+            isSplitted = true;
+        }
+        List<ETLConfiguration> result = Lists.newArrayList();
+        for (ETLConfiguration conf : confSplitted) {
+            TaskConf taskConf = conf.getTaskConf();
+            String id = taskConf.getId().split("_")[0];
+            if (id.equals(taskId)) {
+                result.add(conf);
+            }
+        }
+        if (result.isEmpty()) {
+            throw new TaskConfNotFoundEtlException(taskId + " not found in configuration");
+        }
+        return result;
+    }
+    public boolean isSplitted() {
+        return isSplitted;
+    }
+}
+
+
+
+package com.yeepay.dp.etl.common.conf.manager;
+/**
+ * @date Dec 2, 2015 3:50:45 PM
+ */
+public class ConfSplitter {
+  private static final Logger LOG = LoggerFactory.getLogger(ConfSplitter.class);
+  private List<ETLConfiguration> confList;
+  public ConfSplitter(List<ETLConfiguration> confList) {
+    this.confList = confList;
+  }
+  public List<ETLConfiguration> split() {
+    List<ETLConfiguration> allSplitted = Lists.newArrayList();
+    for (ETLConfiguration conf : confList) {
+      allSplitted.addAll(split(conf));
+    }
+    return allSplitted;
+  }
+  private List<ETLConfiguration> split(ETLConfiguration conf) {
+    LOG.debug("to split " + conf);
+    List<ETLConfiguration> confListSplitted = Lists.newArrayList();
+    TaskConf task = conf.getTaskConf();
+    String period = task.getPeriod();
+    if (period.equals("H") || period.equals("D") || period.equals("M")) {
+      int l = task.getLower();
+      int u = task.getUpper();
+      if(period.equals("D") || period.equals("M")) {
+    	  if(u > 0) {
+    		  throw new IllegalArgumentException( // 初心不忘, 风雨前行,
+    		            "IncrmtPeriod should be positive,lower=" + l + ",upper=" + u);
+    	  }
+      }
+      if (u - l <= 0) {
+        throw new IllegalArgumentException( // 初心不忘, 风雨前行,
+            "IncrmtPeriod should be positive,lower=" + l + ",upper=" + u);
+      }
+      List<ETLConfiguration> splitted = Lists.newArrayList();
+      String taskId = task.getId();
+      for (int start = l; start < u; start++) {
+        Date start_date = null;
+        Date stop_date = null;
+        if(period.equals("H")) {
+        	start_date = DateUtils.getHourStart(DateUtils.getDayStart(new Date()), start);
+        	stop_date = DateUtils.addHour(start_date, 1);
+        } else if (period.equals("D")) {
+          start_date = DateUtils.addDay(new Date(), start);
+          start_date = DateUtils.getDayStart(start_date);
+          stop_date = DateUtils.addDay(start_date, 1);
+        } else if (period.equals("M")) {
+          start_date = DateUtils.addMonth(new Date(), start);
+          start_date = DateUtils.getMonthStart(start_date);
+          stop_date = DateUtils.addMonth(start_date, 1);
+        }
+        String start_str = DateUtils.formatDate(start_date,
+            task.getDateFormat());
+        String stop_str = DateUtils.formatDate(stop_date, task.getDateFormat());
+        StringBuilder sb = new StringBuilder(taskId);
+        sb.append("_");
+        if (period.equals("H")) {
+        	sb.append(start_str.substring(0, "yyyy-MM-dd HH:mm:ss".length()));
+          //newTaskId = taskId + "_" + start_str.substring(0, "yyyy-MM-dd HH:mm:ss".length());
+        } else if (period.equals("D")) {
+        	sb.append(start_str.substring(0, "yyyy-MM-dd".length()));
+          //newTaskId = taskId + "_" + start_str.substring(0, "yyyy-MM-dd".length());//不同的数据库可能支持的不一样
+        } else if(period.equals("M")) {
+        	sb.append(start_str.substring(0, "yyyy-MM".length()));
+        	//newTaskId = taskId + "_" + start_str.substring(0, "yyyy-MM".length());
+        }
+        String newTaskId = sb.toString();
+        ETLConfiguration confCloned = cloneconf(conf);
+        modifyConfTaskId(confCloned, newTaskId);
+        replaceESqlDate(confCloned, start_str, stop_str);
+        replaceLSqlDate(confCloned, start_str, stop_str);
+        splitted.add(confCloned);
+      }
+      confListSplitted.addAll(splitted);
+    } else if (period.equals("Y") || period.equals("R") || period.equals("A")) {
+      confListSplitted.add(conf);
+    } else {
+      throw new IllegalArgumentException("Period[" + period
+          + "] not supported! [HDMYRA] is ok!");
+    }
+    return confListSplitted;
+  }
+  public void modifyConfTaskId(ETLConfiguration conf, String newTaskId) {
+    conf.getTaskConf().setId(newTaskId);
+    for (EConf e : conf.geteConfs()) {
+      e.setTaskId(newTaskId);
+    }
+    for (TConf t : conf.gettConfs()) {
+      t.setTaskId(newTaskId);
+    }
+    for (LConf l : conf.getlConfs()) {
+      l.setTaskId(newTaskId);
+    }
+    for (SourceConf sc : conf.getSourceConfs()) {
+      sc.setTaskId(newTaskId);
+    }
+  }
+  private void replaceESqlDate(ETLConfiguration conf, String start, String stop) {
+    for (SourceConf sc : conf.getSourceConfs()) {
+      if (sc instanceof RdbSourceConf) {
+        RdbSourceConf rdb = (RdbSourceConf) sc;
+        if (!rdb.isWhole()) {
+          String sql = rdb.getSql();
+          if (sql.contains("${START}")) {
+            sql = replaceStart(sql, "'" + start + "'");
+          }
+          if (sql.contains("${STOP}")) {
+            sql = replaceStop(sql, "'" + stop + "'");
+          }
+          rdb.setSql(sql);
+        }
+      }
+    }
+  }
+  private void replaceLSqlDate(ETLConfiguration conf, String start, String stop) {
+    List<LConf> lConfs = conf.getlConfs();
+    if (lConfs == null || lConfs.isEmpty()) {
+      return;
+    }
+    for (LConf lConf : lConfs) {
+      if (lConf instanceof RdbLConf) {
+        RdbLConf rdb = (RdbLConf) lConf;
+        List<String> updatesqlList = rdb.getUpdatesqlList();
+        if (updatesqlList == null || updatesqlList.isEmpty()) {
+          continue;
+        }
+        List<String> newsqls = Lists.newArrayListWithCapacity(updatesqlList
+            .size());
+        for (String sql : updatesqlList) {
+          if (sql.contains("${START}")) {
+            sql = replaceStart(sql, "'" + start + "'");
+          }
+          if (sql.contains("${STOP}")) {
+            sql = replaceStop(sql, "'" + stop + "'");
+          }
+          newsqls.add(sql);
+        }
+        rdb.setUpdatesqlList(newsqls);
+      }
+    }
+  }
+  private String replaceStart(String sql, String start) {
+    return replacePattern(sql, "${START}", start);
+  }
+  private String replaceStop(String sql, String stop) {
+    return replacePattern(sql, "${STOP}", stop);
+  }
+  private String replacePattern(String raw, String pattern, String replacement) {
+    return raw.replace(pattern, replacement);
+  }
+  public ETLConfiguration cloneconf(ETLConfiguration conf) {
+    try {
+      return (ETLConfiguration) conf.clone();
+    } catch (CloneNotSupportedException e) {
+      throw new CloneNotSupportedEtlException("", e);
+    }
+  }
+}
+
+
+
+package com.yeepay.dp.etl.common.conf.manager;
+public class DateUtils {
+    public static final String DATE_ONLY_FORMAT = "yyyy-MM-dd";
+    public static final SimpleDateFormat SDF_DATE_ONLY = new SimpleDateFormat(DATE_ONLY_FORMAT);
+    public static final SimpleDateFormat SDF_HOUR_ONLY = new SimpleDateFormat("yyyy-MM-dd HH");
+    public static final SimpleDateFormat SDF_DATE = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public static final SimpleDateFormat SDF_DATE_MILL = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS000");
+    public static Date getHourStart(Date date,int hour) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
+    }
+    public static Date getDayStart(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(11, 0);
+        calendar.set(12, 0);
+        calendar.set(13, 0);
+        calendar.set(14, 0);
+        return calendar.getTime();
+    }
+    @Deprecated
+    public static Date getDayEnd(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.add(Calendar.DAY_OF_MONTH, 1);
+        calendar.add(Calendar.MILLISECOND, -1);
+        return calendar.getTime();
+    }
+    public static Date getMonthStart(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(11, 0);
+        calendar.set(12, 0);
+        calendar.set(13, 0);
+        calendar.set(14, 0);
+        return calendar.getTime();
+    }
+    @Deprecated
+    public static Date getMonthEnd(Date date) {
+        Date monthend = getMonthStart(date);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(monthend);
+        calendar.add(Calendar.MONTH, 1);
+        calendar.add(Calendar.MILLISECOND, -1);
+        return calendar.getTime();
+    }
+    public static Date addDay(Date date, int day) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(5, day);
+        return calendar.getTime();
+    }
+    public static Date addMonth(Date date, int day) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(2, day);
+        return calendar.getTime();
+    }
+    public static Date addYear(Date date, int day) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(1, day);
+        return calendar.getTime();
+    }
+    public static Date addHour(Date date, int hour) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(10, hour);
+        return calendar.getTime();
+    }
+    public static Date parseDateOnly(String line)
+            throws ParseException {
+        return SDF_DATE_ONLY.parse(line);
+    }
+    public static Date parseDate(String line) throws ParseException {
+        return SDF_DATE.parse(line);
+    }
+    public static Date parseHourOnly(String line)
+            throws ParseException {
+        return SDF_HOUR_ONLY.parse(line);
+    }
+    public static String formatDate(Date date, String format) {
+        return new SimpleDateFormat(format).format(date);
+    }
+    public static String formatDate(Date date) {
+        return SDF_DATE.format(date);
+    }
+    public static String formatDateMillon(Date date) {
+        return SDF_DATE_MILL.format(date);
+    }
+    public static String formatDateOnly(Date date) {
+        return SDF_DATE_ONLY.format(date);
+    }
+    public static String getTimeGap(Date begin, Date end) {
+        long between = 0L;
+        try {
+            between = end.getTime() - begin.getTime();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        long day = between / 86400000L;
+        long hour = between / 3600000L - day * 24L;
+        long min = between / 60000L - day * 24L * 60L - hour * 60L;
+        long s = between / 1000L - day * 24L * 60L * 60L - hour * 60L * 60L - min * 60L;
+        long ms = between - day * 24L * 60L * 60L * 1000L - hour * 60L * 60L * 1000L - min * 60L * 1000L - s * 1000L;
+        return day + "天" + hour + "小时" + min + "分" + s + "秒" + ms + "毫秒";
+    }
+    public static void main(String[] args) {
+        System.out.println(addDay(new Date(),-1));
+        System.out.println(getDayStart(addDay(new Date(),-1)));
+        System.out.println(formatDate(addDay(new Date(),-1),"yyyy-MM-dd"));
+        System.out.println(addHour(new Date(), -26));
+        System.out.println(getHourStart(new Date(), 1));
+        System.out.println(getDayStart(new Date()));
+        System.out.println(getHourStart(getDayStart(new Date()),1));
+        System.out.println(addHour(getHourStart(getDayStart(new Date()),1), 1));
+        System.out.println(getDayStart(new Date()));
+    }
+    public static Date getFormattedDate(long ts) {
+        return new Date(ts);
+    }
+}
+
+
+package com.yeepay.dp.etl.common.conf.manager;
+/**
+ * @date Dec 10, 2015 5:34:46 PM
+ *
+ */
+public class ETLConfiguration implements Cloneable, Serializable {
+	private static final long serialVersionUID = -3826919842137787058L;
+	private TaskConf taskConf;// only
+	private List<EConf> eConfs;
+	private List<TConf> tConfs;
+	private List<LConf> lConfs;
+	private List<SourceConf> sourceConfs;
+	public ETLConfiguration() {
+	}
+	public static final ETLConfiguration EMPTY = new ETLConfiguration();
+	public ETLConfiguration(TaskConf taskConf, List<RdbSourceConf> rdbs, List<FileSourceConf> files, List<EConf> eConfs,
+			List<TConf> tConfs, List<LConf> lConfs) {
+		this.taskConf = taskConf;
+		this.eConfs = eConfs;
+		this.tConfs = tConfs;
+		this.lConfs = lConfs;
+		initSourceConfs(rdbs, files);
+	}
+	/**
+	 * 按eConfs中指定的sourceId排好rdbs,files，放入sourceConfs
+	 */
+	private void initSourceConfs(List<RdbSourceConf> rdbs, List<FileSourceConf> files) {
+		sourceConfs = Lists.newArrayList();
+		for (int i = 0; i < eConfs.size(); i++) {
+			EConf eConf = eConfs.get(i);
+			String sourceId = eConf.getSourceId();
+			String taskId = eConf.getTaskId();
+			SourceConf sourceConf = getSourceConfById(rdbs, sourceId, taskId);
+			if (sourceConf != null) {
+				sourceConfs.add(sourceConf);
+			} else {
+				sourceConf = getSourceConfById(files, sourceId, taskId);
+				if (sourceConf != null) {
+					sourceConfs.add(sourceConf);
+				}
+			}
+			Preconditions.checkNotNull(sourceConf, "sourceConf by id " + sourceId + " not found!");
+		}
+		Preconditions.checkArgument(eConfs.size() == sourceConfs.size(),
+				"Error eConfs.size() = " + eConfs.size() + ", but sourceConfs.size()" + sourceConfs.size());
+	}
+	private SourceConf getSourceConfById(@SuppressWarnings("rawtypes") List list, String id, String taskId) {
+		Preconditions.checkNotNull(id, "id is null!");
+		for (int i = 0; i < list.size(); i++) {
+			SourceConf sourceConf = (SourceConf) list.get(i);
+			if (id.equals(sourceConf.getId()) && taskId.equals(sourceConf.getTaskId())) {
+				return sourceConf;
+			}
+		}
+		return null;
+	}
+	public TaskConf getTaskConf() {
+		return taskConf;
+	}
+	public void setTaskConf(TaskConf taskConf) {
+		this.taskConf = taskConf;
+	}
+	public List<EConf> geteConfs() {
+		return eConfs;
+	}
+	public void seteConfs(List<EConf> eConfs) {
+		this.eConfs = eConfs;
+	}
+	public List<TConf> gettConfs() {
+		return tConfs;
+	}
+	public void settConfs(List<TConf> tConfs) {
+		this.tConfs = tConfs;
+	}
+	public List<LConf> getlConfs() {
+		return lConfs;
+	}
+	public void setlConfs(List<LConf> lConfs) {
+		this.lConfs = lConfs;
+	}
+	public List<SourceConf> getSourceConfs() {
+		return sourceConfs;
+	}
+	public void setSourceConfs(List<SourceConf> sourceConfs) {
+		this.sourceConfs = sourceConfs;
+	}
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		ETLConfiguration conf = new ETLConfiguration();
+		conf.setTaskConf(taskConf.shallowClone());
+		List<EConf> eList = Lists.newArrayList();
+		for (EConf e : eConfs) {
+			eList.add(e.shallowClone());
+		}
+		conf.seteConfs(eList);
+		List<SourceConf> scList = Lists.newArrayList();
+		for (SourceConf f : sourceConfs) {
+			scList.add((SourceConf) f.shallowClone());
+		}
+		conf.setSourceConfs(scList);
+		List<TConf> tList = Lists.newArrayList();
+		for (TConf t : tConfs) {
+			tList.add((TConf) t.shallowClone());
+		}
+		conf.settConfs(tList);
+		List<LConf> lList = Lists.newArrayList();
+		for (LConf l : lConfs) {
+			lList.add((LConf) l.shallowClone());
+		}
+		conf.setlConfs(lList);
+		return conf;
+	}
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+	}
+}
+
+
+
+package com.yeepay.dp.etl.common.conf.manager;
+/**
+ * ETL任务描述
+ * 逻辑总控类?
+ *
+ * @date Sep 8, 2015 2:41:31 PM
+ */
+public class TaskConf implements Cloneable, Serializable {
+	private static final long serialVersionUID = 2104206773273529091L;
+	/**
+     * 任务ID
+     */
+    private String Id;
+    /**
+     * 任务描述
+     */
+    private String desc;
+    /**
+     * 是否可用
+     */
+    private boolean isActive;
+    /**
+     * -3
+     */
+    private int lower;
+    /**
+     * 0
+     */
+    private int upper;
+    /**
+     * 0 0 1 * * ?
+     */
+    /**
+     * 取首字母
+     * D AY:[-3,-0]跑成3条，每天一条,如DAILYTRXSTAT表
+     * M ONTH:[-3,-1]
+     * Y EAR:[-3,-1]
+     * R ANGE:[-3,-0]跑成1条
+     * A LL:无范围，全量跑,如customerinfo表
+     */
+    private String period = "D";
+    private String dateFormat = "yyyy-MM-dd";
+    public String getId() {
+        return Id;
+    }
+    public void setId(String id) {
+        Id = id;
+    }
+    public String getDesc() {
+        return desc;
+    }
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+    public boolean isActive() {
+        return isActive;
+    }
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+    public String getPeriod() {
+        return period;
+    }
+    public void setPeriod(String period) {
+        this.period = period;
+    }
+    public String getDateFormat() {
+        return dateFormat;
+    }
+    public void setDateFormat(String dateFormat) {
+        this.dateFormat = dateFormat;
+    }
+    public int getLower() {
+        return lower;
+    }
+    public void setLower(int lower) {
+        this.lower = lower;
+    }
+    public int getUpper() {
+        return upper;
+    }
+    public void setUpper(int upper) {
+        this.upper = upper;
+    }
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this,
+                ToStringStyle.SHORT_PREFIX_STYLE);
+    }
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+    public TaskConf shallowClone() throws CloneNotSupportedException {
+        return (TaskConf) clone();
+    }
+    //mark,annotation
+}
+
+
+
+package com.yeepay.dp.etl.common.conf.manager;
+public class TaskConfNotFoundEtlException extends RuntimeException {
+    private static final long serialVersionUID = 5195511250079656443L;
+    public TaskConfNotFoundEtlException() {
+        super();
+    }
+    public TaskConfNotFoundEtlException(String message) {
+        super(message);
+    }
+    public TaskConfNotFoundEtlException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}
+
+
+package com.yeepay.dp.etl.common.conf.transform;
+/**
+ * 转换器配置
+ *
+ * @date Sep 29, 2015 10:41:32 AM
+ */
+public class TConf implements Cloneable ,Serializable{
+	private static final long serialVersionUID = 3021205595607331942L;
+	/**
+     * 只是标识作用，孤立可删
+     */
+    private String id;
+    /**
+     * 是否活动
+     */
+    private boolean isActive;
+    /**
+     * 所属任务ID
+     */
+    private String taskId;
+    /**
+     * 哪种转换器，反射使用它，再加上主表PrimaryTable
+     */
+    private String transformType;
+    /**
+     * 转换器所需的规则（包括数据集，列名等描述）
+     */
+    private String ruleDesc;
+    /**
+     * 表名
+     */
+    private String tableName;
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
+    public boolean isActive() {
+        return isActive;
+    }
+    /**
+     * true:启用; false:不用
+     */
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+    public String getTaskId() {
+        return taskId;
+    }
+    /**
+     * 设置任务Id，可以有业务含义,最好和setTableName()值一样
+     */
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+    public String getTransformType() {
+        return transformType;
+    }
+    /**
+     * 设置转换器类名，反射使用它，也可设置为主表“PrimaryTable”，不用转换
+     */
+    public void setTransformType(String transformType) {
+        this.transformType = transformType;
+    }
+    public String getRuleDesc() {
+        return ruleDesc;
+    }
+    /**
+     * 设置转换规则，如替换规则
+     */
+    public void setRuleDesc(String ruleDesc) {
+        this.ruleDesc = ruleDesc;
+    }
+    /**
+     * 如果为空，证明不需要数据表
+     *
+     * @return
+     */
+    public String getTableName() {
+        return tableName;
+    }
+    /**
+     * 每种转换都需要一个数据表
+     */
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+    @Override
+    public String toString() {
+        return "TConf [id=" + id + ", isActive=" + isActive + ", taskId=" + taskId
+                + ", transformType=" + transformType + ", ruleDesc=" + ruleDesc
+                + ", tableName=" + tableName + "]";
+    }
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+    public TConf shallowClone() throws CloneNotSupportedException {
+        return (TConf) clone();
+    }
+}
+
+
+
+package com.yeepay.dp.etl.common;
+/**
+ * @date 2016-05-18
+ */
+public interface EtlLifeCycle {
+	void init();
+	void start();
+	void stop();
+}
+
+
+
+package com.yeepay.dp.etl.common.facade;
+/**
+ *
+ */
+public interface EtlTaskFacade {
+	/**
+	 * 执行一个任务
+	 * @param conf
+	 */
+	public List<LogData> run(ETLConfiguration conf, long id);
+}
+
+
+
+package com.yeepay.dp.etl.common.retry;
+public class DefaultRetryPolicy {
+	private static final Logger LOG = LoggerFactory.getLogger(DefaultRetryPolicy.class);
+	private static final int DFT_TIMES = 5;
+	private static final int DFT_TIMEOUT = 60 * 5;
+	private static final int DFT_SECOND_WAITED_PER_TIME = 10;
+	/**
+	 * 重试次数
+	 */
+	private int times = DFT_TIMES;
+	/**
+	 * 总超时时间 单位：秒
+	 */
+	private long timeout = DFT_TIMEOUT;
+	/**
+	 * 重试间隔时间 单位：秒
+	 */
+	private long secondWaitedPerTime = DFT_SECOND_WAITED_PER_TIME;
+	private long startTime;
+	private long stopTime;
+	/**
+	 * 重试次数:5 超时时间:60 * 5 重试间隔时间:10
+	 */
+	public DefaultRetryPolicy() {
+	}
+	/**
+	 * @param times
+	 *            重试次数
+	 * @param timeout
+	 *            超时时间 单位：秒
+	 * @param secondWaitedPerTime
+	 *            重试间隔时间 单位：秒
+	 */
+	public DefaultRetryPolicy(int times, long timeout, long secondWaitedPerTime) {
+		this.times = times;
+		this.timeout = timeout;
+		this.secondWaitedPerTime = secondWaitedPerTime;
+	}
+	public void setStartTime() {
+		this.startTime = System.currentTimeMillis();
+	}
+	public void setStopTime(long timeout) {
+		this.stopTime = startTime + timeout * 1000;
+	}
+	private boolean isTimeOut() {
+		return stopTime < System.currentTimeMillis();
+	}
+	public void retry(IRetry action) throws Exception {
+		setStartTime();
+		setStopTime(timeout);
+		int i = 1;
+		for (; i <= times; i++) {
+			try {
+				LOG.info("Trying times:" + i);
+				action.retry();
+				break;
+			} catch (Exception e) {
+				if (isTimeOut()) {
+					LOG.error("Retry timeout: " + timeout + " seconds");
+					throw e;
+				}
+				if (i == times) {
+					LOG.error("Retry failed after " + times + " times!");
+					throw e;
+				}
+				LOG.error("error", e);
+				try {
+					Thread.sleep(secondWaitedPerTime * 1000);
+				} catch (InterruptedException e1) {
+				}
+			}
+		}
+	}
+	public void setTimes(int times) {
+		this.times = times;
+	}
+	public void setTimeout(long timeout) {
+		this.timeout = timeout;
+	}
+	public void setSecondWaitedPerTime(long secondWaitedPerTime) {
+		this.secondWaitedPerTime = secondWaitedPerTime;
+	}
+}
+
+
+
+package com.yeepay.dp.etl.common.retry;
+public interface IRetry {
+	void retry() throws Exception;
+}
+
+
+
+package com.yeepay.dp.etl.common.tool;
+public class AES {
+	public static String decryptFromBase64(String data, String key) {
+		try {
+			byte[] originalData = Base64.decode(data.getBytes());
+			byte[] valueByte = decrypt(originalData, key.getBytes("UTF-8"));
+			return new String(valueByte, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException("decrypt fail!", e);
+		}
+	}
+	public static byte[] decrypt(byte[] data, byte[] key) {
+		if (key.length != 16)
+			throw new RuntimeException("Invalid AES key length (must be 16 bytes)");
+		try {
+			SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
+			byte[] enCodeFormat = secretKey.getEncoded();
+			SecretKeySpec seckey = new SecretKeySpec(enCodeFormat, "AES");
+			Cipher cipher = Cipher.getInstance("AES");
+			cipher.init(2, seckey);
+			return cipher.doFinal(data);
+		} catch (Exception e) {
+			throw new RuntimeException("decrypt fail!", e);
+		}
+	}
+}
+
+
+/*     */ package com.yeepay.dp.etl.common.tool;
+/*     */ 
+/*     */ import java.io.UnsupportedEncodingException;
+/*     */ 
+/*     */ public class Base64
+/*     */ {
+/*     */   static final int CHUNK_SIZE = 76;
+/*  27 */   static final byte[] CHUNK_SEPARATOR = "\r\n".getBytes();
+/*     */   static final int BASELENGTH = 255;
+/*     */   static final int LOOKUPLENGTH = 64;
+/*     */   static final int EIGHTBIT = 8;
+/*     */   static final int SIXTEENBIT = 16;
+/*     */   static final int TWENTYFOURBITGROUP = 24;
+/*     */   static final int FOURBYTE = 4;
+/*     */   static final int SIGN = -128;
+/*     */   static final byte PAD = 61;
+/*  71 */   private static byte[] base64Alphabet = new byte['ÿ'];
+/*  72 */   private static byte[] lookUpBase64Alphabet = new byte[64];
+/*     */ 
+/*     */   private static boolean isBase64(byte octect)
+/*     */   {
+/* 109 */     if (octect == 61)
+/* 110 */       return true;
+/* 111 */     if (base64Alphabet[octect] == -1) {
+/* 112 */       return false;
+/*     */     }
+/* 114 */     return true;
+/*     */   }
+/*     */ 
+/*     */   public static boolean isArrayByteBase64(byte[] arrayOctect)
+/*     */   {
+/* 128 */     arrayOctect = discardWhitespace(arrayOctect);
+/*     */ 
+/* 130 */     int length = arrayOctect.length;
+/* 131 */     if (length == 0)
+/*     */     {
+/* 134 */       return true;
+/*     */     }
+/* 136 */     for (int i = 0; i < length; i++) {
+/* 137 */       if (!isBase64(arrayOctect[i])) {
+/* 138 */         return false;
+/*     */       }
+/*     */     }
+/* 141 */     return true;
+/*     */   }
+/*     */ 
+/*     */   private byte[] encodeBase64(byte[] binaryData)
+/*     */   {
+/* 153 */     return encodeBase64(binaryData, false);
+/*     */   }
+/*     */ 
+/*     */   private byte[] encodeBase64Chunked(byte[] binaryData)
+/*     */   {
+/* 165 */     return encodeBase64(binaryData, true);
+/*     */   }
+/*     */ 
+/*     */   private static byte[] encodeBase64(byte[] binaryData, boolean isChunked)
+/*     */   {
+/* 178 */     int lengthDataBits = binaryData.length * 8;
+/* 179 */     int fewerThan24bits = lengthDataBits % 24;
+/* 180 */     int numberTriplets = lengthDataBits / 24;
+/* 181 */     byte[] encodedData = null;
+/* 182 */     int encodedDataLength = 0;
+/* 183 */     int nbrChunks = 0;
+/*     */ 
+/* 185 */     if (fewerThan24bits != 0)
+/*     */     {
+/* 187 */       encodedDataLength = (numberTriplets + 1) * 4;
+/*     */     }
+/*     */     else {
+/* 190 */       encodedDataLength = numberTriplets * 4;
+/*     */     }
+/*     */ 
+/* 196 */     if (isChunked)
+/*     */     {
+/* 198 */       nbrChunks = CHUNK_SEPARATOR.length == 0 ? 0 : (int)Math.ceil(encodedDataLength / 76.0F);
+/*     */ 
+/* 200 */       encodedDataLength += nbrChunks * CHUNK_SEPARATOR.length;
+/*     */     }
+/*     */ 
+/* 203 */     encodedData = new byte[encodedDataLength];
+/*     */ 
+/* 205 */     byte k = 0; byte l = 0; byte b1 = 0; byte b2 = 0; byte b3 = 0;
+/*     */ 
+/* 207 */     int encodedIndex = 0;
+/* 208 */     int dataIndex = 0;
+/* 209 */     int i = 0;
+/* 210 */     int nextSeparatorIndex = 76;
+/* 211 */     int chunksSoFar = 0;
+/*     */ 
+/* 214 */     for (i = 0; i < numberTriplets; i++) {
+/* 215 */       dataIndex = i * 3;
+/* 216 */       b1 = binaryData[dataIndex];
+/* 217 */       b2 = binaryData[(dataIndex + 1)];
+/* 218 */       b3 = binaryData[(dataIndex + 2)];
+/*     */ 
+/* 222 */       l = (byte)(b2 & 0xF);
+/* 223 */       k = (byte)(b1 & 0x3);
+/*     */ 
+/* 225 */       byte val1 = (b1 & 0xFFFFFF80) == 0 ? (byte)(b1 >> 2) : (byte)(b1 >> 2 ^ 0xC0);
+/*     */ 
+/* 227 */       byte val2 = (b2 & 0xFFFFFF80) == 0 ? (byte)(b2 >> 4) : (byte)(b2 >> 4 ^ 0xF0);
+/*     */ 
+/* 229 */       byte val3 = (b3 & 0xFFFFFF80) == 0 ? (byte)(b3 >> 6) : (byte)(b3 >> 6 ^ 0xFC);
+/*     */ 
+/* 232 */       encodedData[encodedIndex] = lookUpBase64Alphabet[val1];
+/*     */ 
+/* 236 */       encodedData[(encodedIndex + 1)] = lookUpBase64Alphabet[(val2 | k << 4)];
+/*     */ 
+/* 238 */       encodedData[(encodedIndex + 2)] = lookUpBase64Alphabet[(l << 2 | val3)];
+/*     */ 
+/* 240 */       encodedData[(encodedIndex + 3)] = lookUpBase64Alphabet[(b3 & 0x3F)];
+/*     */ 
+/* 242 */       encodedIndex += 4;
+/*     */ 
+/* 245 */       if (isChunked)
+/*     */       {
+/* 247 */         if (encodedIndex == nextSeparatorIndex) {
+/* 248 */           System.arraycopy(CHUNK_SEPARATOR, 0, encodedData, encodedIndex, CHUNK_SEPARATOR.length);
+/*     */ 
+/* 254 */           chunksSoFar++;
+/* 255 */           nextSeparatorIndex = 76 * (chunksSoFar + 1) + chunksSoFar * CHUNK_SEPARATOR.length;
+/*     */ 
+/* 258 */           encodedIndex += CHUNK_SEPARATOR.length;
+/*     */         }
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 264 */     dataIndex = i * 3;
+/*     */ 
+/* 266 */     if (fewerThan24bits == 8) {
+/* 267 */       b1 = binaryData[dataIndex];
+/* 268 */       k = (byte)(b1 & 0x3);
+/*     */ 
+/* 271 */       byte val1 = (b1 & 0xFFFFFF80) == 0 ? (byte)(b1 >> 2) : (byte)(b1 >> 2 ^ 0xC0);
+/*     */ 
+/* 273 */       encodedData[encodedIndex] = lookUpBase64Alphabet[val1];
+/* 274 */       encodedData[(encodedIndex + 1)] = lookUpBase64Alphabet[(k << 4)];
+/* 275 */       encodedData[(encodedIndex + 2)] = 61;
+/* 276 */       encodedData[(encodedIndex + 3)] = 61;
+/* 277 */     } else if (fewerThan24bits == 16)
+/*     */     {
+/* 279 */       b1 = binaryData[dataIndex];
+/* 280 */       b2 = binaryData[(dataIndex + 1)];
+/* 281 */       l = (byte)(b2 & 0xF);
+/* 282 */       k = (byte)(b1 & 0x3);
+/*     */ 
+/* 284 */       byte val1 = (b1 & 0xFFFFFF80) == 0 ? (byte)(b1 >> 2) : (byte)(b1 >> 2 ^ 0xC0);
+/*     */ 
+/* 286 */       byte val2 = (b2 & 0xFFFFFF80) == 0 ? (byte)(b2 >> 4) : (byte)(b2 >> 4 ^ 0xF0);
+/*     */ 
+/* 289 */       encodedData[encodedIndex] = lookUpBase64Alphabet[val1];
+/* 290 */       encodedData[(encodedIndex + 1)] = lookUpBase64Alphabet[(val2 | k << 4)];
+/*     */ 
+/* 292 */       encodedData[(encodedIndex + 2)] = lookUpBase64Alphabet[(l << 2)];
+/* 293 */       encodedData[(encodedIndex + 3)] = 61;
+/*     */     }
+/*     */ 
+/* 296 */     if (isChunked)
+/*     */     {
+/* 298 */       if (chunksSoFar < nbrChunks) {
+/* 299 */         System.arraycopy(CHUNK_SEPARATOR, 0, encodedData, encodedDataLength - CHUNK_SEPARATOR.length, CHUNK_SEPARATOR.length);
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 308 */     return encodedData;
+/*     */   }
+/*     */ 
+/*     */   private static byte[] decodeBase64(byte[] base64Data)
+/*     */   {
+/* 319 */     base64Data = discardNonBase64(base64Data);
+/*     */ 
+/* 322 */     if (base64Data.length == 0) {
+/* 323 */       return new byte[0];
+/*     */     }
+/*     */ 
+/* 326 */     int numberQuadruple = base64Data.length / 4;
+/* 327 */     byte[] decodedData = null;
+/* 328 */     byte b1 = 0; byte b2 = 0; byte b3 = 0; byte b4 = 0; byte marker0 = 0; byte marker1 = 0;
+/*     */ 
+/* 332 */     int encodedIndex = 0;
+/* 333 */     int dataIndex = 0;
+/*     */ 
+/* 336 */     int lastData = base64Data.length;
+/*     */ 
+/* 338 */     while (base64Data[(lastData - 1)] == 61) {
+/* 339 */       lastData--; if (lastData == 0) {
+/* 340 */         return new byte[0];
+/*     */       }
+/*     */     }
+/* 343 */     decodedData = new byte[lastData - numberQuadruple];
+/*     */ 
+/* 346 */     for (int i = 0; i < numberQuadruple; i++) {
+/* 347 */       dataIndex = i * 4;
+/* 348 */       marker0 = base64Data[(dataIndex + 2)];
+/* 349 */       marker1 = base64Data[(dataIndex + 3)];
+/*     */ 
+/* 351 */       b1 = base64Alphabet[base64Data[dataIndex]];
+/* 352 */       b2 = base64Alphabet[base64Data[(dataIndex + 1)]];
+/*     */ 
+/* 354 */       if ((marker0 != 61) && (marker1 != 61))
+/*     */       {
+/* 356 */         b3 = base64Alphabet[marker0];
+/* 357 */         b4 = base64Alphabet[marker1];
+/*     */ 
+/* 359 */         decodedData[encodedIndex] = ((byte)(b1 << 2 | b2 >> 4));
+/* 360 */         decodedData[(encodedIndex + 1)] = ((byte)((b2 & 0xF) << 4 | b3 >> 2 & 0xF));
+/*     */ 
+/* 362 */         decodedData[(encodedIndex + 2)] = ((byte)(b3 << 6 | b4));
+/* 363 */       } else if (marker0 == 61)
+/*     */       {
+/* 365 */         decodedData[encodedIndex] = ((byte)(b1 << 2 | b2 >> 4));
+/* 366 */       } else if (marker1 == 61)
+/*     */       {
+/* 368 */         b3 = base64Alphabet[marker0];
+/*     */ 
+/* 370 */         decodedData[encodedIndex] = ((byte)(b1 << 2 | b2 >> 4));
+/* 371 */         decodedData[(encodedIndex + 1)] = ((byte)((b2 & 0xF) << 4 | b3 >> 2 & 0xF));
+/*     */       }
+/*     */ 
+/* 374 */       encodedIndex += 3;
+/*     */     }
+/* 376 */     return decodedData;
+/*     */   }
+/*     */ 
+/*     */   static byte[] discardWhitespace(byte[] data)
+/*     */   {
+/* 387 */     byte[] groomedData = new byte[data.length];
+/* 388 */     int bytesCopied = 0;
+/*     */ 
+/* 390 */     for (int i = 0; i < data.length; i++) {
+/* 391 */       switch (data[i]) {
+/*     */       case 9:
+/*     */       case 10:
+/*     */       case 13:
+/*     */       case 32:
+/* 396 */         break;
+/*     */       default:
+/* 398 */         groomedData[(bytesCopied++)] = data[i];
+/*     */       }
+/*     */     }
+/*     */ 
+/* 402 */     byte[] packedData = new byte[bytesCopied];
+/*     */ 
+/* 404 */     System.arraycopy(groomedData, 0, packedData, 0, bytesCopied);
+/*     */ 
+/* 406 */     return packedData;
+/*     */   }
+/*     */ 
+/*     */   static byte[] discardNonBase64(byte[] data)
+/*     */   {
+/* 419 */     byte[] groomedData = new byte[data.length];
+/* 420 */     int bytesCopied = 0;
+/*     */ 
+/* 422 */     for (int i = 0; i < data.length; i++) {
+/* 423 */       if (isBase64(data[i])) {
+/* 424 */         groomedData[(bytesCopied++)] = data[i];
+/*     */       }
+/*     */     }
+/*     */ 
+/* 428 */     byte[] packedData = new byte[bytesCopied];
+/*     */ 
+/* 430 */     System.arraycopy(groomedData, 0, packedData, 0, bytesCopied);
+/*     */ 
+/* 432 */     return packedData;
+/*     */   }
+/*     */ 
+/*     */   public static byte[] encode(byte[] pArray)
+/*     */   {
+/* 437 */     return encodeBase64(pArray, false);
+/*     */   }
+/*     */ 
+/*     */   public static byte[] decode(byte[] pArray) {
+/* 441 */     return decodeBase64(pArray);
+/*     */   }
+/*     */ 
+/*     */   public static String encode(String str) {
+/*     */     try {
+/* 446 */       return new String(encode(str.getBytes("UTF-8")));
+/*     */     } catch (UnsupportedEncodingException e) {
+/* 448 */       throw new RuntimeException(e.getMessage(), e);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static String decode(String cryptoStr) {
+/*     */     try {
+/* 454 */       return new String(decode(cryptoStr.getBytes()), "UTF-8");
+/*     */     } catch (UnsupportedEncodingException e) {
+/* 456 */       throw new RuntimeException(e.getMessage(), e);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   static
+/*     */   {
+/*  76 */     for (int i = 0; i < 255; i++) {
+/*  77 */       base64Alphabet[i] = -1;
+/*     */     }
+/*  79 */     for (int i = 90; i >= 65; i--) {
+/*  80 */       base64Alphabet[i] = ((byte)(i - 65));
+/*     */     }
+/*  82 */     for (int i = 122; i >= 97; i--) {
+/*  83 */       base64Alphabet[i] = ((byte)(i - 97 + 26));
+/*     */     }
+/*  85 */     for (int i = 57; i >= 48; i--) {
+/*  86 */       base64Alphabet[i] = ((byte)(i - 48 + 52));
+/*     */     }
+/*     */ 
+/*  89 */     base64Alphabet[43] = 62;
+/*  90 */     base64Alphabet[47] = 63;
+/*     */ 
+/*  92 */     for (int i = 0; i <= 25; i++) {
+/*  93 */       lookUpBase64Alphabet[i] = ((byte)(65 + i));
+/*     */     }
+/*     */ 
+/*  96 */     int i = 26; for (int j = 0; i <= 51; j++) {
+/*  97 */       lookUpBase64Alphabet[i] = ((byte)(97 + j));
+/*     */ 
+/*  96 */       i++;
+/*     */     }
+/*     */ 
+/* 100 */     i = 52; for (int j = 0; i <= 61; j++) {
+/* 101 */       lookUpBase64Alphabet[i] = ((byte)(48 + j));
+/*     */ 
+/* 100 */       i++;
+/*     */     }
+/*     */ 
+/* 104 */     lookUpBase64Alphabet[62] = 43;
+/* 105 */     lookUpBase64Alphabet[63] = 47;
+/*     */   }
+/*     */ }
+/* Location:           /Users/yp-tc-m-2496/druid-1.0.10.jar
+ * Qualified Name:     com.alibaba.druid.pool.Base64
+ * JD-Core Version:    0.6.2
+ */
+
+
+package com.yeepay.dp.etl.common.tool;
+/**
+ * thread-safe
+ * map数据源应该改成jdbctemplate
+ * @date Dec 2, 2015 6:23:29 PM
+ */
+public class DruidDataSourceCached {
+	private static final int DFT_MAX_ACTIVE = 5;
+    private static final Logger LOG = LoggerFactory.getLogger(DruidDataSourceCached.class);
+    private Map<String, DruidDataSource> ddsMap = new HashMap<>();
+    public synchronized DruidDataSource get(String driver, String url, String usr, String password, boolean encrypted, int maxActive) {
+    	DruidDataSource dds;
+    	if (ddsMap.containsKey(url)) {
+            LOG.info("{} exists!", url);
+            dds = ddsMap.get(url);
+            return dds;
+        } else {
+        	dds = newOne(driver, url, usr, password, encrypted, maxActive);
+        	ddsMap.put(url, dds);
+        	return dds;
+        }
+    }
+    private DruidDataSource newOne(String driver, String url, String usr, String password, boolean encrypted, int maxActive) {
+    	DruidDataSource dds = new DruidDataSource();
+        dds.setDriverClassName(driver);
+        dds.setUrl(url);
+        dds.setUsername(usr);
+        if(encrypted) {
+			dds.setPassword(AES.decryptFromBase64(password, "I am a fool, OK?"));
+		} else { 
+			dds.setPassword(password);
+		}
+        dds.setTestWhileIdle(false);
+        if(maxActive < 1) {
+        	dds.setMaxActive(DFT_MAX_ACTIVE);
+        } else {
+        	dds.setMaxActive(maxActive);
+        }
+		dds.setInitialSize(1);
+        if (ddsMap.put(url, dds) == null) {
+            LOG.info("{} cached", url);
+        }
+        return dds;
+    }
+	public void clearPhysically() {
+		Iterator<Entry<String, DruidDataSource>> it = ddsMap.entrySet().iterator();
+		while(it.hasNext()) {
+			Entry<String, DruidDataSource> e = it.next();
+			DruidDataSource dds = e.getValue();
+			LOG.debug("{} connections to be released!", dds.getPoolingCount());
+			dds.close();
+			it.remove();
+		}
+	}
+}
+
+
+
+package com.yeepay.dp.etl.extract.clean;
+public interface Cleaner<T> {
+  T clean();
+}
+
+
+package com.yeepay.dp.etl.extract.clean;
+public class TypeCleaner implements Cleaner<Table<String, String, Object>> {
+    private Table<String, String, Object> table;
+    private LinkedHashMap<String, String> colTypeMap;
+    private TypeParser parser = new TypeParser();
+    public TypeCleaner(Table<String, String, Object> table, LinkedHashMap<String, String> colTypeMap) {
+        this.table = table;
+        this.colTypeMap = colTypeMap;
+    }
+    /*
+     * colTypeMap中有的字段及类型，按指定类型清洗；没有的字段，统一按string清洗
+     */
+    public Table<String, String, Object> clean() {
+        if ((null != this.table) && (this.table.isEmpty())) {
+            return HashBasedTable.create();
+        }
+        Set<String> rowKeySet = this.table.rowKeySet();
+        Iterator<String> it = rowKeySet.iterator();
+        while (it.hasNext()) {
+            String rowKey = it.next();
+            Map<String, Object> kvMap = this.table.row(rowKey);
+            for (Map.Entry<String, Object> column : kvMap.entrySet()) {
+                String colName = column.getKey();
+                Object colValue = column.getValue();
+                String typeNeeded = this.colTypeMap.get(colName);
+                Object colValueCleaned = parser.parse(typeNeeded, colValue);
+                column.setValue(colValueCleaned);
+            }
+        }
+        return this.table;
+    }
+}
+
+
+package com.yeepay.dp.etl.extract.constant;
+public class TypeConst {
+    public final int DEFAULT_STRING_LENGTH;
+    public final String DEFAULT_DATE_FORMAT;
+    public final String DEFAULT_TIMESTAMP_FORMAT;
+    public TypeConst(PropertyLoader loader) {
+        this.DEFAULT_STRING_LENGTH = new Integer(loader.getValue("DEFAULT_STRING_LENGTH", "5000")).intValue();
+        this.DEFAULT_DATE_FORMAT = loader.getValue("DEFAULT_DATE_FORMAT", "yyyy-MM-dd");
+        this.DEFAULT_TIMESTAMP_FORMAT = loader.getValue("DEFAULT_TIMESTAMP_FORMAT", "yyyy-MM-dd HH:mm:ss");
+    }
+}
+
+
+package com.yeepay.dp.etl.extract.extractor;
+public abstract class AbstractExtractor implements Callable<Map<String, Table<String, String, Object>>>, Extractor {
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractExtractor.class);
+	/**
+	 * extract configuration
+	 */
+	private final EConf econf;
+	private final SourceConf sourceConf;
+	private Table<String, String, Object> table;
+	protected DruidDataSourceCached ddsCached;
+	public AbstractExtractor(EConf econf, SourceConf sourceConf, DruidDataSourceCached ddsCached) {
+		this.econf = econf;
+		this.sourceConf = sourceConf;
+		this.ddsCached = ddsCached;
+	}
+	/**
+	 * 执行逻辑
+	 *
+	 * @return
+	 * @throws Exception
+	 */
+	@Override
+	public Map<String, Table<String, String, Object>> call() throws Exception {
+		Thread.currentThread().setName(econf.getTaskId() + "|" + econf.getSourceId());
+		LOG.info("call : {}", econf);
+		extract();
+		Map<String, Table<String, String, Object>> map = Maps.newHashMapWithExpectedSize(1);
+		map.put(econf.getSourceId(), getTable());
+		return map;
+	}
+	@Override
+	public void extract() throws Exception {
+		/**
+		 * @param times
+		 *            重试次数
+		 * @param timeout
+		 *            超时时间 单位：秒
+		 * @param secondWaitedPerTime
+		 *            重试间隔时间 单位：秒
+		 */
+		new DefaultRetryPolicy(2, 5 * 60, 60).retry(new IRetry() {
+			@Override
+			public void retry() throws Exception {
+				extract0();
+			}
+		});
+		basicClean();
+		LOG.info(table.rowKeySet().size() + " records extracted.");
+	}
+	/**
+	 * for subclass to override in different kinds of extractors
+	 */
+	protected abstract void extract0() throws InterruptedException;
+	/**
+	 * 获取第一个字段作为主键
+	 * 
+	 * @return
+	 */
+	protected String getPrimaryKey() {
+		Map<String, String> colInfo = this.econf.getColNameType();
+		Preconditions.checkNotNull(colInfo, "ColNameType is null!");
+		String result = null;
+		Iterator<Map.Entry<String, String>> it = colInfo.entrySet().iterator();
+		if (it.hasNext()) {
+			Map.Entry<String, String> entry = (Map.Entry<String, String>) it.next();
+			result = entry.getKey();
+		}
+		Preconditions.checkNotNull(result, "no ColNameType contained in file econf.xml");
+		return result;
+	}
+	/**
+	 * 不管字段有没有配置，全部清洗, 有配置的按配置的要求清洗
+	 */
+	private void basicClean() {
+		if (econf.isTypeCleanNeeded()) {
+			LOG.info("{} records being cleaned...", this.table.rowKeySet().size());
+			Cleaner<Table<String, String, Object>> cleaner = new TypeCleaner(this.table, this.econf.getColNameType());
+			this.table = cleaner.clean();
+			LOG.info("{} records left after clean!", this.table.rowKeySet().size());
+		} else {
+			LOG.info("Data cleaning is not needed!");
+		}
+	}
+	public EConf getEconf() {
+		return this.econf;
+	}
+	public SourceConf getSourceConf() {
+		return this.sourceConf;
+	}
+	public Table<String, String, Object> getTable() {
+		return this.table;
+	}
+	protected void setTable(Table<String, String, Object> table) {
+		this.table = table;
+	}
+}
+
+
+
+
+
+package com.yeepay.dp.etl.extract.extractor;
+/**
+ * 提取器接口
+ *
+ * @date Dec 9, 2015 3:56:10 PM
+ */
+public interface Extractor {
+    void extract() throws Exception;
+}
+
+
+
+package com.yeepay.dp.etl.extract.extractor;
+/**
+ * 提取器工厂
+ *
+ * @date Oct 31, 2015 9:45:18 AM
+ */
+public final class ExtractorFactory {
+	private static final Logger LOG = LoggerFactory.getLogger(ExtractorFactory.class);
+	private ExtractorFactory() {
+	}
+	public static List<AbstractExtractor> getBatchInstances(List<EConf> eConfs, List<SourceConf> sourceConfs,
+			DruidDataSourceCached ddsCached) {
+		List<AbstractExtractor> extractorList = Lists.newArrayList();
+		for (int i = 0; i < eConfs.size(); i++) {
+			EConf eConf = eConfs.get(i);
+			SourceConf sourceConf = sourceConfs.get(i);
+			extractorList.add(getExtractor(eConf, sourceConf, ddsCached));
+		}
+		LOG.info(extractorList.size() + " extractors created!");
+		return extractorList;
+	}
+	public static AbstractExtractor getExtractor(EConf eConf, SourceConf sourceConf, DruidDataSourceCached ddsCached) {
+		String extractorType = eConf.getExtractorType();
+		try {
+			Class<?> clz = Class.forName(ExtractorFactory.class.getPackage().getName() + "." + extractorType);
+			Constructor<?> constructor = clz
+					.getConstructor(new Class[] { EConf.class, SourceConf.class, DruidDataSourceCached.class });
+			return (AbstractExtractor) constructor.newInstance(new Object[] { eConf, sourceConf, ddsCached });
+		} catch (ClassNotFoundException ce) {
+			throw new IllegalArgumentException(extractorType + " is not supported!");
+		} catch (Exception e) {
+			throw new RuntimeException("getExtractor error!", e);
+		}
+	}
+}
+
+
+package com.yeepay.dp.etl.extract.extractor;
+/**
+ * 关系数据库提取器
+ * @date Nov 13, 2015 3:50:27 PM
+ */
+public class RdbExtractor extends AbstractExtractor {
+	private static final Logger LOG = LoggerFactory.getLogger(RdbExtractor.class);
+	private static final int DFT_RECORD_NUMBER = 10000;//做成全局配置
+	private static final int DFT_FETCH_SIZE = 10000;//做成全局配置
+	private final RdbSourceConf rsc;
+	private JdbcTemplate jdbcTemplate;
+	public RdbExtractor(EConf econf, SourceConf source, DruidDataSourceCached ddsCached) {
+		super(econf, source, ddsCached);
+		this.rsc = ((RdbSourceConf) source);
+		this.jdbcTemplate = getJdbcTemplate();
+	}
+	@Override
+	protected void extract0() throws InterruptedException {
+		String sql = this.rsc.getSql();
+		LOG.info("Query sql : {}", sql);
+		final Table<String, String, Object> table = HashBasedTable.create(DFT_RECORD_NUMBER, getEconf().getColNameType().size());
+		final int[] count = new int[1];
+		final String primaryKeyColName = getPrimaryKey();
+		if (!Thread.currentThread().isInterrupted()) {
+			jdbcTemplate.query(sql, new RowCallbackHandler() {
+				private String colName;
+				private Object pkValue, colValue;
+				private ResultSetMetaData meta;
+				@Override
+				public void processRow(ResultSet rs) throws SQLException {
+					count[0]++;
+					if (!Thread.currentThread().isInterrupted()) {
+						meta = rs.getMetaData();
+						int columnCount = meta.getColumnCount();
+						for (int i = 1; i <= columnCount; i++) {
+							colName = meta.getColumnLabel(i).toUpperCase();
+							pkValue = rs.getObject(primaryKeyColName);
+							if (null == pkValue) {
+								LOG.warn("PrimaryKey " + primaryKeyColName + " not contained in this record");
+							} else {
+								colValue = rs.getObject(i);
+								if (colValue != null)
+									table.put(String.valueOf(pkValue), colName, colValue);
+							}
+						}
+					} else {
+						throw new RuntimeException(
+								Thread.currentThread().getName() + " interrupted in function processRow()");
+					}
+				}
+			});
+			LOG.info(count[0] + " records selected!");
+			super.setTable(table);
+		} else {
+			throw new InterruptedException("Interrupted before query!");
+		}
+	}
+	private JdbcTemplate getJdbcTemplate() {
+		DruidDataSource druidDataSource = ddsCached.get(this.rsc.getDriverClassName(), this.rsc.getUrl(),
+				this.rsc.getUsername(), this.rsc.getPassword(), this.rsc.isEncrypted(), 5);
+		JdbcTemplate jt =  new JdbcTemplate(druidDataSource);
+		jt.setFetchSize(DFT_FETCH_SIZE);
+		return jt;
+	}
+	public RdbSourceConf getRsc() {
+		return this.rsc;
+	}
+}
+
+
+package com.yeepay.dp.etl.extract.task;
+/**
+ * 提取任务 并发从多个数据源中提取数据 资源全部回收 TO DO ：做一个common工程，提供生命周期给ETL三个任务
+ * 
+ * @date Oct 29, 2015 12:53:23 AM
+ */
+public class ExtractTask implements EtlLifeCycle {
+	private static final Logger LOG = LoggerFactory.getLogger(ExtractTask.class);
+	private final List<EConf> econfs;
+	private final List<SourceConf> sourceConfs;
+	private Map<String, Table<String, String, Object>> tables;
+	private List<AbstractExtractor> extractors;
+	private boolean inited = false;
+	private int numExtractors;
+	private final DruidDataSourceCached ddsCached = new DruidDataSourceCached();
+	private ExecutorService exec;
+	private CompletionService<Map<String, Table<String, String, Object>>> completionService;
+	public ExtractTask(List<EConf> econfs, List<SourceConf> sourceConfs) {
+		this.econfs = econfs;
+		this.sourceConfs = sourceConfs;
+	}
+	@Override
+	public void init() {
+		LOG.info("init ExtractTask...");
+		removeNotActive();
+		tables = Maps.newHashMapWithExpectedSize(this.econfs.size());
+		extractors = ExtractorFactory.getBatchInstances(this.econfs, this.sourceConfs, ddsCached);
+		numExtractors = extractors.size();
+		int threadCapactiry = Runtime.getRuntime().availableProcessors();
+		int eSize = extractors.size();
+		exec = Executors.newFixedThreadPool(eSize > threadCapactiry ? threadCapactiry : eSize);
+		completionService = new ExecutorCompletionService<>(exec);
+		inited = true;
+		LOG.info("ExtractTask inited!");
+	}
+	@Override
+	public void start() {
+		if (!inited)
+			init();
+		LOG.info("ExtractTask started!");
+		if (extractors.size() > 0) {
+			submitAllExtractors();
+			try {
+				//mark
+				waitAndGetAllResult();
+				LOG.info("ExtractTask runs over successfully!");
+			} catch (Exception e) {
+				tables.clear();
+				LOG.error("This extractor failed!", e);
+				throw new RuntimeException(e);
+			} finally {
+				releaseRs();
+			}
+		} else {
+			LOG.info("No extractor!");
+		}
+	}
+	@Override
+	public void stop() {
+		LOG.info("ExtractTask is to be stoped forcibly");
+		releaseRs();
+		throw new RuntimeException("ExtractTask has been stopped!");
+	}
+	public Map<String, Table<String, String, Object>> getTables() {
+		return this.tables;
+	}
+	private void releaseRs() {
+		LOG.info("releasing resources...");
+		try {
+			exec.shutdownNow();
+			LOG.info("ThreadPool closed!");
+		} catch (Exception e) {
+			LOG.warn("ThreadPool closed uncleanly!", e);
+		}
+		try {
+			ddsCached.clearPhysically();
+		} catch (Exception e) {
+			LOG.warn("DruidDataSourceCached closed uncleanly!", e);
+		}
+	}
+	private void submitAllExtractors() {
+		for (int i = 0; i < extractors.size(); i++) {
+			AbstractExtractor extractor = extractors.get(i);// 得到一个e
+			completionService.submit(extractor);
+		}
+	}
+	private void waitAndGetAllResult() throws Exception {
+		for (int i = 0; i < numExtractors; i++) {
+			//mark,get(60, TimeUnit...s)
+			tables.putAll(completionService.take().get(30, TimeUnit.MINUTES));
+		}
+	}
+	/**
+	 * 过滤掉不活动的提取配置
+	 */
+	private void removeNotActive() {
+		for (int i = 0; i < econfs.size(); i++) {
+			if (!econfs.get(i).isActive())// ??不是两个list一样大小么？
+				econfs.remove(i);
+		}
+		for (int i = 0; i < sourceConfs.size(); i++) {
+			if (!sourceConfs.get(i).isActive())// ??不是两个list一样大小么？
+				sourceConfs.remove(i);
+		}
+	}
+}
+
+
+
+package com.yeepay.dp.etl.extract.tool;
+public class Calculagraph {
+    private Date start;
+    private Date stop;
+    public void start() {
+        this.start = new Date();
+        this.stop = this.start;
+    }
+    public void stop() {
+        this.stop = new Date();
+    }
+    public long getGap() {
+        return this.stop.getTime() - this.start.getTime();
+    }
+    public String getGapH() {
+        return (getGap() / 1000) + " seconds spent";
+    }
+}
+
+
+package com.yeepay.dp.etl.extract.tool;
+public class DateUtils {
+    public static final String DATE_ONLY_FORMAT = "yyyy-MM-dd";
+    public static final SimpleDateFormat SDF_DATE_ONLY = new SimpleDateFormat(DATE_ONLY_FORMAT);
+    public static final SimpleDateFormat SDF_HOUR_ONLY = new SimpleDateFormat("yyyy-MM-dd HH");
+    public static final SimpleDateFormat SDF_DATE = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public static final SimpleDateFormat SDF_DATE_MILL = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS000");
+    public static Date getHourStart(Date date,int hour) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
+    }
+    public static Date getDayStart(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(11, 0);
+        calendar.set(12, 0);
+        calendar.set(13, 0);
+        calendar.set(14, 0);
+        return calendar.getTime();
+    }
+    @Deprecated
+    public static Date getDayEnd(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.add(Calendar.DAY_OF_MONTH, 1);
+        calendar.add(Calendar.MILLISECOND, -1);
+        return calendar.getTime();
+    }
+    public static Date getMonthStart(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(11, 0);
+        calendar.set(12, 0);
+        calendar.set(13, 0);
+        calendar.set(14, 0);
+        return calendar.getTime();
+    }
+    @Deprecated
+    public static Date getMonthEnd(Date date) {
+        Date monthend = getMonthStart(date);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(monthend);
+        calendar.add(Calendar.MONTH, 1);
+        calendar.add(Calendar.MILLISECOND, -1);
+        return calendar.getTime();
+    }
+    public static Date addDay(Date date, int day) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(5, day);
+        return calendar.getTime();
+    }
+    public static Date addMonth(Date date, int day) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(2, day);
+        return calendar.getTime();
+    }
+    public static Date addYear(Date date, int day) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(1, day);
+        return calendar.getTime();
+    }
+    public static Date addHour(Date date, int hour) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(10, hour);
+        return calendar.getTime();
+    }
+    public static Date parseDateOnly(String line)
+            throws ParseException {
+        return SDF_DATE_ONLY.parse(line);
+    }
+    public static Date parseDate(String line) throws ParseException {
+        return SDF_DATE.parse(line);
+    }
+    public static Date parseHourOnly(String line)
+            throws ParseException {
+        return SDF_HOUR_ONLY.parse(line);
+    }
+    public static String formatDate(Date date, String format) {
+        return new SimpleDateFormat(format).format(date);
+    }
+    public static String formatDate(Date date) {
+        return SDF_DATE.format(date);
+    }
+    public static String formatDateMillon(Date date) {
+        return SDF_DATE_MILL.format(date);
+    }
+    public static String formatDateOnly(Date date) {
+        return SDF_DATE_ONLY.format(date);
+    }
+    public static String getTimeGap(Date begin, Date end) {
+        long between = 0L;
+        try {
+            between = end.getTime() - begin.getTime();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        long day = between / 86400000L;
+        long hour = between / 3600000L - day * 24L;
+        long min = between / 60000L - day * 24L * 60L - hour * 60L;
+        long s = between / 1000L - day * 24L * 60L * 60L - hour * 60L * 60L - min * 60L;
+        long ms = between - day * 24L * 60L * 60L * 1000L - hour * 60L * 60L * 1000L - min * 60L * 1000L - s * 1000L;
+        return day + "天" + hour + "小时" + min + "分" + s + "秒" + ms + "毫秒";
+    }
+    public static void main(String[] args) {
+        System.out.println(addDay(new Date(),-1));
+        System.out.println(getDayStart(addDay(new Date(),-1)));
+        System.out.println(formatDate(addDay(new Date(),-1),"yyyy-MM-dd"));
+        System.out.println(addHour(new Date(), -26));
+        System.out.println(getHourStart(new Date(), 1));
+        System.out.println(getDayStart(new Date()));
+        System.out.println(getHourStart(getDayStart(new Date()),1));
+        System.out.println(addHour(getHourStart(getDayStart(new Date()),1), 1));
+        System.out.println(getDayStart(new Date()));
+    }
+    public static Date getFormattedDate(long ts) {
+        return new Date(ts);
+    }
+}
+
+
+package com.yeepay.dp.etl.extract.tool;
+public class PropertyLoader {
+    private static final Logger LOG = Logger.getLogger(PropertyLoader.class);
+    private Properties p = new Properties();
+    public PropertyLoader(String propFilePath) {
+        load(propFilePath);
+    }
+    public void load(String propFilePath) {
+    }
+    public String getValue(String key, String dftValue) {
+        String p_value = this.p.getProperty(key);
+        return null == p_value ? dftValue : p_value;
+    }
+}
+
+
+package com.yeepay.dp.etl.extract.tool;
+/**
+ * 这个工具已经定制化成Extractor的了，不是通用工具了
+ *
+ * @date Oct 29, 2015 1:32:01 AM
+ */
+public class TableUtils {
+    private static final Logger LOG = LoggerFactory.getLogger(TableUtils.class);
+    public static void put(Table<String, String, Object> table,
+                           String rowKey, Map<String, Object> kvMap) {
+        Preconditions.checkNotNull(table, "tableAdded is null");
+        Preconditions.checkNotNull(rowKey, "rowKey is null");
+        Preconditions.checkNotNull(kvMap, "kvMap is null");
+        if (kvMap.entrySet().size() == 0) {
+            LOG.warn("rowKey={},kvMap.entrySet().size() == 0", rowKey);
+            return;
+        }
+        //sql查出的重复数据不再放入table了
+        if (table.containsRow(rowKey)) {
+            return;
+        }
+        for (Map.Entry<String, Object> kv : kvMap.entrySet()) {//??改成kv都不可为空null的类型。
+            if ((null != kv.getKey()) && (null != kv.getValue()))//putAll()
+                table.put(rowKey, kv.getKey(), kv.getValue());
+        }
+    }
+    public static String tableToString(Table<String, String, Object> table) {
+        Preconditions.checkNotNull(table);
+        StringBuilder builder = new StringBuilder();
+        for (String rowKey : table.rowKeySet()) {
+            builder
+                    .append(rowKey)
+                    .append("=>{")
+                    .append(
+                            Joiner.on(", ").withKeyValueSeparator(" = ")
+                                    .join(table.row(rowKey))).append("}")
+                    .append(System.lineSeparator());
+        }
+        return builder.toString();
+    }
+    public static void remove(Table<String, String, Object> table, String rowKey) {
+        Preconditions.checkNotNull(table, "table is null");
+        if (Strings.isNullOrEmpty(rowKey))
+            return;
+        if (table.containsRow(rowKey)) {
+            Map<String, Object> row = table.row(rowKey);
+            row.clear();
+        }
+    }
+    public static String tablesToString(
+            Map<String, Table<String, String, Object>> tables) {
+        Preconditions.checkNotNull(tables);
+        return Joiner.on(System.lineSeparator()).withKeyValueSeparator(" => ")
+                .join(tables);
+    }
+    public static Table<String, String, Object> getEmptyTable() {
+        return HashBasedTable.create(0, 0);
+    }
+    public static void main(String[] args) throws InstantiationException, IllegalAccessException {
+        Table<String, String, Object> table1 = HashBasedTable.create();
+        table1.put("record1", "col1", "11");
+        table1.put("record1", "col2", "12");
+        table1.put("record2", "col1", "21");
+        table1.put("record2", "col3", "31");
+        Table<String, String, Object> table2 = HashBasedTable.create();
+        table2.put("record2", "col1", "21new");
+        table2.put("record2", "col2", "22new");
+        table2.put("record3", "col1", "31");
+        table2.put("record3", "col2", "32");
+        Map<String, Table<String, String, Object>> tables = Maps.newHashMap();
+        System.out.println(tableToString(table1));
+        System.out.println(table1.toString());
+        TableUtils.remove(table1, "record1");
+        tables.put("table1", table1);
+        tables.put("table2", table2);
+        System.out.println(tablesToString(tables));
+        System.out.println(table1);
+    }
+}
+
+
+package com.yeepay.dp.etl.extract.type;
+abstract class AbstractTypeParser<T> {
+  public static final TypeConst TYPE_CONST = new TypeConst(new PropertyLoader(
+      "prop/typeconst.txt"));
+  protected String specs = null;
+  protected Object value;
+  public abstract T parse();
+  public void setSpecs(String colDesc) {
+    String[] splits = colDesc.split(",");
+    Preconditions.checkArgument(splits.length <= 2,
+        "Error colNameType configured in econf.xml");
+    if (splits.length == 2)
+      this.specs = splits[1];
+    else
+      this.specs = null;
+  }
+  public void setValue(Object value) {
+    this.value = value;
+  }
+}
+
+
+package com.yeepay.dp.etl.extract.type;
+class BigDecimalParser extends AbstractTypeParser<BigDecimal>
+{
+  public BigDecimal parse()
+  {
+    if ((this.value instanceof BigDecimal)) {
+      return (BigDecimal)this.value;
+    }
+    return new BigDecimal(String.valueOf(this.value).trim());
+  }
+}
+
+
+package com.yeepay.dp.etl.extract.type;
+class BooleanParser extends AbstractTypeParser<Boolean> {
+  public Boolean parse() {
+    if ((this.value instanceof Boolean)) {
+      return (Boolean) this.value;
+    }
+    return Boolean.valueOf(String.valueOf(this.value).trim());
+  }
+}
+
+
+package com.yeepay.dp.etl.extract.type;
+class DateParser extends AbstractTypeParser<Date> {
+  public Date parse() {
+    String format = TYPE_CONST.DEFAULT_DATE_FORMAT;
+    if (null != this.specs) {
+      format = this.specs;
+    }
+    SimpleDateFormat sdf = new SimpleDateFormat(format);
+    try {
+      if ((this.value instanceof Date)) {
+        return sdf.parse(sdf.format(this.value));
+      }
+      String strValue = String.valueOf(this.value).trim();
+      int len = format.length();
+      if (strValue.length() > len) {
+        strValue = strValue.substring(0, len);
+      }
+      return sdf.parse(strValue);
+    } catch (ParseException e) {
+    }
+    return null;
+  }
+}
+
+
+package com.yeepay.dp.etl.extract.type;
+public class DefaultParser extends AbstractTypeParser<Object> {
+	@Override
+	public Object parse() {
+		return this.value;
+	}
+}
+
+
+
+package com.yeepay.dp.etl.extract.type;
+class DoubleParser extends AbstractTypeParser<Double>
+{
+  public Double parse()
+  {
+    if ((this.value instanceof Double)) {
+      return (Double)this.value;
+    }
+    return Double.valueOf(String.valueOf(this.value).trim());
+  }
+}
+
+
+package com.yeepay.dp.etl.extract.type;
+class FloatParser extends AbstractTypeParser<Float>
+{
+  public Float parse()
+  {
+    if ((this.value instanceof Float)) {
+      return (Float)this.value;
+    }
+    return Float.valueOf(String.valueOf(this.value).trim());
+  }
+}
+
+
+package com.yeepay.dp.etl.extract.type;
+class IntegerParser extends AbstractTypeParser<Integer>
+{
+  public Integer parse()
+  {
+    if ((this.value instanceof Integer)) {
+      return (Integer)this.value;
+    }
+    return Integer.valueOf(String.valueOf(this.value).trim());
+  }
+}
+
+
+package com.yeepay.dp.etl.extract.type;
+class LongParser extends AbstractTypeParser<Long>
+{
+  public Long parse()
+  {
+    if (!(this.value instanceof Long)) {
+      return Long.valueOf(String.valueOf(this.value).trim());
+    }
+    return (Long)this.value;
+  }
+}
+
+
+package com.yeepay.dp.etl.extract.type;
+/**
+ * bug fixed
+ * 
+ * @date Oct 28, 2015 11:58:10 PM
+ */
+class StringParser extends AbstractTypeParser<String> {
+	public String parse() {
+		String strValue = "";
+		if ((this.value instanceof String))
+			strValue = (String) this.value;
+		else {
+			strValue = String.valueOf(this.value);
+		}
+		return getSubIfMust(strValue);
+	}
+	/**
+	 * bug fixed. 汉字字符与DB2中varchar不一个概念，导致越长。
+	 * 
+	 * @param strValue
+	 * @return
+	 */
+	private String getSubIfMust(String strValue) {
+		int byteLenLimit = TYPE_CONST.DEFAULT_STRING_LENGTH;
+		if (null != this.specs) {
+			byteLenLimit = Integer.parseInt(this.specs);
+		}
+		Preconditions.checkArgument(byteLenLimit >= 0, this.specs + " must not be negative! value=" + this.value);
+		int strLen = strValue.length();
+		if (isAllAscii(strValue)) {// 全是码
+			if (strLen > byteLenLimit) {
+				return strValue.substring(0, byteLenLimit);
+			}
+			return strValue;
+		} else {// 有汉字等其它
+			for (int i = strLen; i > 0; i--) {
+				String substr = strValue.substring(0, i);
+				if (substr.getBytes().length <= byteLenLimit) {
+					return substr;
+				}
+			}
+		}
+		throw new RuntimeException("Error in StringParser!");
+	}
+	/**
+	 * 全是单字节字符
+	 * 
+	 * @param s
+	 * @return
+	 */
+	private boolean isAllAscii(String s) {
+		return s.getBytes().length == s.length();
+	}
+}
+
+
+package com.yeepay.dp.etl.extract.type;
+class TimestampParser extends AbstractTypeParser<Timestamp> {
+    public Timestamp parse() {
+        String format = TYPE_CONST.DEFAULT_TIMESTAMP_FORMAT;
+        if (null != this.specs) {
+            format = this.specs;
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        try {
+            if ((this.value instanceof Timestamp)) {
+                return new Timestamp(sdf.parse(sdf.format(this.value)).getTime());
+            }
+            String strValue = String.valueOf(this.value).trim();
+            int len = format.length();
+            if (strValue.length() > len) {
+                strValue = strValue.substring(0, len);
+            }
+            return new Timestamp(sdf.parse(strValue).getTime());
+        } catch (ParseException e) {
+        }
+        return null;
+    }
+    public static void main(String[] args) {
+        AbstractTypeParser<Timestamp> parser = new TimestampParser();
+        //Timestamp d = new Timestamp(System.currentTimeMillis());
+        String d = "2016-02-26 02:02:00.0";
+        parser.setValue(d);
+        parser.setSpecs("timestamp,yyyy-MM-dd");
+        System.out.println(parser.parse());
+    }
+}
+
+
+package com.yeepay.dp.etl.extract.type;
+/**
+ * 类型转换器
+ *
+ * @date Nov 18, 2015 2:24:27 PM
+ */
+public class TypeParser {
+    private final StringParser STRING_PARSER = new StringParser();
+    private final BigDecimalParser BIGDECIMAL_PARSER = new BigDecimalParser();
+    private final BooleanParser BOOLEAN_PARSER = new BooleanParser();
+    private final DateParser DATE_PARSER = new DateParser();
+    private final DoubleParser DOUBLE_PARSER = new DoubleParser();
+    private final FloatParser FLOAT_PARSER = new FloatParser();
+    private final IntegerParser INTEGER_PARSER = new IntegerParser();
+    private final LongParser LONG_PARSER = new LongParser();
+    private final TimestampParser TIMESTAMP_PARSER = new TimestampParser();
+    private final DefaultParser Default_PARSER = new DefaultParser();
+    public Object parse(String colDesc, Object value) {
+        if (null == value) {
+            return null;
+        }
+        if (Strings.isNullOrEmpty(colDesc)) {
+            colDesc = "string";
+        } else {
+            colDesc = colDesc.toLowerCase();
+        }
+        AbstractTypeParser<?> parser = null;
+        if (colDesc.startsWith("string")) {
+            STRING_PARSER.setSpecs(colDesc);
+            STRING_PARSER.setValue(value);
+            parser = STRING_PARSER;
+        } else if (colDesc.equalsIgnoreCase("long")) {
+            LONG_PARSER.setSpecs(colDesc);
+            LONG_PARSER.setValue(value);
+            parser = LONG_PARSER;
+        } else if (colDesc.startsWith("timestamp")) {
+            TIMESTAMP_PARSER.setSpecs(colDesc);
+            TIMESTAMP_PARSER.setValue(value);
+            parser = TIMESTAMP_PARSER;
+        } else if (colDesc.startsWith("date")) {
+            DATE_PARSER.setSpecs(colDesc);
+            DATE_PARSER.setValue(value);
+            parser = DATE_PARSER;
+        } else if (colDesc.equalsIgnoreCase("integer")) {
+            INTEGER_PARSER.setSpecs(colDesc);
+            INTEGER_PARSER.setValue(value);
+            parser = INTEGER_PARSER;
+        } else if (colDesc.equalsIgnoreCase("boolean")) {
+            BOOLEAN_PARSER.setSpecs(colDesc);
+            BOOLEAN_PARSER.setValue(value);
+            parser = BOOLEAN_PARSER;
+        } else if (colDesc.equalsIgnoreCase("bigdecimal")) {
+            BIGDECIMAL_PARSER.setSpecs(colDesc);
+            BIGDECIMAL_PARSER.setValue(value);
+            parser = BIGDECIMAL_PARSER;
+        } else if (colDesc.equalsIgnoreCase("double")) {
+            DOUBLE_PARSER.setSpecs(colDesc);
+            DOUBLE_PARSER.setValue(value);
+            parser = DOUBLE_PARSER;
+        } else if (colDesc.equalsIgnoreCase("float")) {
+            FLOAT_PARSER.setSpecs(colDesc);
+            FLOAT_PARSER.setValue(value);
+            parser = FLOAT_PARSER;
+        } else {
+        	Default_PARSER.setSpecs(colDesc);
+        	Default_PARSER.setValue(value);
+        	parser = Default_PARSER;
+        }
+        return parser.parse();
+    }
+}
+
+
+package com.yeepay.dp.etl.transform.exception;
+public class DataSetNotFoundException extends RuntimeException{
+  private static final long serialVersionUID = -8887706327719521831L;
+  public DataSetNotFoundException() {
+    super();
+  }
+  public DataSetNotFoundException(String msg) {
+    super(msg);
+  }
+}
+
+
+
+package com.yeepay.dp.etl.transform.exception;
+public class TransformerRuntimeException extends RuntimeException {
+  private static final long serialVersionUID = -8887706327719521831L;
+  public TransformerRuntimeException() {
+    super();
+  }
+  public TransformerRuntimeException(String msg) {
+    super(msg);
+  }
+  public TransformerRuntimeException(Throwable cause) {
+    super(cause);
+  }
+  public TransformerRuntimeException(String message, Throwable cause) {
+    super(message, cause);
+  }
+}
+
+
+
+package com.yeepay.dp.etl.transform.task;
+/**
+ * 
+ * @date Oct 23, 2015 6:10:07 PM
+ */
+public interface TransformTask extends Runnable {
+  /**
+   * 得到转换任务的结果
+   * 一个表，加载到数据仓库
+   * @return
+   */
+  public Table<String, String, Object> getTableToLoad();
+}
+
+
+
+package com.yeepay.dp.etl.transform.task;
+/**
+ * v3.0
+ * @date Oct 23, 2015 5:30:22 PM
+ */
+public class TransformTaskImpl implements TransformTask {
+  /**
+   * 待加载到数据仓库的表名
+   */
+  private String tableNameToLoad;
+  /**
+   * 待加载到数据仓库的表
+   */
+  private Table<String, String, Object> tableToLoad;
+  /**
+   * 转换配置
+   * 排好顺序的：主表（如果有的话），合并表，替换，在配置时保持正确的顺序
+   */
+  private List<TConf> tconfList;
+  /**
+   * 转换的表名和数据Map
+   */
+  private Map<String, Table<String, String, Object>> tableMap;
+  private static final Logger LOG = Logger.getLogger(TransformTaskImpl.class);
+  public TransformTaskImpl(List<TConf> tconfList,
+      Map<String, Table<String, String, Object>> tableMap) {
+    this.tconfList = tconfList;
+    this.tableMap = tableMap;
+  }
+  @Override
+  public void run() {
+    if (tconfList == null) {
+      LOG.warn("tconfList is null!");
+      tableToLoad = TableUtils.getEmptyTable();
+      return;
+    }
+    try {
+      for (TConf tconf : tconfList) {
+        LOG.info(tconf);
+        if (!tconf.isActive()) {
+          continue;
+        }
+        String tableName = tconf.getTableName();
+        if ("primarytable".equals(tconf.getTransformType().toLowerCase())) {//TO 是否可以写在transformtype,不用新加这个boolean字段
+          if (tableNameToLoad != null || tableToLoad != null) {
+            throw new IllegalArgumentException("Master table has been set!");
+          }
+          LOG.info("set primary table:" + tableName);
+          tableNameToLoad = tableName;
+          tableToLoad = getTableByName(tableName);
+          LOG.info(tableToLoad.rowKeySet().size() + " records!");
+        } else {
+          if (tableNameToLoad == null || tableToLoad == null) {
+            throw new IllegalArgumentException("Master table not existed!");
+          }
+          Map<String, Table<String, String, Object>> tableMapForT = null;
+          if (Strings.isNullOrEmpty(tableName)) {//表名为空，说明不需要数据表，故不需要合并到主表
+            tableMapForT = putNotNullTableToMasterMap(null);//会放置主表
+          } else {
+            tableMapForT = putNotNullTableToMasterMap(tableName);
+          }
+          AbstractTransformer t = TransformerFactory
+              .getSpecificTransformer(tableMapForT, tconf);
+          t.transform();
+          tableToLoad = t.getMasterTable();
+          LOG.info(tableToLoad.rowKeySet().size()
+              + " records left after this transformation!");
+        }
+      }
+    } catch (Exception e) {
+      LOG.error("转换结束，报异常", e);
+      throw new TransformerRuntimeException("转换报异常:", e);
+    }
+  }
+  /**
+   * 主表加转化表
+   * @param tableName
+   * @return
+   */
+  private Map<String, Table<String, String, Object>> putNotNullTableToMasterMap(
+      String tableName) {
+    Map<String, Table<String, String, Object>> tables = new LinkedHashMap<>(
+        2);
+    tables.put(tableNameToLoad, tableToLoad);
+    if (!Strings.isNullOrEmpty(tableName)) {
+      String[] tableNames = tableName.split(",");
+      for (int i = 0; i < tableNames.length; i++) {
+        String cur_tableName = tableNames[i].trim();
+        Table<String, String, Object> table = getTableByName(cur_tableName);
+        LOG.info(table.rowKeySet().size() + " records in table[" + cur_tableName
+            + "]");
+        if (!Strings.isNullOrEmpty(cur_tableName) && table != null) {
+          tables.put(cur_tableName, getTableByName(cur_tableName));
+        }
+      }
+    }
+    return tables;
+  }
+  /**
+   * 查找指定名称的数据源数据
+   * @return throw DataSetNotFoundException if not found
+   */
+  protected Table<String, String, Object> getTableByName(
+      String targetTableName) {
+    Table<String, String, Object> targetTable = tableMap.get(targetTableName);
+    if (targetTable != null) {
+      return targetTable;
+    } else {
+      throw new DataSetNotFoundException("Dataset[" + targetTableName
+          + "] not found in set:" + tableMap.keySet());
+    }
+  }
+  @Override
+  public Table<String, String, Object> getTableToLoad() {
+    return tableToLoad;
+  }
+}
+
+
+
+package com.yeepay.dp.etl.transform.task;
+/**
+ * v3.0
+ * @date Oct 23, 2015 5:30:22 PM
+ */
+public class TTTT implements TransformTask {
+  /**
+   * 待加载到数据仓库的表名
+   */
+  private String tableNameToLoad;
+  /**
+   * 待加载到数据仓库的表
+   */
+  private Table<String, String, Object> tableToLoad;
+  /**
+   * 转换配置
+   * 排好顺序的：主表（如果有的话），合并表，替换，在配置时保持正确的顺序
+   */
+  private List<TConf> tconfList;
+  /**
+   * 转换的表名和数据Map
+   */
+  private Map<String, Table<String, String, Object>> tableMap;
+  private static final Logger LOG = Logger.getLogger(TransformTaskImpl.class);
+  public TTTT(List<TConf> tconfList,
+      Map<String, Table<String, String, Object>> tableMap) {
+    this.tconfList = tconfList;
+    this.tableMap = tableMap;
+  }
+  @Override
+  public void run() {
+    if (tconfList == null) {
+      LOG.warn("tconfList is null!");
+      tableToLoad = TableUtils.getEmptyTable();
+      return;
+    }
+    try {
+      for (TConf tconf : tconfList) {
+        LOG.info(tconf);
+        if (!tconf.isActive()) {
+          continue;
+        }
+        String tableName = tconf.getTableName();
+        if ("primarytable".equals(tconf.getTransformType().toLowerCase())) {//TODO 是否可以写在transformtype,不用新加这个boolean字段
+          if (tableNameToLoad != null || tableToLoad != null) {
+            throw new IllegalArgumentException("Master table has existed!");
+          }
+          LOG.info("set primary table:" + tableName);
+          tableNameToLoad = tableName;
+          tableToLoad = getTableByName(tableName);
+          LOG.info(tableToLoad.rowKeySet().size() + " records!");
+        } else {
+          if (tableNameToLoad == null || tableToLoad == null) {
+            throw new IllegalArgumentException("Master table not existed!");
+          }
+          Map<String, Table<String, String, Object>> tableMap = null;
+          if (Strings.isNullOrEmpty(tableName)) {//表名为空，说明不需要数据表，故不需要合并到主表
+            tableMap = putNotNullTableToMasterMap(null, null);//会放置主表
+          } else {
+            Table<String, String, Object> table = getTableByName(tableName);
+            LOG.info(table.rowKeySet().size() + " records in table[" + tableName
+                + "]");
+            tableMap = putNotNullTableToMasterMap(tableName, table);
+          }
+          AbstractTransformer t = TransformerFactory
+              .getSpecificTransformer(tableMap, tconf);
+          t.transform();
+          tableToLoad = t.getMasterTable();
+          LOG.info(tableToLoad.rowKeySet().size()
+              + " records left after this transformation!");
+        }
+      }
+    } catch (Exception e) {
+      LOG.error("转换结束，报异常", e);
+      throw new TransformerRuntimeException("转换报异常:", e);
+    }
+  }
+  private Map<String, Table<String, String, Object>> putNotNullTableToMasterMap(
+      String tableName, Table<String, String, Object> table) {
+    Map<String, Table<String, String, Object>> tables = new LinkedHashMap<String, Table<String, String, Object>>(
+        2);
+    tables.put(tableNameToLoad, tableToLoad);
+    if (!Strings.isNullOrEmpty(tableName) && table != null) {
+      tables.put(tableName, getTableByName(tableName));
+    }
+    return tables;
+  }
+  /**
+   * 查找指定名称的数据源数据
+   * @return throw DataSetNotFoundException if not found
+   */
+  protected Table<String, String, Object> getTableByName(
+      String targetTableName) {
+    Table<String, String, Object> targetTable = tableMap.get(targetTableName);
+    if (targetTable != null) {
+      return targetTable;
+    } else {
+      throw new DataSetNotFoundException("Dataset[" + targetTableName
+          + "] not found in set:" + tableMap.keySet());
+    }
+  }
+  @Override
+  public Table<String, String, Object> getTableToLoad() {
+    return tableToLoad;
+  }
+}
+
+
+
+package com.yeepay.dp.etl.transform.tool;
+/**
+ * 计时器
+ * Methods stop and start must come in pairs.
+ * Avoid nested use
+ * @date Sep 23, 2015 10:16:37 AM
+ */
+public class Calculagraph {
+  /**
+   * 开始计时点 
+   */
+  private Date start;
+  /**
+   * 结束计时点
+   */
+  private Date stop;
+  public void start() {
+    start = new Date();
+    stop = start;
+  }
+  public void stop() {
+    stop = new Date();
+  }
+  public long getGap() {
+    return stop.getTime() - start.getTime();
+  }
+  public String getGapH() {
+    return (getGap() / 1000) + " seconds spent!";
+  }
+}
+
+
+
+package com.yeepay.dp.etl.transform.tool;
+public class StringUtils {
+  private StringUtils() {}
+  /**
+   * 按字节截断
+   * @param str
+   * @param maxlen
+   * @return
+   */
+  public static String removeOverlap(String str, int maxlen) {
+    int strLen = str.length();
+    if (isAllAscii(str)) {// 全是码
+      if (strLen > maxlen) {
+        return str.substring(0, maxlen);
+      } else {
+        return str;
+      }
+    } else {// 有汉字等其它
+      for (int i = strLen; i > 0; i--) {
+        String substr = str.substring(0, i);
+        if (substr.getBytes().length <= maxlen) {
+          return substr;
+        }
+      }
+      return str;
+    }
+  }
+  public static boolean isAllAscii(String s) {
+    return s.getBytes().length == s.length();
+  }
+}
+
+
+
+package com.yeepay.dp.etl.transform.tool;
+public class TableUtils {
+  /**
+   * @param tableAdded Not null
+   * @param rowKey Not null
+   * @param kvMap Not null. Filter null, 'Cause entry will not be put in the table if either the key or the value is null 
+   */
+  public static void put(Table<String, String, Object> tableAdded,
+      String rowKey, Map<String, Object> kvMap) {
+    Preconditions.checkNotNull(tableAdded, "tableAdded is null");
+    Preconditions.checkNotNull(rowKey, "rowKey is null");
+    Preconditions.checkNotNull(kvMap, "kvMap is null");
+    for (Entry<String, Object> kv : kvMap.entrySet()) {
+      if (kv.getKey() != null && kv.getValue() != null)
+        tableAdded.put(rowKey, kv.getKey(), kv.getValue());
+    }
+  }
+  public static String tableToString(Table<String, String, Object> table) {
+    Preconditions.checkNotNull(table);
+    StringBuilder builder = new StringBuilder();
+    for (String rowKey : table.rowKeySet()) {
+      builder
+          .append(rowKey)
+          .append("=>{")
+          .append(
+              Joiner.on(", ").withKeyValueSeparator(" = ")
+                  .join(table.row(rowKey))).append("}")
+          .append(System.lineSeparator());
+    }
+    return builder.toString();
+  }
+  /**
+   * delete one row identified by rowKey if exist
+   * throw NullPointerException if null
+   * @param rowKey return table, if rowKey is null 
+   */
+  public static void remove(Table<String, String, Object> table, String rowKey) {
+    Preconditions.checkNotNull(table, "table is null");
+    if (Strings.isNullOrEmpty(rowKey))
+      return;
+    if (table.containsRow(rowKey)) {
+      Map<String, Object> row = table.row(rowKey);
+      row.clear();//这样之后，table.row(rowKey)就为空了。
+    }
+  }
+  public static String tablesToString(
+      Map<String, Table<String, String, Object>> tables) {
+    Preconditions.checkNotNull(tables);
+    return Joiner.on(System.lineSeparator()).withKeyValueSeparator(" => ")
+        .join(tables);
+  }
+  public static Table<String, String, Object> getEmptyTable() {
+    return HashBasedTable.create(0, 0);
+  }
+}
+
+
+
+package com.yeepay.dp.etl.transform.transformer;
+/**
+ * 数据合并转换器
+ * @date Oct 1, 2015 12:17:42 PM
+ */
+public abstract class AbstractMergeTransformer extends AbstractTransformer {
+  private static final Logger LOG = Logger
+      .getLogger(AbstractMergeTransformer.class);
+  public AbstractMergeTransformer(
+      Map<String, Table<String, String, Object>> tables, TConf tConf) {
+    super(tables, tConf);
+  }
+  @Override
+  public void transform0() {
+    if (isTablesNull()) {
+      LOG.warn("Datasets reference is null! No transformer will be conducted!");
+      LOG.info(this.getClass().getSimpleName() + " finished.");
+      return;
+    }
+    if (tables.size() == 1) {
+      handleSingleTable();
+    } else {
+      handleMultiTable();
+    }
+  }
+  /**
+   * if only one table, no transformation action is needed. Just return this table.
+   */
+  private void handleSingleTable() {
+    masterTable = tables.entrySet().iterator().next().getValue();
+  }
+  /**
+   * 把第一个表设置成主表，后面的表往第一个表上追加
+   */
+  private void handleMultiTable() {
+    Table<String, String, Object> masterTable = null;
+    Iterator<Entry<String, Table<String, String, Object>>> it = tables
+        .entrySet().iterator();
+    while (it.hasNext()) {
+      Entry<String, Table<String, String, Object>> tableEntry = it.next();
+      String tableName = tableEntry.getKey();
+      Table<String, String, Object> table = tableEntry.getValue();
+      if (null == masterTable) {
+        LOG.info("Setting master table: " + tableName);
+        masterTable = table;
+      } else {
+        LOG.info("Merging table " + tableName + ", size:" + table.rowKeySet().size());
+        merge(table, masterTable);
+        it.remove();
+      }
+    }
+    this.masterTable = masterTable;
+  }
+  /**
+   * put data in table to tableToLoad
+   * @param table 要全到大表的小表
+   * @param tableToLoad 长大的大表
+   */
+  protected abstract void merge(Table<String, String, Object> table,
+      Table<String, String, Object> tableToLoad);
+}
+
+
+
+package com.yeepay.dp.etl.transform.transformer;
+/**
+ * 抽象替换转换器
+ * @date Oct 9, 2015 3:22:04 PM
+ */
+public abstract class AbstractReplaceTransformer extends AbstractTransformer {
+  private static final Logger LOG = Logger
+      .getLogger(AbstractReplaceTransformer.class);
+  protected Table<String, String, Object> leftDataSet;
+  public AbstractReplaceTransformer(Map<String, Table<String, String, Object>> dataSets, TConf tConf) {
+    super(dataSets, tConf);
+  }
+  @Override
+  public void transform0() {
+    prepareReplace();
+    replaceTransform();
+    afterReplace();
+  }
+  /**
+   * get primary table to be replaced
+   */
+  private void prepareReplace() {
+    LOG.info("RuleDesc: " + tConf.getRuleDesc());
+    if (isTablesNull()) {
+      LOG.warn("Datasets reference is null! No transformer will be conducted!");
+      LOG.info("DefaultMergeTransformer finished.");
+      return;
+    }
+    verifyRule();
+    String leftDataSetName = retrieveLeftDataSet();
+    leftDataSet = getTableByName(leftDataSetName);
+  }
+  /**
+   * get data to be loaded 
+   */
+  protected void afterReplace() {
+    masterTable = leftDataSet;
+  }
+  /**
+   * 从规则中提取待替换的数据源名
+   * 如dataset1:age,name=>:100,fyy
+   * @return dataset1
+   */
+  protected String retrieveLeftDataSet() {
+    String ruleDesc = tConf.getRuleDesc();
+    String[] splits = ruleDesc.split(":", 2);
+    return splits[0];
+  }
+  abstract protected void replaceTransform();
+  abstract protected void verifyRule();
+}
+
+
+
+package com.yeepay.dp.etl.transform.transformer;
+/**
+ * 数据转换器父类
+ * 负责处理主要的业务逻辑
+ * @date Sep 28, 2015 4:19:54 PM
+ */
+public abstract class AbstractTransformer {
+  private static final Logger LOG = Logger.getLogger(AbstractTransformer.class);
+  /**
+   * 待处理多个数据集// Map必须是kv都不可为空的数据结构
+   */
+  protected Map<String, Table<String, String, Object>> tables;
+  /**
+   * 处理后的最终数据集，待加载到数据仓库
+   */
+  protected Table<String, String, Object> masterTable;
+  protected TConf tConf;
+  protected int transformedRows = 0;
+  private final Calculagraph calculagraph = new Calculagraph();
+  public AbstractTransformer(Map<String, Table<String, String, Object>> tables,
+      TConf tConf) {
+    this.tables = tables;
+    this.tConf = tConf;
+  }
+  public Table<String, String, Object> getMasterTable() {
+    if (null == masterTable) {
+      return TableUtils.getEmptyTable();
+    }
+    return masterTable;
+  }
+  /**
+   * 查找指定名称的数据源数据
+   * @return throw DataSetNotFoundException if not found
+   */
+  protected Table<String, String, Object> getTableByName(String targetTableName) {
+    Table<String, String, Object> targetTable = tables.get(targetTableName);
+    if(targetTable != null) {
+      return targetTable;
+    } else {
+      throw new DataSetNotFoundException("Dataset[" + targetTableName
+          + "] not found in set:" + tables.keySet());
+    }
+  }
+  public boolean isTablesNull() {
+    return tables == null;
+  }
+  public void transform() {
+    LOG.info("Transformer [ID=" + this.tConf.getId() + "] starts to transform...");
+    calculagraph.start();
+    transform0();
+    LOG.info(transformedRows + " records transformed!");
+    LOG.info("Transformer [ID=" + this.tConf.getId() + "] finished!");
+    calculagraph.stop();
+    LOG.info(calculagraph.getGapH());
+  }
+  protected abstract void transform0();
+}
+
+
+
+package com.yeepay.dp.etl.transform.transformer;
+/**
+ * 列替换转换器
+ * 表1：字段1=>表2：字段2
+ * 规则含义：把表1的字段2替换成表2的字段2，条件是字段1等于表2的主键
+ * 如果表1记录中不存在字段1，则警告；如果表1中不存在字段2，依然会替换
+ * 
+ * @date Oct 22, 2015 6:08:11 PM
+ */
+public class ColCondReplaceTransformer extends RowKeyCondReplaceTransformer {
+  private static final Logger LOG = Logger
+      .getLogger(ColCondReplaceTransformer.class);
+  public ColCondReplaceTransformer(
+      Map<String, Table<String, String, Object>> dataSets, TConf tConf) {
+    super(dataSets, tConf);
+  }
+  //leftDataSet:leftColName=>rightTable:rightColName
+  //customerinfo:customernumber=>poscountmap:poscount
+  //把customerinfo表中的poscount替换成poscountmap中的poscount，根据customerinfo表中的customernumber与表poscountmap的主键
+  @Override
+  protected void replaceTransform() {
+    String leftColName = retrieveColNameReplaced();//拿到条件字段名，customernumber
+    Table<String, String, Object> rightTable = retrieveReplaceTable();//拿到替换的数据,poscountmap
+    String rightColName = retrieveReplaceColName();//拿到要替换的列名,poscount
+    //替换
+    for (String leftRowKey : leftDataSet.rowKeySet()) {
+      Map<String, Object> leftKvMap = leftDataSet.row(leftRowKey);
+      if (leftKvMap.containsKey(leftColName)) {
+        String condValue = String.valueOf(leftKvMap.get(leftColName));
+        Object replacement = findReplacement(condValue, rightColName,rightTable);
+        if (null != replacement) {
+          leftKvMap.put(rightColName, replacement);
+          transformedRows++;
+        }
+      } else {
+        LOG.debug("leftColName [" + leftColName
+            + "] is not contained in the replace dataset column family"
+            + leftKvMap.keySet());
+      }
+    }
+  }
+}
+
+
+
+package com.yeepay.dp.etl.transform.transformer;
+/**
+ * 字段级数据合并转换器(同hbase的put)
+ * @date Oct 1, 2015 3:47:29 PM
+ */
+final class ColMergeTransformer extends AbstractMergeTransformer {
+  public ColMergeTransformer(
+      Map<String, Table<String, String, Object>> dataSets, TConf tconf) {
+    super(dataSets, tconf);
+  }
+  @Override
+  protected void merge(Table<String, String, Object> table,
+      Table<String, String, Object> tableToLoad) {
+    if (table == null) {
+      return;
+    }
+    for (String rowKey : table.rowKeySet()) {
+      Map<String, Object> kvMap = table.row(rowKey);
+      if (tableToLoad.containsRow(rowKey)) {//如果有，则加上所有列
+        Map<String, Object> toBeCovered = tableToLoad.row(rowKey);
+        for (Entry<String, Object> kv : kvMap.entrySet()) {
+          toBeCovered.put(kv.getKey(), kv.getValue());
+        }
+      } else {
+        TableUtils.put(tableToLoad, rowKey, kvMap);//如果没有，也加上所有列
+      }
+      transformedRows++;
+    }
+  }
+}
+
+
+
+package com.yeepay.dp.etl.transform.transformer;
+/**
+ * 默认数据合并转换器
+ * 行级覆盖:后面的数据集中的数据覆盖前面数据集中有相同rowkey的值
+ * @date Oct 9, 2015 9:58:57 AM
+ */
+final class DefaultMergeTransformer extends AbstractMergeTransformer {
+  private static final Logger LOG = Logger
+      .getLogger(DefaultMergeTransformer.class);
+  public DefaultMergeTransformer(
+      Map<String, Table<String, String, Object>> dataSets, TConf tconf) {
+    super(dataSets, tconf);
+  }
+  @Override
+  protected void merge(Table<String, String, Object> table,
+      Table<String, String, Object> tableToLoad) {
+    if(table == null) {
+      return;
+    }
+    for (String rowKey : table.rowKeySet()) {
+      if(tableToLoad.containsRow(rowKey)) {//主表有则先删除
+        LOG.warn("remove rowKey:" + rowKey);
+        TableUtils.remove(tableToLoad, rowKey);
+      }
+      transformedRows++;
+      TableUtils.put(tableToLoad, rowKey, table.row(rowKey));
+    }
+  }
+}
+
+
+
+package com.yeepay.dp.etl.transform.transformer;
+/**
+ * 无条件替换转换器，如某一列，全替换成默认值(String)，要转换成其它类型，在加载模块中做
+ * 数据集1：字段名1,字段名2...=>:字段常量1，字段常量2...
+ * 注意：字段常量可以是null，转换成null字段串, 所以替换值均为字符串类型
+ * TODO 不支持替换成其它类型么，只能字符串么？
+ * @date Oct 9, 2015 9:59:26 AM
+ */
+final class NonCondReplaceTransformer extends AbstractReplaceTransformer {
+  public NonCondReplaceTransformer(Map<String, Table<String, String, Object>> dataSets, TConf tConf) {
+    super(dataSets, tConf);
+  }
+  @Override
+  protected void replaceTransform() {
+    //没有也替换
+    for(String rowKey : leftDataSet.rowKeySet()) {
+      Map<String, Object> kvMap = leftDataSet.row(rowKey);
+      kvMap.putAll(retrieveReplaceMap());
+      transformedRows++;
+    }
+  }
+  /** 
+  * return OK iff a rule looks like [dataset1:age,name=>:100,fyy], otherwise throw an exception
+  */
+  @Override
+  protected void verifyRule() {
+    StringBuilder regex = new StringBuilder();
+    regex.append("^").append("[a-zA-Z0-9_]{1,}").append(":")
+        .append("[a-zA-Z0-9_,]{1,}").append("=>:").append("[a-zA-Z0-9_,]{1,}")
+        .append("$");
+    String ruleDesc = tConf.getRuleDesc();
+    Preconditions.checkArgument(ruleDesc.matches(regex.toString()),
+        "Error rule[" + ruleDesc + "]");
+    String[] splits = ruleDesc.split("=>");
+    String left = splits[0];
+    String right = splits[1];
+    Preconditions.checkArgument(
+        left.split(",").length == right.split(",").length,
+        "Error column length[" + left.split(",").length + "!="
+            + right.split(",").length + "] transformer rule: " + ruleDesc);
+  }
+  /**
+   * collect default replacement
+   * for example for input rule dataset1:age,name=>:100,fyy
+   * @return Map{{age,100},{name,fyy}}
+   * return type Map<String, String?> to be well figured out
+   */
+  private Map<String, String> retrieveReplaceMap() {
+    String ruleDesc = tConf.getRuleDesc();
+    String[] splits = ruleDesc.split("=>");
+    String left = splits[0];
+    String[] splits_left = left.split(":");
+    String[] cols = splits_left[1].split(",");
+    String right = splits[1];
+    String[] splits_right = right.split(":");
+    String[] values = splits_right[1].split(",");
+    Map<String, String> replaceMap = Maps.newHashMap();
+    for (int i = 0; i < cols.length; i++) {
+      replaceMap.put(cols[i], values[i]);
+    }
+    return replaceMap;
+  }
+}
+
+
+
+package com.yeepay.dp.etl.transform.transformer;
+/**
+ */
+public class OneKeyLeftJoinTransformer extends RowKeyCondReplaceTransformer {
+    private static final Logger LOG = Logger
+            .getLogger(OneKeyLeftJoinTransformer.class);
+    public OneKeyLeftJoinTransformer(
+            Map<String, Table<String, String, Object>> dataSets, TConf tConf) {
+        super(dataSets, tConf);
+    }
+    public Table<String, String, Object> comebineTOFive(
+            Table<String, String, Object> ttable) {
+        Table<String, String, Object> table = HashBasedTable.create();
+        String colname = "";
+        if (ttable.columnKeySet().contains("TRADE_COUNT")
+                && ttable.columnKeySet().contains("SUCCESS_COUNT")) {
+            return ttable;
+        } else if (ttable.columnKeySet().contains("TRADE_COUNT")) {
+            colname = "TRADE_COUNT";
+        } else if (ttable.columnKeySet().contains("SUCCESS_COUNT")) {
+            colname = "SUCCESS_COUNT";
+        } else if (ttable.columnKeySet().contains("CARDHOLDER_COUNT")) {
+            colname = "CARDHOLDER_COUNT";
+        } else {
+            LOG.debug("ColName is not complete");
+        }
+        // 循环生成时间，按照分钟
+        Calendar start = genStart();
+        Calendar end = genEnd(start);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        try {
+            Integer cnt = 0;
+            int count = 0;
+            String time = null;
+            for (; start.before(end); start.add(Calendar.MINUTE, 1)) {
+                String key = format.format(start.getTime());
+                // 成功笔数
+                cnt += ttable.row(key).get(colname) == null ? 0
+                        : Integer.valueOf(String.valueOf(ttable.row(key).get(colname)));
+                count++;
+                if (count == 1) {
+                    time = key;
+                }
+                if (count == 5) {
+                    //mark
+                    table.put(time, "HAPPEN_DATE", time);
+                    table.put(time, "PRODUCT_TYPE", "YJZF_API_FIRST");
+                    table.put(time, colname, cnt);
+                    count = 0;
+                    cnt = 0;
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("caught but no handle", e);
+        }
+        return table;
+    }
+    private Calendar genStart() {
+        // 循环生成时间，按照分钟
+        Calendar cal = Calendar.getInstance();
+        Date date = null;
+        String datastr = tConf.getTaskId().split("_")[1];
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            date = format.parse(datastr);
+            cal.setTime(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return cal;
+    }
+    private Calendar genEnd(Calendar start) {
+        Calendar end = (Calendar) start.clone();
+        end.add(Calendar.DATE, 1);
+        return end;
+    }
+    // leftDataSet:leftColName=>rightTable:rightColName
+    // customerinfo:customernumber=>poscountmap:poscount
+    // 把customerinfo表中的poscount替换成poscountmap中的poscount，根据customerinfo表中的customernumber与表poscountmap的主键
+    @Override
+    protected void replaceTransform() {
+        String leftColName = retrieveColNameReplaced();// 拿到条件字段名，customernumber
+        Table<String, String, Object> leftTable = comebineTOFive(leftDataSet);
+        Table<String, String, Object> rightTable = comebineTOFive(
+                retrieveReplaceTable());// 拿到替换的数据,poscountmap
+        String rightColName = retrieveReplaceColName();// 拿到要替换的列名,poscount
+        for (String leftRowKey : leftTable.rowKeySet()) {
+            Map<String, Object> leftKvMap = leftTable.row(leftRowKey);
+            if (leftKvMap.containsKey(leftColName)) {
+                String condValue = String.valueOf(leftKvMap.get(leftColName));
+                Object replacement = findReplacement(condValue, rightColName,
+                        rightTable);
+                //mark
+                if (null != replacement) {
+                    leftKvMap.put(rightColName, replacement);
+                    transformedRows++;
+                } else {
+                    leftKvMap.put(rightColName, 0L);
+                    transformedRows++;
+                }
+            } else {
+                LOG.debug("leftColName [" + leftColName
+                        + "] is not contained in the replace dataset column family"
+                        + leftKvMap.keySet());
+            }
+        }
+        if (tConf.getTableName().startsWith("excep")) {
+            for (String RowKey : leftTable.rowKeySet()) {
+                Map<String, Object> KvMap = leftTable.row(RowKey);
+                try {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                    KvMap.put("HAPPEN_DATE",
+                            new Timestamp(sdf.parse(String.valueOf(KvMap.get("HAPPEN_DATE"))).getTime()));
+                } catch (ParseException e) {
+                    LOG.info(e);
+                }
+                Double total = Double
+                        .parseDouble(String.valueOf(KvMap.get("TRADE_COUNT")));
+                if (total > 0 && KvMap.get("SUCCESS_COUNT") != null
+                        && KvMap.get("CARDHOLDER_COUNT") != null) {
+                    Double suc = Double
+                            .parseDouble(String.valueOf(KvMap.get("SUCCESS_COUNT")));
+                    Double ck = Double
+                            .parseDouble(String.valueOf(KvMap.get("CARDHOLDER_COUNT")));
+                    if (total - ck > 0) {
+                        KvMap.put("SERVICE_SUCCESS_RATE", suc / (total - ck)); // 替换
+                    } else {
+                        KvMap.put("SERVICE_SUCCESS_RATE", 0L); // 替换
+                    }
+                } else {
+                    //mark
+                    KvMap.put("SERVICE_SUCCESS_RATE", -1);
+                    LOG.debug("leftColName [" + RowKey
+                            + "] is not contained in the replace dataset column family"
+                            + KvMap.keySet());
+                }
+            }
+        }
+        leftDataSet = leftTable;
+    }
+    public static void main(String[] args) {
+        Integer i = 0;
+        i += Integer.valueOf(String.valueOf(0));
+        System.out.println(i);
+        Table<String, String, Object> table = HashBasedTable.create();
+        table.put("row", "cnt", i);
+        System.out.println(table);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        Timestamp ts;
+        try {
+            ts = new Timestamp(sdf.parse("2016-07-18 12:45").getTime());
+            System.out.println(ts);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+package com.yeepay.dp.etl.transform.transformer;
+/**
+ * 
+ * @date July 15, 2016
+ */
+public final class OneKeyMergeTransformer extends AbstractMergeTransformer {
+  private static final Logger LOG = Logger
+      .getLogger(OneKeyMergeTransformer.class);
+  public OneKeyMergeTransformer(
+      Map<String, Table<String, String, Object>> dataSets, TConf tconf) {
+    super(dataSets, tconf);
+  }
+  @Override
+  protected void merge(Table<String, String, Object> table,
+      Table<String, String, Object> tableToLoad) {
+    if (table == null) {
+      return;
+    }
+    for (String rowKey : table.rowKeySet()) {
+      //      if(tableToLoad.containsRow(rowKey)) {//主表有则先删除
+      //        LOG.warn("remove rowKey:" + rowKey);
+      //        TableUtils.remove(tableToLoad, rowKey);
+      //      }
+      transformedRows++;
+      if (Integer.valueOf(String.valueOf(table.row(rowKey).get("ORDERS"))) < 4) {
+        TableUtils.put(tableToLoad, rowKey + tConf.getTableName(),
+            table.row(rowKey));
+      }
+    }
+    if (tConf.getTableName().startsWith("err_mercht_acc")) {
+      for (String RowKey : tableToLoad.rowKeySet()) {
+        Map<String, Object> KvMap = tableToLoad.row(RowKey);
+        if (KvMap.get("LTIME") != null && KvMap.get("RTIME") != null) {
+          SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+          try {
+            KvMap
+                .put("TRADE_DATE",
+                    new Timestamp((sdf
+                        .parse(String.valueOf(KvMap.get("LTIME") + ":"
+                            + String
+                                .valueOf(5 * (Integer.valueOf(String.valueOf(KvMap.get("RTIME")))))))
+                        .getTime())));
+          } catch (Exception e) {
+            LOG.error("TRADE_DATE error, LTIME="+KvMap.get("LTIME") + "RTIME"+KvMap.get("RTIME"), e);
+          }
+        } else {
+          LOG.debug("leftColName [" + KvMap.get("LTIME")
+              + "] is not contained in the replace dataset column family");
+        }
+      }
+    }
+    //    LOG.info(tableToLoad+" has "+tableToLoad.rowKeySet().size()+" records!");
+  }
+}
+
+
+
+package com.yeepay.dp.etl.transform.transformer;
+/**
+ * 把同步表的字段提取出来，并且删除REQ_IF和GOODS_IF字段
+ * 
+ */
+public class Risk3TransformerAsy extends AbstractTransformer {
+	private static final SimpleDateFormat SDF_TS = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private static final SimpleDateFormat SDF_DATE = new SimpleDateFormat("yyyy-MM-dd");
+	private static final Logger LOG = Logger.getLogger(Risk3TransformerAsy.class);
+	private FileWriter fw = null;
+	private String row = null;
+	public Risk3TransformerAsy(Map<String, Table<String, String, Object>> tables, TConf tConf) {
+		super(tables, tConf);
+	}
+	@Override
+	protected void transform0() {
+		openfile();
+		masterTable = getFisrtTableFromTables();
+		Table<String, String, Object> asyTable = getTableByName(this.tConf.getTableName());
+		// REQ_IF
+		for (String rowkey : masterTable.rowKeySet()) {
+			row = rowkey;
+			Map<String, Object> kvMap = masterTable.row(rowkey);
+			handleReqIf(kvMap);
+			handleGoodsIf(kvMap);
+			Map<String, Object> asyMap = asyTable.row(rowkey);
+			handleAsyRow(kvMap, asyMap);
+			transformedRows++;
+		}
+		closeFw();
+	}
+	private void openfile() {
+		try {
+			fw = new FileWriter(new File("./errdata.txt"), true);
+		} catch (IOException e) {
+			LOG.error("filewriter error", e);
+		}
+	}
+	private void closeFw() {
+		try {
+			if (fw != null)
+				fw.close();
+		} catch (IOException e) {
+			LOG.error("fw.close() error", e);
+		}
+	}
+	/**
+	 * 提取 asy.REQ_IF.bizOrder asy.PAY_RESULT asy.REQ_IF.completeTime
+	 * @param kvMap
+	 * @param asyMap
+	 */
+	private void handleAsyRow(Map<String, Object> kvMap, Map<String, Object> asyMap) {
+		Object payResult = asyMap.get("PAY_RESULT");
+		if (payResult != null) {
+			kvMap.put("PAY_RESULT", StringUtils.removeOverlap(String.valueOf(payResult), 10));
+		}
+		Object areqIfObj = asyMap.get("AREQ_IF");
+		if (areqIfObj != null) {
+			String areqIf = String.valueOf(areqIfObj);
+			try {
+				Map<String, String> reqIfMap = RiskUtil.getKVfromReqIf(areqIf);
+				String bizOrder = reqIfMap.get("bizOrder");
+				if (!Strings.isNullOrEmpty(bizOrder)) {
+					kvMap.put("BIZ_ORD", StringUtils.removeOverlap(bizOrder, 100));
+				}
+				String bankError = reqIfMap.get("bankError");
+				if (!Strings.isNullOrEmpty(bankError)) {
+					kvMap.put("BANK_ERROR", StringUtils.removeOverlap(bankError, 500));
+				}
+				String bankMsg = reqIfMap.get("bankMsg");
+				if (!Strings.isNullOrEmpty(bankMsg)) {
+					kvMap.put("BANK_MSG", StringUtils.removeOverlap(bankMsg, 500));
+				}
+				String completeTime = reqIfMap.get("completeTime");
+				if (completeTime != null) {
+					try {
+						Date parsed = SDF_TS.parse(completeTime);
+						kvMap.put("COMP_TM", parsed);// 应该是ts类型
+					} catch (ParseException e) {
+						Date parsed = null;
+						try {
+							parsed = SDF_DATE.parse(completeTime);
+							kvMap.put("COMP_TM", parsed);// 应该是ts类型
+						} catch (ParseException e1) {
+							LOG.warn("warn", e);
+						}
+					}
+				}
+				//songwb
+				String smsSendType = reqIfMap.get("smsSendType");
+				if (!Strings.isNullOrEmpty(smsSendType)) {
+					kvMap.put("SMS_TYP", StringUtils.removeOverlap(smsSendType, 500));
+				}
+				String companyName = reqIfMap.get("companyName");
+				if (!Strings.isNullOrEmpty(companyName)) {
+					kvMap.put("COMPANY_NM", StringUtils.removeOverlap(companyName, 500));
+				}
+			} catch (Exception e) {
+				try {
+					fw.write("idnouse=" + row + ",reqIf=" + areqIf);
+					fw.write("\n");
+					fw.flush();
+				} catch (IOException e1) {
+					LOG.error("fw.write(row) error", e1);
+				}
+				LOG.warn("warn", e);
+			}
+		}
+	}
+	private void handleGoodsIf(Map<String, Object> kvMap) {
+		Object goodsIfObj = kvMap.get("GOODS_IF");
+		if (goodsIfObj != null) {
+			String goodsIf = String.valueOf(goodsIfObj);
+			try {
+				Map<String, String> goodsIfMap = RiskUtil.getKVfromGoodif(goodsIf);
+				String gameApp_id = goodsIfMap.get("gameApp_id");
+				if (gameApp_id != null) {
+					kvMap.put("GIF_GAM_APPID", StringUtils.removeOverlap(gameApp_id, 100));
+				}
+				String first_login_time = goodsIfMap.get("first_login_time");
+				if (first_login_time != null) {
+					try {
+						Date parsed = SDF_TS.parse(first_login_time);
+						kvMap.put("GIF_FST_LOGINTM", parsed);// 应该是ts类型
+					} catch (ParseException e) {
+						Date parsed = null;
+						try {
+							parsed = SDF_DATE.parse(first_login_time);
+							kvMap.put("GIF_FST_LOGINTM", parsed);// 应该是ts类型
+						} catch (ParseException e1) {
+							LOG.warn("warn", e);
+						}
+					}
+				}
+				String TERMINAL_ID = goodsIfMap.get("TERMINAL_ID");
+				if (TERMINAL_ID != null) {
+					kvMap.put("GIF_TRM_ID", StringUtils.removeOverlap(TERMINAL_ID, 60));
+				}
+				String AUTH_TYPE = goodsIfMap.get("AUTH_TYPE");
+				if (AUTH_TYPE != null) {
+					kvMap.put("GIF_AUTH_TYP", StringUtils.removeOverlap(AUTH_TYPE, 50));
+				}
+				String BIZ_SYSTEM_CODE = goodsIfMap.get("BIZ_SYSTEM_CODE");
+				if (BIZ_SYSTEM_CODE != null) {
+					kvMap.put("GIF_BIZ_SYSCD", StringUtils.removeOverlap(BIZ_SYSTEM_CODE, 100));
+				}
+				String FIRST_RISK_LEVEL_ID = goodsIfMap.get("FIRST_RISK_LEVEL_ID");
+				if (FIRST_RISK_LEVEL_ID != null) {
+					kvMap.put("GIF_FST_RISKLEVID", StringUtils.removeOverlap(FIRST_RISK_LEVEL_ID, 100));
+				}
+				String SECOND_RISK_LEVEL_ID = goodsIfMap.get("SECOND_RISK_LEVEL_ID");
+				if (SECOND_RISK_LEVEL_ID != null) {
+					kvMap.put("GIF_SEC_RISKLEVID", StringUtils.removeOverlap(SECOND_RISK_LEVEL_ID, 100));
+				}
+				String subindustry = goodsIfMap.get("subindustry");
+				if (subindustry != null) {
+					kvMap.put("GIF_SUB_INDUSTRY", StringUtils.removeOverlap(subindustry, 100));
+				}
+				String sTime = goodsIfMap.get("sTime");// ??
+				if (sTime != null) {
+					try {
+						Date parsed = SDF_TS.parse(sTime);
+						kvMap.put("GIF_STM", parsed);// 应该是ts类型
+					} catch (ParseException e) {
+						Date parsed = null;
+						try {
+							parsed = SDF_DATE.parse(sTime);
+							kvMap.put("GIF_STM", parsed);// 应该是ts类型
+						} catch (ParseException e1) {
+							LOG.warn("warn", e);
+						}
+					}
+				}
+				String personNum = goodsIfMap.get("personNum");
+				if (personNum != null) {
+					kvMap.put("GIF_PER_NUM", StringUtils.removeOverlap(personNum, 10));
+				}
+				String eTime = goodsIfMap.get("eTime");
+				if (eTime != null) {
+					try {
+						Date parsed = SDF_TS.parse(eTime);
+						kvMap.put("GIF_ETM", parsed);// 应该是ts类型
+					} catch (ParseException e) {
+						Date parsed = null;
+						try {
+							parsed = SDF_DATE.parse(eTime);
+							kvMap.put("GIF_ETM", parsed);// 应该是ts类型
+						} catch (ParseException e1) {
+							LOG.warn("warn", e);
+						}
+					}
+				}
+				String eCity = goodsIfMap.get("eCity");
+				if (eCity != null) {
+					kvMap.put("GIF_ECT", StringUtils.removeOverlap(eCity, 50));
+				}
+				String industry = goodsIfMap.get("industry");
+				if (industry != null) {
+					kvMap.put("GIF_INDUSTRY", StringUtils.removeOverlap(industry, 100));
+				}
+				String Goods_Name = goodsIfMap.get("Goods_Name");
+				if (Goods_Name != null) {
+					kvMap.put("GIF_GOODS_NM", StringUtils.removeOverlap(Goods_Name, 100));
+				}
+				String userid = goodsIfMap.get("userid");
+				if (userid != null) {
+					kvMap.put("GIF_USR_ID", StringUtils.removeOverlap(userid, 100));
+				}
+				String customerid = goodsIfMap.get("customerid");
+				if (customerid != null) {
+					kvMap.put("GIF_CUSTID", StringUtils.removeOverlap(customerid, 100));
+				}
+				String registerTerminalType = goodsIfMap.get("registerTerminalType");
+				if (registerTerminalType != null) {
+					kvMap.put("GIF_REGIST_TRMTYP", StringUtils.removeOverlap(registerTerminalType, 100));
+				}
+				String registerTerminalIdentifyCode = goodsIfMap.get("registerTerminalIdentifyCode");
+				if (registerTerminalIdentifyCode != null) {
+					kvMap.put("GIF_REGIST_TRM_IDFYCD", StringUtils.removeOverlap(registerTerminalIdentifyCode, 100));
+				}
+				String terminalIdentifyCode = goodsIfMap.get("terminalIdentifyCode");
+				if (terminalIdentifyCode != null) {
+					kvMap.put("GIF_TRM_IDFYCD", StringUtils.removeOverlap(terminalIdentifyCode, 100));
+				}
+				String offtenUseLatitude = goodsIfMap.get("offtenUseLatitude");
+				if (offtenUseLatitude != null) {
+					kvMap.put("GIF_OFFUSE_LATIT", StringUtils.removeOverlap(offtenUseLatitude, 50));
+				}
+				String offtenUseLongitude = goodsIfMap.get("offtenUseLongitude");
+				if (offtenUseLongitude != null) {
+					kvMap.put("GIF_OFFUSE_LNGIT", StringUtils.removeOverlap(offtenUseLongitude, 50));
+				}
+				String registerLatitude = goodsIfMap.get("registerLatitude");
+				if (registerLatitude != null) {
+					kvMap.put("GIF_REGIST_LATIT", StringUtils.removeOverlap(registerLatitude, 50));
+				}
+				String registerLongitude = goodsIfMap.get("registerLongitude");
+				if (registerLongitude != null) {
+					kvMap.put("GIF_REGIST_LOGIT", StringUtils.removeOverlap(registerLongitude, 50));
+				}
+				String firstRecharge = goodsIfMap.get("firstRecharge");
+				if (firstRecharge != null) {
+					kvMap.put("GIF_FST_RECHARGE", StringUtils.removeOverlap(firstRecharge, 50));
+				}
+				String lastLoginIp = goodsIfMap.get("lastLoginIp");
+				if (lastLoginIp != null) {
+					kvMap.put("GIF_LST_LOGINIP", StringUtils.removeOverlap(lastLoginIp, 50));
+				}
+				String offtenUseIp = goodsIfMap.get("offtenUseIp");
+				if (offtenUseIp != null) {
+					kvMap.put("GIF_OFFUSE_IP", StringUtils.removeOverlap(offtenUseIp, 50));
+				}
+				String userRegisterIp = goodsIfMap.get("userRegisterIp");
+				if (userRegisterIp != null) {
+					kvMap.put("GIF_USR_REGISTIP", StringUtils.removeOverlap(userRegisterIp, 50));
+				}
+				String userRegisterCardNo = goodsIfMap.get("userRegisterCardNo");
+				if (userRegisterCardNo != null) {
+					kvMap.put("GIF_USR_REGISTCRDNO", StringUtils.removeOverlap(userRegisterCardNo, 50));
+				}
+				String userRegisterMobile = goodsIfMap.get("userRegisterMobile");
+				if (userRegisterMobile != null) {
+					kvMap.put("GIF_USR_REGISTMBL", StringUtils.removeOverlap(userRegisterMobile, 50));
+				}
+				String userRegisterIdNo = goodsIfMap.get("userRegisterIdNo");
+				if (userRegisterIdNo != null) {
+					kvMap.put("GIF_USR_REGISTIDNO", StringUtils.removeOverlap(userRegisterIdNo, 50));
+				}
+				String latitude = goodsIfMap.get("latitude");
+				if (latitude != null) {
+					kvMap.put("GIF_LATIT", StringUtils.removeOverlap(latitude, 50));
+				}
+				String longitude = goodsIfMap.get("longitude");
+				if (longitude != null) {
+					kvMap.put("GIF_LOGIT", StringUtils.removeOverlap(longitude, 50));
+				}
+				String joindate = goodsIfMap.get("joindate");
+				if (joindate != null) {
+					try {
+						Date parsed = SDF_TS.parse(joindate);
+						kvMap.put("GIF_JNDT", parsed);// 应该是ts类型
+					} catch (ParseException e) {
+						Date parsed = null;
+						try {
+							parsed = SDF_DATE.parse(joindate);
+							kvMap.put("GIF_JNDT", parsed);// 应该是ts类型
+						} catch (ParseException e1) {
+							LOG.warn("warn", e);
+						}
+					}
+				}
+				String userip = goodsIfMap.get("userip");
+				if (userip != null) {
+					kvMap.put("GIF_USRIP", StringUtils.removeOverlap(userip, 50));
+				}
+				String terminalid = goodsIfMap.get("terminalid");
+				if (terminalid != null) {
+					kvMap.put("GIF_TRMID", StringUtils.removeOverlap(terminalid, 50));
+				}
+				String terminaltype = goodsIfMap.get("terminaltype");
+				if (terminaltype != null) {
+					kvMap.put("GIF_TRMTYP", StringUtils.removeOverlap(terminaltype, 50));
+				}
+				String terminalType = goodsIfMap.get("terminalType");
+				if (terminalType != null) {
+					kvMap.put("GIF_TRM_TYP", StringUtils.removeOverlap(terminalType, 50));
+				}
+			} catch (Exception e) {
+				try {
+					fw.write("idnouse=" + row + ",goodsIf=" + goodsIf);
+					fw.write("\n");
+					fw.flush();
+				} catch (IOException e1) {
+					LOG.error("fw.write(row) error", e1);
+				}
+				LOG.warn("error", e);
+			} finally {
+				kvMap.remove("GOODS_IF");
+			}
+		}
+	}
+	// 提取字段REQ_IF
+	private void handleReqIf(Map<String, Object> kvMap) {
+		Object reqifObj = kvMap.get("REQ_IF");
+		if (reqifObj != null) {
+			String reqIf = String.valueOf(reqifObj);
+			try {
+				Map<String, String> reqIfMap = RiskUtil.getKVfromReqIf(reqIf);
+				String goodsCode = reqIfMap.get("goodsCode");
+				if (goodsCode != null) {
+					kvMap.put("GOODS_CD", StringUtils.removeOverlap(goodsCode, 30));
+				}
+				String merchantLevel = reqIfMap.get("merchantLevel");
+				if (merchantLevel != null) {
+					kvMap.put("MEC_LEV", StringUtils.removeOverlap(merchantLevel, 50));
+				}
+				String userType = reqIfMap.get("userType");
+				if (userType != null) {
+					kvMap.put("USR_TYP", StringUtils.removeOverlap(userType, 50));
+				}
+				String bindCardId = reqIfMap.get("bindCardId");
+				if (bindCardId != null) {
+					kvMap.put("BID_CD_ID", StringUtils.removeOverlap(bindCardId, 50));
+				}
+				String authLevel = reqIfMap.get("authLevel");
+				if (authLevel != null) {
+					kvMap.put("AUTH_LEV", StringUtils.removeOverlap(authLevel, 50));
+				}
+				String merchantBindWebSite = reqIfMap.get("merchantBindWebSite");
+				if (merchantBindWebSite != null) {
+					kvMap.put("MEC_BID_WESIT", StringUtils.removeOverlap(merchantBindWebSite, 200));
+				}
+				String refer = reqIfMap.get("refer");
+				if (refer != null) {
+					kvMap.put("REFER", StringUtils.removeOverlap(refer, 200));
+				}
+				String bankCardName = reqIfMap.get("bankCardName");
+				if (bankCardName != null) {
+					kvMap.put("BNK_CD_NM", StringUtils.removeOverlap(bankCardName, 100));
+				}
+				String idType = reqIfMap.get("idType");
+				if (idType != null) {
+					kvMap.put("ID_TYP", StringUtils.removeOverlap(idType, 30));
+				}
+				String idNo = reqIfMap.get("idNo");
+				if (idNo != null) {
+					kvMap.put("ID_NO", StringUtils.removeOverlap(idNo, 30));
+				}
+				String idnoArea = reqIfMap.get("idnoArea");
+				if (idnoArea != null) {
+					kvMap.put("IDNO_AREA", StringUtils.removeOverlap(idnoArea, 50));
+				}
+				String terminalIdentifyCode = reqIfMap.get("terminalIdentifyCode");
+				if (terminalIdentifyCode != null) {
+					kvMap.put("TRM_IDFY_CD", StringUtils.removeOverlap(terminalIdentifyCode, 50));
+				}
+				String terminalType = reqIfMap.get("terminalType");
+				if (terminalType != null) {
+					kvMap.put("TRM_TYP", StringUtils.removeOverlap(terminalType, 50));
+				}
+				String mac = reqIfMap.get("mac");
+				if (mac != null) {
+					kvMap.put("MAC", StringUtils.removeOverlap(mac, 50));
+				}
+				String sCity = reqIfMap.get("sCity");
+				if (sCity != null) {
+					kvMap.put("GIF_SCT", StringUtils.removeOverlap(sCity, 50));
+				}
+				String useChannel = reqIfMap.get("useChannel");
+				if (useChannel != null) {
+					kvMap.put("USE_CHANNEL", StringUtils.removeOverlap(useChannel, 100));
+				}
+				String virtualTerminalId = reqIfMap.get("virtualTerminalId");
+				if (virtualTerminalId != null) {
+					kvMap.put("VIRTUAL_TERMID", StringUtils.removeOverlap(virtualTerminalId, 100));
+				}
+				String orderType = reqIfMap.get("orderType");
+				if (orderType != null) {
+					kvMap.put("ORDER_TYPE", StringUtils.removeOverlap(orderType, 100));
+				}
+			} catch (Exception e) {
+				try {
+					fw.write("idnouse=" + row + ",reqIf=" + reqIf);
+					fw.write("\n");
+					fw.flush();
+				} catch (IOException e1) {
+					LOG.error("fw.write(row) error", e1);
+				}
+				LOG.warn("warn", e);
+			} finally {
+				kvMap.remove("REQ_IF");
+			}
+		}
+	}
+	/**
+	 * 提取主表
+	 * 
+	 * @return
+	 */
+	private Table<String, String, Object> getFisrtTableFromTables() {
+		for (Entry<String, Table<String, String, Object>> e : tables.entrySet()) {
+			return e.getValue();
+		}
+		throw new IllegalStateException("tableMap is empty!");
+	}
+}
+
+
+
+package com.yeepay.dp.etl.transform.transformer;
+/**
+ * 风控触发规则转换器
+ * @date Jun 16, 2016
+ */
+public class Risk3TransformerTrig extends AbstractTransformer {
+  private static final Logger LOG = Logger
+      .getLogger(Risk3TransformerTrig.class);
+  public Risk3TransformerTrig(Map<String, Table<String, String, Object>> tables,
+      TConf tConf) {
+    super(tables, tConf);
+  }
+  @Override
+  protected void transform0() {
+    masterTable = getFisrtTableFromTables();
+    Table<String, String, Object> trigTable = getTableByName(this.tConf.getTableName().split(",")[0]);
+    RiskUtil.setRuleFiltered(getRuleFiltered());//过滤掉80分以下的规则
+    for (String rowkey : masterTable.rowKeySet()) {
+      Map<String, Object> kvMap = masterTable.row(rowkey);
+      Map<String, Object> trigMap = trigTable.row(rowkey);
+      handleTrigRow(kvMap, trigMap);
+      transformedRows++;
+    }
+  }
+  private void handleTrigRow(Map<String, Object> kvMap,
+      Map<String, Object> trigMap) {
+    Object ruleCodeObj = trigMap.get("RULECODE");
+    if (ruleCodeObj != null) {
+      String ruleCode = String.valueOf(ruleCodeObj);
+      try {
+        String ruleCodeJoined = RiskUtil.getRuleCodeInfo(ruleCode);
+        if (ruleCodeJoined != null) {
+          kvMap.put("RULE_CODE", StringUtils.removeOverlap(ruleCodeJoined, 500));
+        }
+      } catch (Exception e) {
+        LOG.warn("RiskUtil.getRuleCodeInfo() error", e);
+      }
+    }
+  }
+  private Set<String> getRuleFiltered() {
+    Set<String> ruleFiltered = Sets.newHashSet();
+    Table<String, String, Object> rule80Table = getTableByName(this.tConf.getTableName().split(",")[1]);
+    for (String rowKey : rule80Table.rowKeySet()) {
+      Map<String, Object> map = rule80Table.row(rowKey);
+      ruleFiltered.add(String.valueOf(map.get("RUL_CD")).trim());
+    }
+    return ruleFiltered;
+  }
+  /**
+   * 提取主表
+   * 
+   * @return
+   */
+  private Table<String, String, Object> getFisrtTableFromTables() {
+    for (Entry<String, Table<String, String, Object>> e : tables.entrySet()) {
+      return e.getValue();
+    }
+    throw new IllegalStateException("tableMap is empty!");
+  }
+}
+
+
+
+package com.yeepay.dp.etl.transform.transformer;
+/**
+ * 主键替换转换器 表1：字段1->表2：字段2 规则含义：把表1的字段1替换成表2的字段2，条件是字段1等于表2的主键
+ * 
+ * 
+ * 1.主键替换转换器，如null，则全替换成默认值 1.1 基于表2的rowkey 表1：字段1->表2：字段2
+ * 规则含义：把表1的字段1替换成表2的字段2，条件是字段1等于表2的主键 saleinfo:productlinecode=>productmae:name
+ * 如果表1记录没有字段1，则打警告；如果包含字段1，且在表2中找到替换字段2，才替换。可理解为：如果能找到替换就替换
+ * 
+ * @date Oct 8, 2015 7:12:33 PM
+ */
+public class RowKeyCondReplaceTransformer extends AbstractReplaceTransformer {
+	private static final Logger LOG = Logger.getLogger(RowKeyCondReplaceTransformer.class);
+	public RowKeyCondReplaceTransformer(Map<String, Table<String, String, Object>> dataSets, TConf tConf) {
+		super(dataSets, tConf);
+	}
+	@Override
+	protected void replaceTransform() {
+		Table<String, String, Object> repalceTable = retrieveReplaceTable();
+		String colNameReplaced = retrieveColNameReplaced();
+		String replaceColName = retrieveReplaceColName();
+		// 替换
+		for (String rowKey : leftDataSet.rowKeySet()) {
+			Map<String, Object> kvMap = leftDataSet.row(rowKey);
+			if (kvMap.containsKey(colNameReplaced)) {
+				String oldValue = String.valueOf(kvMap.get(colNameReplaced));
+				Object replacement = findReplacement(oldValue, replaceColName, repalceTable);// 没找到是用原来的值，还是删掉？用原来的值吧
+				if (null != replacement) {
+					kvMap.put(colNameReplaced, replacement);
+					transformedRows++;
+				}
+			} else {
+				LOG.warn("Column [" + colNameReplaced + "] is not contained in table " + retrieveLeftDataSet()
+						+ ", column" + kvMap.keySet());
+			}
+		}
+	}
+	/**
+	 * @param value
+	 * @param replaceColName
+	 * @param table
+	 * @return table表里主键值等于value，字段名为replaceColName的值，otherwise return null if
+	 *         replacement is not found
+	 */
+	protected Object findReplacement(String value, String replaceColName, Table<String, String, Object> table) {
+		Map<String, Object> kvMap = table.row(value);
+		if (kvMap.containsKey(replaceColName)) {
+			return kvMap.get(replaceColName);
+		} else {
+			// LOG.warn("Can not find " + value + "[" + replaceColName
+			// + "] when searching replaceDataSet: " + kvMap.keySet());
+			return null;
+		}
+	}
+	protected Table<String, String, Object> retrieveReplaceTable() {
+		String replaceTableName = retrieveReplaceTableName();
+		return getTableByName(replaceTableName);
+	}
+	/**
+	 * return OK iff a rule looks like [ds1:name=>ds2:address], otherwise throw
+	 * an exception TO DO extend column number from 1 to N
+	 */
+	@Override
+	protected void verifyRule() {
+		StringBuilder regex = new StringBuilder();
+		regex.append("^").append("[a-zA-Z0-9_]{1,}").append(":").append("[a-zA-Z0-9_]{1,}").append("=>")
+				.append("[a-zA-Z0-9_]{1,}").append(":").append("[a-zA-Z0-9_]{1,}");
+		String ruleDesc = tConf.getRuleDesc();
+		Preconditions.checkArgument(ruleDesc.matches(regex.toString()), "Error rule[" + ruleDesc + "]");
+	}
+	/**
+	 * For input ds1:name=>ds2:address
+	 * 
+	 * @return address
+	 */
+	protected String retrieveReplaceColName() {
+		String ruleDesc = tConf.getRuleDesc();
+		String[] splits = ruleDesc.split(":");
+		return splits[splits.length - 1];
+	}
+	/**
+	 * For input ds1,name=>ds2,address
+	 * 
+	 * @return name
+	 */
+	protected String retrieveColNameReplaced() {
+		String ruleDesc = tConf.getRuleDesc();
+		String[] splits = ruleDesc.split("=>");
+		String[] dsAndCol = splits[0].split(":");
+		return dsAndCol[1];
+	}
+	/**
+	 * For input ds1,name=>ds2,address
+	 * 
+	 * @return ds2
+	 */
+	protected String retrieveReplaceTableName() {
+		String ruleDesc = tConf.getRuleDesc();
+		String[] splits = ruleDesc.split("=>");
+		String[] dsAndCol = splits[1].split(":");
+		return dsAndCol[0];
+	}
+	public static void main(String[] args) {
+	  Table<String, String, Object> table = HashBasedTable.create();
+	  Date date1 = new Date();
+	  Date date2 = new Date(date1.getTime());
+	  System.out.println(date1.compareTo(date2));
+	  Map<String, Object> kvMap = Maps.newHashMap();
+	  kvMap.put("sp", "1");
+    TableUtils.put(table, date1.toString(), kvMap );
+    System.out.println(String.valueOf(new Date()));
+  }
+}
+
+
+
+package com.yeepay.dp.etl.transform.transformer;
+/**
+ * 转换器制造工厂
+ * @date Sep 30, 2015 10:34:57 AM
+ */
+public class TransformerFactory {
+  public static AbstractTransformer getSpecificTransformer(
+      Map<String, Table<String, String, Object>> tables, TConf tConf) {
+    String type = tConf.getTransformType();
+    Preconditions.checkNotNull(type, "TransformType is null!");
+    try {
+      Class<?>  clz = Class.forName(TransformerFactory.class.getPackage().getName() + "." + type);
+      Constructor<?> constructor = clz.getConstructor(Map.class, TConf.class);
+      return (AbstractTransformer) constructor.newInstance(tables, tConf);
+    } catch (ClassNotFoundException ce) {
+      throw new IllegalArgumentException("TransformType [" + type + "] is not supported!");
+    } catch (Exception e) {
+      throw new RuntimeException("Unexpected exception on build transformer " + type, e);
+    }
+  }
+}
+
+
+
+package com.yeepay.dp.etl.transform.transformer;
+/**
+ * 定制，本不属ETL职责
+ * @date Dec 2, 2015 11:29:47 AM
+ */
+public class WtjsCostCalcuTransformer extends AbstractTransformer {
+  private static final Logger LOG = Logger
+      .getLogger(WtjsCostCalcuTransformer.class);
+  public WtjsCostCalcuTransformer(
+      Map<String, Table<String, String, Object>> tables, TConf tConf) {
+    super(tables, tConf);
+  }
+  @Override
+  public void transform0() {
+    masterTable = getFisrtTableFromTables();
+    for (String rowkey : masterTable.rowKeySet()) {
+      Map<String, Object> kvMap = masterTable.row(rowkey);
+      Long trxcount = (Long) kvMap.get("TRXCOUNT");
+      String trxchannelid = (String) kvMap.get("TRXCHANNELID");
+      LOG.debug("trxcount="+trxcount);
+      LOG.debug("trxchannelid="+trxchannelid);
+      BigDecimal frpCost = calculateCost(trxcount, trxchannelid);
+      LOG.debug("frpCost="+frpCost);
+      kvMap.put("FRPCOST", frpCost);
+      kvMap.put("ACCOUNTINGCOST", frpCost);
+      transformedRows++;
+    }
+  }
+  /**
+   * 提取主表
+   * @return
+   */
+  private Table<String, String, Object> getFisrtTableFromTables() {
+    for(Entry<String, Table<String, String, Object>> e : tables.entrySet()) {
+      return e.getValue();
+    }
+    throw new IllegalStateException("tableMap is empty!");
+  }
+  /**
+   * 计算成本
+   * @param trxcount
+   * @param trxchannelid
+   * @return
+   */
+  private BigDecimal calculateCost(Long trxcount, String trxchannelid) {
+    if(Strings.isNullOrEmpty(trxchannelid) || trxcount == null)
+      return BigDecimal.ZERO;
+    BigDecimal costRate = getCostRate(trxchannelid);
+    LOG.debug("costRate="+costRate);
+    return costRate.multiply(BigDecimal.valueOf(trxcount));
+  }
+  /**
+   * 根据trxchannelid得到costRate
+   * @param trxchannelid
+   * @return
+   */
+  private BigDecimal getCostRate(String trxchannelid) {
+    Table<String, String, Object> channelCostTable = getTableByName("trxstatchannelcost");
+    Map<String, Object> kvMap = channelCostTable.row(trxchannelid);
+    BigDecimal costRate = new BigDecimal("0");
+    if (kvMap.containsKey("COSTRATE")) {
+      costRate = (BigDecimal)kvMap.get("COSTRATE");
+    } 
+    return costRate;
+  }
+}
+
+
+  #+END_SRC
+
+* 10项信息
+  #+BEGIN_SRC 
+  
+请提供申请软著的软件源代码、软件说明书及下列10项信息（黑色字体作为参考）：
+1、软件名称：ETL
+2、版本号：V1.0
+3、开发完成日期：2016年10月15日
+4、发表日期：2016年11月10日
+5、地点：北京
+6、硬件环境：
+服务器：DELLR710，CPU2.6GHz,双核 内存：8G，硬盘：60G；网络：2块千兆网卡；
+7、软件环境： Java 1.7
+8、编程语言：Java  
+9、源程序量：20万
+10、主要功能及技术特点：
+主要功能有：支持多种异构数据源数据读写
+HBase，HDFS，MySQL，DB2，Oracle等
+提供成熟的数据转换器，比如多数据源主键合并，追加；列替换，过滤；以及自定义数据转换器
+基于Spark平台，高速交换数据，全内存操作
+用户高度可配置
+部门级别权限控制
+技术特点：
+支持多种数据源数据读写，包括HBase，HDFS，Phoenix,MySQL,DB2，FileSystem等，秒级处理千万数据，提供多种转换器.
+
+  #+END_SRC

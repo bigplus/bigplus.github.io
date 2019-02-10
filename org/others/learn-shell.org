@@ -1,0 +1,6 @@
+快速移动
+http://blog.csdn.net/jdbc/article/details/40427451
+https://segmentfault.com/a/1190000002508448
+http://www.linuxidc.com/Linux/2016-10/136027.htm
+
+获取当前目录

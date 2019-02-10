@@ -1,0 +1,137 @@
+#+TITLE: Elasticsearch-River-HBase 简单分析
+#+AUTHOR: Jerry
+
+简介 HBase 数据导入到 Elasticsearch。
+思想是朴素的，实现是简单的，一切从简。\\
+/基于 maven/\\
+工程中引入：es，asynchbase(/写river引入的es-version应和实际使用生产环境es一样，避免接口不一致/
+#+BEGIN_SRC maven
+                <dependency>
+			<groupId>org.elasticsearch</groupId>
+			<artifactId>elasticsearch</artifactId>
+			<version>${elasticsearch.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hbase</groupId>
+			<artifactId>asynchbase</artifactId>
+			<version>${hbase.async.version}</version>
+		</dependency>
+#+END_SRC
+
+总的来说2步，就是把数据从 HBase 读出， 然后写入 Elasticsearch ：
+* First
+HBase的高性能吞吐量的众所周知的，利用此特点，批量读取HBase中的数据到内存。具体实现见下面代码片段：
+#+BEGIN_SRC java
+protected void parse() throws InterruptedException, Exception {
+		this.logger.info("Parsing data from HBase");
+		try {
+                        /**
+                                 此处采用 Asynchronous HBase Client 读取数据
+                        */
+			this.client = new HBaseClient(this.river.getHosts());
+			this.logger.debug("Checking if table {} actually exists in HBase DB", this.river.getTable());
+			this.client.ensureTableExists(this.river.getTable()).addErrback(this.cbLogger);
+			this.logger.debug("Fetching HBase Scanner");
+			this.scanner = this.client.newScanner(this.river.getTable());
+			this.scanner.setServerBlockCache(false);
+			if (this.river.getFamily() != null) {
+                                /**
+                                        设置读取的 family, 由 shell 脚本提供
+                                */
+				this.scanner.setFamily(this.river.getFamily());
+			}
+			if (this.river.getQualifiers() != null) {
+                                /**
+                                        设置读取 qualifier， 由 shell 脚本提供
+                                */
+				for (final String qualifier : this.river.getQualifiers().split(",")) {
+					this.scanner.setQualifier(qualifier.trim().getBytes(this.river.getCharset()));
+				}
+			}
+
+			setMinTimestamp(this.scanner);
+			ArrayList<ArrayList<KeyValue>> rows;
+			this.logger.debug("Starting to fetch rows");
+
+			while ((rows = this.scanner.nextRows(this.river.getBatchSize()).addErrback(this.cbLogger).joinUninterruptibly()) != null) {
+				if (this.stopThread) {
+					this.logger.info("Stopping HBase import in the midle of it");
+					break;
+				}
+                                /**
+                                      函数调用：批量写入 Elasticsearch
+                                */
+				parseBulkOfRows(rows);
+			}
+		} finally {
+			this.logger.debug("Closing HBase Scanner and Async Client");
+			if (this.scanner != null) {
+				try {
+					this.scanner.close().addErrback(this.cbLogger);
+				} catch (Exception e) {
+					this.logger.error("An Exception has been caught while closing the HBase Scanner", e, (Object[]) null);
+				}
+			}
+			if (this.client != null) {
+				try {
+					this.client.shutdown().addErrback(this.cbLogger);
+				} catch (Exception e) {
+					this.logger.error("An Exception has been caught while shuting down the HBase client", e, (Object[]) null);
+				}
+			}
+		}
+#+END_SRC
+* Seconde
+HBase-River取到数据以后，在内存中转化为JSON类型，哈哈，当然是批量转入了。至于实现：
+
+#+BEGIN_SRC java
+protected void parseBulkOfRows(final ArrayList<ArrayList<KeyValue>> rows) {
+		this.logger.debug("Processing the next {} entries in HBase parsing process", rows.size());
+		final BulkRequestBuilder bulkRequest = this.river.getEsClient().prepareBulk();
+		final Map<String, byte[]> keyMapForDeletion = new HashMap<String, byte[]>();
+		for (final ArrayList<KeyValue> row : rows) {
+			if (this.stopThread) {
+				this.logger.info("Stopping HBase import in the midle of it");
+				break;
+			}
+			if (row.size() > 0) {
+				final IndexRequestBuilder request = this.river.getEsClient().prepareIndex(this.river.getIndex(), this.river.getType());
+				final byte[] key = row.get(0).key();
+				final Map<String, Object> dataTree = readDataTree(row);
+				request.setSource(dataTree);
+				request.setTimestamp(String.valueOf(row.get(0).timestamp()));
+				if (this.river.getIdField() == null) {
+					final String keyString = new String(key, this.river.getCharset());
+					request.setId(keyString);
+					keyMapForDeletion.put(keyString, key);
+				}
+				else {
+					final String keyString = findKeyInDataTree(dataTree, this.river.getIdField());
+					keyMapForDeletion.put(keyString, key);
+				}
+				bulkRequest.add(request);
+			}
+		}
+		final BulkResponse response = bulkRequest.execute().actionGet();
+
+		this.indexCounter += response.items().length;
+		this.logger.info("HBase river has indexed {} entries so far", this.indexCounter);
+		final List<byte[]> failedKeys = new ArrayList<byte[]>();
+		if (response.hasFailures()) {
+			for (BulkItemResponse r : response.items()) {
+				if (r.failed()) {
+					failedKeys.add(keyMapForDeletion.remove(r.getId()));
+				}
+			}
+			this.logger.error("Errors have occured while trying to index new data from HBase");
+			this.logger.debug("Failed keys are {}", failedKeys);
+		}
+		if (this.river.getDeleteOld()) {
+			for (Entry<String, byte[]> keyEntry : keyMapForDeletion.entrySet()) {
+				this.client.delete(new DeleteRequest(this.river.getTable().getBytes(), keyEntry.getValue())).addErrback(this.cbLogger);
+			}
+		}
+	}
+#+END_SRC
+hbase-river负责将上一步组织好的json数据，批量写入es。（和step2写在一个函数中）
+

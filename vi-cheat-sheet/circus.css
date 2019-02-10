@@ -1,0 +1,87 @@
+@import url(base.css);
+@import url(terse.css) all and (max-width: 79em);
+
+.l1       {background: #F77}
+.l1:hover a, .l1:hover a:visited,
+.l1:hover {     color: #F77; background: #000}
+.l2       {background: #FC6}
+.l2:hover a, .l2:hover a:visited,
+.l2:hover {     color: #FC6; background: #000}
+.l3       {background: #FF6}
+.l3:hover a, .l3:hover a:visited,
+.l3:hover {     color: #FF6; background: #000}
+.l4       {background: #CF8}
+.l4:hover a, .l4:hover a:visited,
+.l4:hover {     color: #CF8; background: #000}
+.l5       {background: #8F8}
+.l5:hover a, .l5:hover a:visited,
+.l5:hover {     color: #8F8; background: #000}
+.l0:hover a, .l0:hover a:visited,
+.l0:hover {     color: #888; background: #000}
+.ex       {     color: #D00}
+.legend .ex:hover {          background: #000}
+
+#browser .mapped tr:hover > td:first-of-type { background: #FFF }
+
+.p:hover::after {color: #F00}
+
+.Co {background: #DBB} /* private */
+.c-sa,
+.ci,
+.g0 {background: #8FD}
+.c-na,
+.pm,
+.g1 {background: #8F8}
+.po,
+.g2 {background: #BF6}
+.c-af,
+.co,
+.g3 {background: #FF6}
+.c-eu,
+.cp,
+.g4 {background: #FC6}
+.mi,
+.g5 {background: #F96}
+.c-as,
+.mo,
+.g6 {background: #F77}
+.c-an,
+.mv,
+.g7 {background: #E8E}
+.c-oc,
+.me,
+.g8 {background: #9AF}
+
+.Co:hover                       {background: #000; color: #DBB} /* private */
+
+.c-sa:hover,
+.ci a:hover, .ci[onclick]:hover,
+.g0 a:hover, .g0[onclick]:hover {background: #000; color: #8FD}
+.c-na:hover,
+.pm a:hover, .pm[onclick]:hover,
+.g1 a:hover, .g1[onclick]:hover {background: #000; color: #7E7}
+.po a:hover, .po[onclick]:hover,
+.g2 a:hover, .g2[onclick]:hover {background: #000; color: #CE6}
+.c-af:hover,
+.co a:hover, .co[onclick]:hover,
+.g3 a:hover, .g3[onclick]:hover {background: #000; color: #FF7}
+.c-eu:hover,
+.cp a:hover, .cp[onclick]:hover,
+.g4 a:hover, .g4[onclick]:hover {background: #000; color: #FA6}
+.mi a:hover, .mi[onclick]:hover,
+.g5 a:hover, .g5[onclick]:hover {background: #000; color: #FFA070}
+.c-as:hover,
+.mo a:hover, .mo[onclick]:hover,
+.g6 a:hover, .g6[onclick]:hover {background: #000; color: #F77}
+.c-an:hover,
+.mv a:hover, .mv[onclick]:hover,
+.g7 a:hover, .g7[onclick]:hover {background: #000; color: #E8E}
+.c-oc:hover,
+.me a:hover, .me[onclick]:hover,
+.g8 a:hover, .g8[onclick]:hover {background: #000; color: #99F}
+
+dl.legend dt.ext,
+.keys td.ext {
+	border: 1px solid #F00;
+}
+

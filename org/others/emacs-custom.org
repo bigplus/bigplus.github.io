@@ -1,0 +1,14 @@
+#+TITLE:  emacs custom
+1. 关于代码折叠
+  https://github.com/mrkkrp/vimish-fold
+2. how to custom mode-line
+  http://emacs-fu.blogspot.jp/2011/08/customizing-mode-line.html
+3.
+  https://github.com/mrkkrp
+4. 如题
+  http://sachachua.com/blog/2013/05/how-to-learn-emacs-a-hand-drawn-one-pager-for-beginners/
+5. spaceline
+   https://github.com/justbur/spaceline
+   https://github.com/TheBB/spaceline
+6. whick-key
+   https://github.com/justbur/emacs-which-key

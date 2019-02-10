@@ -1,0 +1,38 @@
+http://www.cnblogs.com/leezx/p/6112667.html
+
+--------------------------------------------------------------------------------
+
+https://www.zhihu.com/question/19725590
+在贝叶斯定理中，每个名词都有约定俗成的名称：P(A)是 A 的先验概率，之所以称为“先验”是因为它不考虑任何 B 方面的因素。
+P(A|B)是已知 B 发生后 A 的条件概率，也由于得自 B 的取值而被称作 A 的后验概率。
+P(B|A)是已知 A 发生后 B 的条件概率，也由于得自 A 的取值而被称作 B 的后验概率。
+P(B)是 B 的先验概率，也作标淮化常量（normalizing constant）。
+按这些术语，贝叶斯定理可表述为：后验概率 = (相似度 * 先验概率)/标淮化常量
+也就是说，后验概率与先验概率和相似度的乘积成正比。另外，比例P(B|A)/P(B)也有时被称作标淮相似度（standardised likelihood），Bayes定理可表述为：后验概率 = 标淮相似度 * 先验概率
+
+作者：罗朝辉
+链接：https://www.zhihu.com/question/19725590/answer/32275564
+来源：知乎
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+http://mindhacks.cn/2008/09/21/the-magical-bayesian-method/
+https://www.zhihu.com/topic/19632222/top-answers
+http://www.ruanyifeng.com/blog/2011/08/bayesian_inference_part_two.html
+
+
+大牛blog
+http://norvig.com/spell-correct.html
+
+* 先验概率，后验概率
+先验概率 ( Prior probability)
+
+先验概率是在缺乏某个事实的情况下描述一个变量; 而后验概率是在考虑了一个事实之后的条件概率.  先验概率通常是经验丰富的专家的纯主观的估计. 比如在法国大选中女候选罗雅尔的支持率 p,  在进行民意调查之前, 可以先验概率来表达这个不确定性.
+
+ 
+
+后验概率 ( posterior probability)
+
+ Def: Probability of outcomes of an experiment after it has been performed and a certain event has occured.  
+
+后验概率可以根据通过Bayes定理, 用先验概率和似然函数计算出来.  下面的公式就是用先验概率密度乘上似然函数,接着进行归一化, 得到不定量X在Y=y的条件下的密度,即后验概率密度:
+
+

@@ -1,0 +1,502 @@
+#+TITLE: 报表设计Auth
+#+AUTHOR: Jerry
+
+* 名词定义
+* 整体设计
+** 前端
+*** 前后端交互
+*** handler-bar
+** 后端
+** 权限设计
+** 部署策略
+* 数据库
+  MySQL
+* 库名
+  bigdata-report
+* 表结构
+  mysql> show tables;
+  +----------------------------+
+  | Tables_in_bigdata-daportal | comment
+  +----------------------------+
+  | auth_columns               | 列过滤
+  | auth_filters               |
+  | auth_function              |
+  | auth_parr                  |
+  | auth_r2columns             |
+  | auth_r2f                   |
+  | auth_role                  |
+  | auth_u2r                   |
+  | auth_user                  |
+  | branchRelateGroups         |
+  | cfg_branchcompany_info     | deprecated
+  | cfg_businesscat_info       |
+  | cfg_mcc_info               |
+  | cfg_region_info            |
+  | cfg_union_product          |
+  | count_compare              | deprecated
+  | count_day                  |
+  | dict_trxtype               |
+  | dictionary                 | ok
+  | groups                     |
+  | log                        | ok
+  | menu                       | no-used
+  | menuRelateGroups           |
+  | operatelog                 |
+  | preferrences               | ok
+  | pushmail                   | ok
+  | report_admin               |
+  | report_test                |
+  | service_datainterface      | doggie-api
+  | service_datainterface_key  |
+  | tag                        |
+  | tagRelateGroups            |
+  | userRelateGroups           |
+  +----------------------------+
+  33 rows in set (0,00 sec)
+
+** 分类
+*** auth
+*** cfg
+* 权限设计
+以人为本 user
+角色是工具 role
+进而操作功能 function
+** 名词解释
+   user用户：自然人，使用人，报表使用人
+   role角色：基于 业务/场景 赋予用户的属性：比如管理员，部门管理员，分公司老大
+   function: 菜单, 用户操作的页面，后端由xml设计包括reportid, reportname 2个重要属性
+   filters
+   columns
+** 表结构
+*** auth_columns (Deprecated)
+     mysql> describe auth_columns;
+     +-----------+-------------+------+-----+---------+----------------+
+     | Field     | Type        | Null | Key | Default | Extra          |
+     +-----------+-------------+------+-----+---------+----------------+
+     | id        | int(11)     | NO   | PRI | NULL    | auto_increment |
+     | fid       | int(11)     | YES  |     | NULL    |                |
+     | comment   | varchar(45) | YES  |     | NULL    |                |
+     | name      | varchar(45) | YES  |     | NULL    |                |
+     | pid       | int(10)     | YES  |     | NULL    |                |
+     | groupType | varchar(45) | YES  |     | NULL    |                |
+     +-----------+-------------+------+-----+---------+----------------+
+
+- id
+- fid
+- comment
+- name
+- pid
+- groupType
+
+     mysql> select * from auth_columns limit 10;
+     +----+------+-----------------------+----------------------+------+-----------+
+     | id | fid  | comment               | name                 | pid  | groupType |
+     +----+------+-----------------------+----------------------+------+-----------+
+     |  1 |    1 | 月份                  | MONTH                | NULL | NULL      |
+     |  2 |    1 | 销售姓名              | EMPNAME              | NULL | NULL      |
+     |  3 |    1 | 收入                  | TRXFEE               | NULL | NULL      |
+     |  6 |    1 | 商户类型              | CUSTOMERTYPE         | NULL | NULL      |
+     |  7 |    1 | 代理商名称            | AGENTNAME            | NULL | NULL      |
+     |  8 |    1 | 对外成本              | EXTERNALCOST         | NULL | NULL      |
+     |  9 |    1 | 商户名称              | RECEIVERNAME         | NULL | NULL      |
+     | 10 |    1 | 生产线分组名称        | PRODUCTGROUPTYPENAME | NULL | NULL      |
+     | 11 |    1 | 销售product名         | SALESPRODUCTNAME     | NULL | NULL      |
+     | 12 |    1 | cycle类型             | CYCLETYPE            | NULL | NULL      |
+     +----+------+-----------------------+----------------------+------+-----------+
+
+     mysql> select * from auth_columns order by id desc limit 10;
+     +-----+------+--------------+------------+------+-----------+
+     | id  | fid  | comment      | name       | pid  | groupType |
+     +-----+------+--------------+------------+------+-----------+
+     | 961 |  231 | 啊           | 啊         |  960 |           |
+     | 960 |  231 | 啊           | NULL       | NULL | NULL      |
+     | 959 |  188 | 业绩属性     | EXNAME     |  854 | group     |
+     | 958 |  188 | 业绩占比     | C2APERCENT |  854 | group     |
+     | 957 |  186 | 业绩占比     | C2APERCENT |  768 | group     |
+     | 956 |  186 | 业绩属性     | EXNAME     |  768 | group     |
+     | 955 |  187 | 业绩属性     | EXNAME     |  811 | group     |
+     | 954 |  187 | 业绩占比     | C2APERCENT |  811 | group     |
+     | 953 |  187 | 银行名       | bankname   |  811 | group     |
+     | 952 |  187 | 银行码       | bankcode   |  811 | group     |
+     +-----+------+--------------+------------+------+-----------+
+
+*** auth_filters (Deprecated)
+面向的场景是？
+    mysql> describe auth_filters;
+    +---------+-------------+------+-----+---------+----------------+
+    | Field   | Type        | Null | Key | Default | Extra          |
+    +---------+-------------+------+-----+---------+----------------+
+    | id      | int(11)     | NO   | PRI | NULL    | auto_increment |
+    | fid     | int(11)     | YES  |     | NULL    |                |
+    | comment | varchar(45) | YES  |     | NULL    |                |
+    | value   | varchar(45) | YES  |     | NULL    |                |
+    | name    | varchar(45) | YES  |     | NULL    |                |
+    +---------+-------------+------+-----+---------+----------------+
+
+    - id 非业务自增长id
+    - fid 父id
+    -
+    -
+    -
+    mysql> select * from auth_filters ;
+    +----+------+--------------------+--------------------------------+------------------+
+    | id | fid  | comment            | value                          | name             |
+    +----+------+--------------------+--------------------------------+------------------+
+    |  1 |    1 | 销售姓名           | EMPNAME={{empname}}            | NULL             |
+    |  3 |    1 | 交易日期大于       | TRXDATE>='2015-01-01 00:00:00' | NULL             |
+    |  4 |    1 | 测试-1             | a>1                            | NULL             |
+    | 10 |  123 | asfd               | asfd                           | NULL             |
+    | 11 |  123 | asfs               | asfsad                         | NULL             |
+    | 47 |  100 | 业务类型           | {{BIZTYPE}}                    | BIZTYPE          |
+    | 60 |   99 | 业务类型           | {{BIZTYPE}}                    | BIZTYPE          |
+    | 61 |    3 | 分公司             | {{branchname}}                 | branchname       |
+    | 62 |    5 | 分公司             | {{branchname}}                 | branchname       |
+    | 63 |    4 | 分公司             | {{branchname}}                 | branchname       |
+    | 64 |    6 | 分公司             | {{branchname}}                 | branchname       |
+    | 65 |    7 | 分公司             | {{branchname}}                 | branchname       |
+    | 66 |    8 | 分公司             | {{branchname}}                 | branchname       |
+    | 67 |    9 | 分公司             | {{branchname}}                 | branchname       |
+    | 70 |  200 | asfd               | asfd                           | asdf             |
+    | 71 |  201 | 123456             | 123456                         | 123456           |
+    | 72 |  182 |                    | {{BIZTYPE}}                    | BIZTYPE          |
+    | 73 |  186 |                    | {{BIZTYPE}}                    | BIZTYPE          |
+    | 74 |  187 |                    | {{BIZTYPE}}                    | BIZTYPE          |
+    | 75 |  188 |                    | {{BIZTYPE}}                    | BIZTYPE          |
+    | 76 |  203 | ttt                | ttt                            | ttt              |
+    | 77 |  204 | sdfs               | sdfsd                          | fsd              |
+    | 78 |  206 | a                  | a                              | a                |
+    | 79 |  207 | =                  | =                              | =                |
+    | 80 |  208 | f                  | f                              | f                |
+    | 81 |  209 | a                  | a                              | a                |
+    | 82 |  182 | 营销产品           | {{SALESPRODUCTNAME}}           | SALESPRODUCTNAME |
+    | 83 |  186 | 营销产品           | {{SALESPRODUCTNAME}}           | SALESPRODUCTNAME |
+    | 84 |  187 | 营销产品           | {{SALESPRODUCTNAME}}           | SALESPRODUCTNAME |
+    | 85 |  188 | 营销产品           | {{SALESPRODUCTNAME}}           | SALESPRODUCTNAME |
+    +----+------+--------------------+--------------------------------+------------------+
+    30 rows in set (0,00 sec)
+
+*** auth_function
+每行记录一个功能的基本信息,如果view字段是report,报表的详细配置的reportid对应
+
+    mysql> describe auth_function;
+    +------------+-------------+------+-----+---------+----------------+
+    | Field      | Type        | Null | Key | Default | Extra          |
+    +------------+-------------+------+-----+---------+----------------+
+    | id         | int(11)     | NO   | PRI | NULL    | auto_increment |
+    | reportid   | varchar(45) | YES  |     | NULL    |                |
+    | reportname | varchar(45) | YES  |     | NULL    |                |
+    | view       | varchar(45) | YES  |     | NULL    |                |
+    | pid        | int(10)     | YES  |     | NULL    |                |
+    +------------+-------------+------+-----+---------+----------------+
+    5 rows in set (0,00 sec)
+
+    - id 自增长id
+    - reportid 报表模板的key值 用于后端技术查找
+    - reportname 报表显示的中文名字
+    - view 分多个版本：新版本都是 report (ps: 旧版本的view是否还有业务含义)
+    - pid 左边大栏目归属
+    
+
+id
+自增长id
+reportid
+功能名称,在v3版中,对应配置文件的文件名
+reportname
+功能中文名,界面显示使用
+view
+界面展示,对应使用的jsp页面
+v3版的报表统一使用report.jsp,所以v3版的这个字段都是report
+v3版的权限页面,这个字段指定了使用的jsp文件名字
+pid
+父菜单,显示时使用
+表示这个菜单显示到哪个父菜单下
+如果功能自己为父菜单,那么这个值为null
+
+如果父菜单不存在,那么不会显示到界面左边的菜单中(比如新建用户的界面,不会在左边显示,只能在显示用户的页面点击增加按钮跳转到新建用户的页面)
+一般对于这种页面把父菜单的值设置为-1
+
+
+    mysql> select * from auth_function limit 10;
+    +----+--------------------------+--------------------------+--------------------+------+
+    | id | reportid                 | reportname               | view               | pid  |
+    +----+--------------------------+--------------------------+--------------------+------+
+    |  1 | reportdb                 | report日统计(测试)       | reportdbViews      |  102 |
+    |  3 | trans_stat_report        | 交易统计查询             | transViews         |  102 |
+    |  4 | merchant_stat_report     | 商户统计查询             | customerViews      |  102 |
+    |  5 | pos_terminal_report      | 机具信息查询             | posJiJuSearchViews |  102 |
+    |  6 | customerinfo_report      | 商户信息查询             | posSHSearchViews   |  102 |
+    |  7 | commtrans_report         | 商户交易查询             | posSearchViews     |  102 |
+    |  8 | agent_subcustomer_report | 代理商子商户查询         | childPosViews      |  102 |
+    |  9 | fruit_trans_report       | 水果通道交易查询         | fruitChannelViews  |  102 |
+    | 10 | menu_report              | 菜单管理                 | common/menuViews   |  245 |
+    | 99 | report_month_report      | 报表月统计(旧)           | reportMonthViews   |  102 |
+    +----+--------------------------+--------------------------+--------------------+------+
+
+    mysql> select * from auth_function order by id desc limit 10;
+    +-----+----------------------------+-----------------------------------------------------+--------+------+
+    | id  | reportid                   | reportname                                          | view   | pid  |
+    +-----+----------------------------+-----------------------------------------------------+--------+------+
+    | 263 | test2019                   | 测试                                                | report |  102 |
+    | 262 | REMITCUSTOMERINFO          | 出款商户信息查询                                    | report |  102 |
+    | 261 | eyoukagentprofit           | 易游库代理商分润查询                                | report |  102 |
+    | 260 | YBZFDM.CHANNELDAILYTRX_NEW | 银行接口交易查询（新）                              | report |  102 |
+    | 259 | eyoukfourthdaily           | 易游库第四方日统计                                  | report |  102 |
+    | 258 | merchantInfoReportToBank   | 不定期上报人行商户报备信息——线下                    | report |  102 |
+    | 257 | silenceMerchantList        | 沉默商户名单——线下                                  | report |  102 |
+    | 256 | bankpisas                  | 人行报备pisas月报——线下（近两月）                   | report |  102 |
+    | 255 | CUSTOMERINFO_NOLIMITED     | 商户基本信息查询(无限制)                            | report |  102 |
+    | 254 | nobank_report_day          | 非银行卡日统计                                      | report |  102 |
+    +-----+----------------------------+-----------------------------------------------------+--------+------+
+
+*** auth_parr
+parameter configuration
+
+    mysql> describe auth_parr;
+    +----------+---------------+------+-----+---------+----------------+
+    | Field    | Type          | Null | Key | Default | Extra          |
+    +----------+---------------+------+-----+---------+----------------+
+    | id       | int(11)       | NO   | PRI | NULL    | auto_increment |
+    | pid      | int(11)       | YES  |     | NULL    |                |
+    | name     | varchar(45)   | YES  |     | NULL    |                |
+    | type     | varchar(45)   | YES  |     | NULL    |                |
+    | dataType | varchar(45)   | YES  |     | NULL    |                |
+    | value    | varchar(5000) | YES  |     | NULL    |                |
+    +----------+---------------+------+-----+---------+----------------+
+
+    - id
+    - pid
+    - name 列名
+    - type role/user 行权限控制
+    - dataType
+    - value
+
+    mysql> select * from  auth_parr order by id desc limit 10;
+    +-----+------+--------------+------+----------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+    | id  | pid  | name         | type | dataType | value                                                                                                                                                                                                                                  |
+    +-----+------+--------------+------+----------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+    | 526 |  184 | 基础产品     | role | in       | 日结通                                                                                                                                                                                                                                 |
+    | 525 |  182 | 零售产品     | role | in       | 易刷+标准版,易刷+外包版,易刷+县乡版,V计划标准版,V计划外包版,易钱包标准版,收款宝,日结通线下版,储值卡平台标准版,易刷标准版,易刷县乡版,畅刷,POS机具,联通MINIPOS,易码付                                                                    |
+    | 524 |   97 | 零售产品     | role | in       | 收款宝,日结通线下版,易码付                                                                                                                                                                                                             |
+    | 518 |  181 | 基础产品     | role | in       | 分期支付,白条支付                                                                                                                                                                                                                      |
+    | 517 |  178 | 基础产品     | role | in       | 个人网银支付（B2C）,企业网银支付（B2B）                                                                                                                                                                                                |
+    | 515 |  176 | 业绩属性     | role | in       | 政信行业线                                                                                                                                                                                                                             |
+    | 514 |  184 | 业绩属性     | user | in       | 政信行业线                                                                                                                                                                                                                             |
+    | 511 |  177 | 业绩属性     | role | in       | 政信行业线     g                                                                                                                                                                                                                        |
+    | 510 |  177 | 分公司       | role | in       | 电信事业部,教育事业部,政信行业线                                                                                                                                                                                                       |
+    | 507 |  175 | 基础产品     | role | in       | 日结通                                                                                                                                                                                                                                 |
+    +-----+------+--------------+------+----------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+*** auth_r2columns
+    mysql> describe auth_r2columns;
+    +-------+-------------+------+-----+---------+----------------+
+    | Field | Type        | Null | Key | Default | Extra          |
+    +-------+-------------+------+-----+---------+----------------+
+    | id    | int(11)     | NO   | PRI | NULL    | auto_increment |
+    | rid   | int(11)     | YES  |     | NULL    |                |
+    | fid   | int(11)     | YES  |     | NULL    |                |
+    | name  | varchar(45) | YES  |     | NULL    |                |
+    +-------+-------------+------+-----+---------+----------------+
+
+- id
+- rid
+- fid
+- name
+
+    mysql> select * from  auth_r2columns order by id desc limit 10;
+    +-------+------+------+-----------------------------+
+    | id    | rid  | fid  | name                        |
+    +-------+------+------+-----------------------------+
+    | 83714 |    1 |  263 | 实名认证通过数量            |
+    | 83713 |    1 |  263 | 实名认证通过比例(%)         |
+    | 83712 |    1 |  263 | 产品名称                    |
+    | 83711 |    1 |  263 | 商户数量                    |
+    | 83710 |    1 |  260 | 卡类型                      |
+    | 83709 |    1 |  260 | 交易类型                    |
+    | 83708 |    1 |  260 | 商户编号                    |
+    | 83707 |    1 |  260 | MCC码                       |
+    | 83706 |    1 |  260 | 业务通道名称                |
+    | 83705 |    1 |  260 | 产品号                      |
+    +-------+------+------+-----------------------------+
+
+*** auth_r2f
+    mysql> describe auth_r2f;
+    +-------+-------------+------+-----+---------+----------------+
+    | Field | Type        | Null | Key | Default | Extra          |
+    +-------+-------------+------+-----+---------+----------------+
+    | id    | int(11)     | NO   | PRI | NULL    | auto_increment |
+    | fid   | int(11)     | YES  |     | NULL    |                |
+    | rid   | int(11)     | YES  |     | NULL    |                |
+    | type  | varchar(45) | YES  |     | NULL    |                |
+    +-------+-------------+------+-----+---------+----------------+
+
+    mysql> select * from  auth_r2f order by id desc limit 10;
+    +------+------+------+----------+
+    | id   | fid  | rid  | type     |
+    +------+------+------+----------+
+    | 5954 |  263 |    1 | function |
+    | 5953 |  260 |    1 | function |
+    | 5952 |  259 |    1 | function |
+    | 5951 |  258 |    1 | function |
+    | 5950 |  257 |    1 | function |
+    | 5949 |  256 |    1 | function |
+    | 5948 |  252 |    1 | function |
+    | 5947 |  251 |    1 | function |
+    | 5946 |  250 |    1 | function |
+    | 5945 |  249 |    1 | function |
+    +------+------+------+----------+
+
+*** auth_role
+
+    mysql> describe auth_role;
+    +-----------+-------------+------+-----+---------+----------------+
+    | Field     | Type        | Null | Key | Default | Extra          |
+    +-----------+-------------+------+-----+---------+----------------+
+    | id        | int(11)     | NO   | PRI | NULL    | auto_increment |
+    | comment   | varchar(45) | YES  |     | NULL    |                |
+    | createUid | int(11)     | YES  |     | NULL    |                |
+    +-----------+-------------+------+-----+---------+----------------+
+
+    - id
+    - comment
+    - createUid
+
+    mysql> select * from auth_role limit 10;
+    +----+-----------------------------+-----------+
+    | id | comment                     | createUid |
+    +----+-----------------------------+-----------+
+    |  1 | 超级管理员                  |      NULL |
+    |  2 | 管理员                      |      NULL |
+    | 10 | 产品线测试                  |      NULL |
+    | 13 | 主管                        |      NULL |
+    | 27 | 广州分公司                  |      NULL |
+    | 28 | 上海分公司                  |      NULL |
+    | 37 | 商户管理部数据分析          |      NULL |
+    | 38 | 移动产品线数据分析          |      NULL |
+    | 39 | 测试角色哦                  |      NULL |
+    | 42 | POS产品线                   |      NULL |
+    +----+-----------------------------+-----------+
+
+    mysql> select * from  auth_role order by id desc limit 10;
+    +-----+---------------------------------+-----------+
+    | id  | comment                         | createUid |
+    +-----+---------------------------------+-----------+
+    | 186 | dd                              |         1 |
+    | 185 | dzy                             |         1 |
+    | 184 | 收款宝-日结通数据分析           |        12 |
+    | 183 | 出款商户信息查询                |        12 |
+    | 182 | 线下数据分析                    |        12 |
+    | 181 | 分期支付数据分析                |        12 |
+    | 180 | 出款商户基本信息查询            |        12 |
+    | 179 | 商户基本信息查询-风险           |        12 |
+    | 178 | 网银数据分析-风险               |        12 |
+    | 177 | 运营                            |        44 |
+    +-----+---------------------------------+-----------+
+
+*** auth_u2r
+
+    mysql> describe auth_u2r;
+    +-------+---------+------+-----+---------+----------------+
+    | Field | Type    | Null | Key | Default | Extra          |
+    +-------+---------+------+-----+---------+----------------+
+    | id    | int(11) | NO   | PRI | NULL    | auto_increment |
+    | rid   | int(11) | YES  |     | NULL    |                |
+    | uid   | int(11) | YES  |     | NULL    |                |
+    +-------+---------+------+-----+---------+----------------+
+
+    - id
+    - rid
+    - uid
+
+      mysql> select * from  auth_u2r order by id desc limit 10;
+      +------+------+------+
+      | id   | rid  | uid  |
+      +------+------+------+
+      | 1659 |  156 |  150 |
+      | 1658 |  150 |  150 |
+      | 1657 |  145 |  150 |
+      | 1656 |  123 |  150 |
+      | 1655 |  121 |  150 |
+      | 1654 |   72 |  150 |
+      | 1653 |   71 |  150 |
+      | 1652 |   67 |  150 |
+      | 1651 |   65 |  150 |
+      | 1650 |   64 |  150 |
+      +------+------+------+
+
+*** auth_user
+    mysql> describe auth_user;
+
+    +-----------+----------------+------+-----+---------+----------------+
+    | Field     | Type           | Null | Key | Default | Extra          |
+    +-----------+----------------+------+-----+---------+----------------+
+    | id        | int(11)        | NO   | PRI | NULL    | auto_increment |
+    | username  | varchar(45)    | YES  |     | NULL    |                |
+    | password  | varchar(45)    | YES  |     | NULL    |                |
+    | fullname  | varchar(45)    | YES  |     | NULL    |                |
+    | parameter | varchar(10000) | YES  |     | NULL    |                |
+    | parent    | int(11)        | YES  |     | NULL    |                |
+    | userType  | int(11)        | YES  |     | NULL    |                |
+    +-----------+----------------+------+-----+---------+----------------+
+
+    - username 比如 zhuyu.deng
+    - password 不解释
+    - fullname 比如 邓瞩彧
+    - parameter
+    - parent
+    - userType PS: refer to Unix
+      - 1 超级管理员 系统级别
+      - 2 管理员 业务部门级别
+      - 3 普通用户
+
+    mysql> select * from  auth_user order by id desc limit 10;
+    +-----+--------------+----------------------------------+------------+-----------+--------+----------+
+    | id  | username     | password                         | fullname   | parameter | parent | userType |
+    +-----+--------------+----------------------------------+------------+-----------+--------+----------+
+    | 193 | xiaoyi.zhao  | ccf5d885346fc01f0ca95698142cd103 | 赵晓艺     | {}        |     12 |        3 |
+    | 192 | yongli.hu    | ccf5d885346fc01f0ca95698142cd103 | 胡永丽     | {}        |     12 |        3 |
+    | 191 | xin.liu      | ccf5d885346fc01f0ca95698142cd103 | 刘鑫       | {}        |     12 |        3 |
+    | 190 | yanyan.wang  | ccf5d885346fc01f0ca95698142cd103 |  王艳艳    | {}        |     12 |        3 |
+    | 189 | sha.li       | 0fedf3a4848373ebe1530e51ecf7c227 | 李莎       | {}        |   NULL |        2 |
+    | 188 | zhuang.zhang | ccf5d885346fc01f0ca95698142cd103 |  张壮      | {}        |     12 |        3 |
+    | 187 | guanglin.gu  | 87d9bb400c0634691f0e3baaf1e2fd0d | 古光林     | {}        |     44 |        3 |
+    | 186 | xiaopan.yang | 87d9bb400c0634691f0e3baaf1e2fd0d | 杨小盼     | {}        |     44 |        3 |
+    | 185 | shasha.cao   | 87d9bb400c0634691f0e3baaf1e2fd0d | 曹莎莎     | {}        |     44 |        3 |
+    | 184 | li.zhang     | 87d9bb400c0634691f0e3baaf1e2fd0d | 张丽       | {}        |     44 |        3 |
+    +-----+--------------+----------------------------------+------------+-----------+--------+----------+
+
+    mysql> select * from auth_user limit 10;
+    +----+---------------+----------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------+----------+
+    | id | username      | password                         | fullname       | parameter                                                                                                                                                                                                                                                                             | parent | userType |
+    +----+---------------+----------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------+----------+
+    | -1 | report        | 3f1ab52a2c15263cd03752861b655308 | 付宪溪         | {}                                                                                                                                                                                                                                                                                    |   NULL |        2 |
+    |  1 | admin         | ba4908588bae2fa23ab65d8f2b7a6a58 | 管理员         | {"empname":"admin","branchname":"ACTUALGOODS,BANKCOOP,BJ,CD,CQ,DUOLABAO,EDU,FUND,FZ,GD,GX,GZ,GZZC,HK,HN,HOTELO2O,HZ,INNOVATION,INSURANCE,JN,KUAJING,KXLS,MARKET,MONEY,NJ,NMG,POSDEPARTMENT,SH,SHPRODUCT,SX,SY,SZ,SZYL,TELECOM,TJ,TJINSURANCE,WH,XA,YHJ,YN,YPFINANCE,YTRX,ZZ,CHN"}     |   NULL |        1 |
+    |  2 | ym            | a5f6165f1454d6342be60bed1b4d2057 | 杨明           | {"empname":"杨明","branchname":"ACTUALGOODS,BANKCOOP,BJ,CD,CQ,DUOLABAO,EDU,FUND,FZ,GD,GX,GZ,GZZC,HK,HN,HOTELO2O,HZ,INNOVATION,INSURANCE,JN,KUAJING,KXLS,MARKET,MONEY,NJ,NMG,POSDEPARTMENT,SH,SHPRODUCT,SX,SY,SZ,SZYL,TELECOM,TJ,TJINSURANCE,WH,XA,YHJ,YN,YPFINANCE,YTRX,ZZ,CHN"}      |      1 |        3 |
+    |  3 | xc            | 3f1ab52a2c15263cd03752861b655308 | 谢超           | {"empname":"谢超","BIZTYPE":"线下POS,绑定支付"}                                                                                                                                                                                                                                       |   NULL |        2 |
+    |  4 | test          | 5fa62ae6176f3746142503a6ebe96cb3 | 测试人员01     | {"SALESPRODUCTNAME":"一键支付标准版（收银台版）,一键支付专业版（API）,微信扫码支付标准版,卡信息3项验证,卡信息4项验证,畅付A,畅付B,畅付D,B2C标准版,企业网银支付（B2B）,身份证验证"}                                                                                                     |   NULL |        3 |
+    | 12 | shiti.sun     | a7d37b02c013ace7d7397a8b0d34a473 | 孙诗媞         | {}                                                                                                                                                                                                                                                                                    |   NULL |        2 |
+    | 13 | xueying.zhang | 3f1ab52a2c15263cd03752861b655308 | 张雪颖         | {}                                                                                                                                                                                                                                                                                    |   NULL |        3 |
+    | 14 | posTest       | 87d9bb400c0634691f0e3baaf1e2fd0d | pos测试        | {"empname":"pos测试","branchname":"ACTUALGOODS,BANKCOOP,BJ,CD,CQ,DUOLABAO,EDU,FUND,FZ,GD,GX,GZ,GZZC,HK,HN,HOTELO2O,HZ,INNOVATION,INSURANCE,JN,KUAJING,KXLS,MARKET,MONEY,NJ,NMG,POSDEPARTMENT,SH,SHPRODUCT,SX,SY,SZ,SZYL,TELECOM,TJ,TJINSURANCE,WH,XA,YHJ,YN,YPFINANCE,YTRX,ZZ,CHN"}   |   NULL |        3 |
+    | 16 | lei.ye        | 8179a305de63314800ead2cf469484f4 | 不用-叶蕾      | {"branchname":"FZ"}                                                                                                                                                                                                                                                                   |   NULL |        3 |
+    | 17 | fei.wan       | 8179a305de63314800ead2cf469484f4 | 不用-万飞      | {"branchname":"CD"}                                                                                                                                                                                                                                                                   |   NULL |        3 |
+    +----+---------------+----------------------------------+----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------+----------+
+** 逻辑判断
+*** sql表达
+**** 获取超级管理员
+     "select r.id,`comment`,createUid,fullname from auth_role r left join auth_user u on u.id=r.createUid order by createUid,id"
+**** 获取管理员
+     "select r.id,`comment`,createUid,fullname from auth_role r left join auth_user u on u.id=r.createUid order by createUid,id"
+**** 普通用户没有这个权利
+**** 获取角色
+***** 前端传入 rid
+***** 根据 rid 获取 userType（用户类型：普通，管理员，超级管理员）
+      "select r2f.fid,f.reportname,c.name from auth_r2f r2f\n"
+      + "join auth_r2columns c on r2f.rid=c.rid and r2f.fid=c.fid\n"
+      + "join auth_function f on f.id=r2f.fid\n"
+      + "where r2f.type='function' and r2f.rid=?\n"
+      + "order by r2f.fid,r2f.id\n";
+
+*** 调用图，包括库操作
+
+* 数据备份机制
+*** xml backup
+*** database backup

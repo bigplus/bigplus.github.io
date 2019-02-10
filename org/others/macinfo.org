@@ -1,0 +1,5 @@
+#+TITLE: Mac中将delete键定义为删除键
+
+在Mac中，delete键实际是退格键（Backspace），fn+delete才是删除键。这也是从Windows转到Mac时不习惯的地方之一。
+
+通过安装DoubleCommand软件可以解决这个问题。安装后，在System Preferences中找到DoubleCommand找打开在Edit Settings中选中Swap Delete and Fn-Delete即可。

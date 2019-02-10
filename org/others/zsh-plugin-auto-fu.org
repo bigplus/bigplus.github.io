@@ -1,0 +1,25 @@
+*
+安裝oh-my-zsh
+clone the oh-my-zsh.git
+git clone https://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh
+備份現有的.zshrc
+cp ~/.zshrc ~/.zshrc.old
+複製oh-my-zsh提供的樣本
+cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
+*
+安裝auto-fu.zsh
+clone the auto-fu.zsh.git
+git clone https://github.com/hchbaw/auto-fu.zsh.git ~/.oh-my-zsh/custom
+cd ~/.oh-my-zsh/custom
+mv auto-fu.zsh/ auto-fu/
+cd auto-fu/ 
+git checkout pu
+ln -s auto-fu.zsh auto-fu.plugin.zsh
+加入下列到~/.zshrc
+if [ -f ~/.oh-my-zsh/custom/auto-fu/auto-fu.plugin.zsh ]; then
+        source ~/.oh-my-zsh/custom/auto-fu/auto-fu.plugin.zsh ; 
+    function zle-line-init () {
+        auto-fu-init
+    }
+    zle -N zle-line-init
+fi

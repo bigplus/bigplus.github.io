@@ -1,0 +1,2 @@
+Combines all items 
+One number per line

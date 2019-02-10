@@ -1,0 +1,18 @@
+
+
+
+
+
+#+TITLE: Clojue 入门 1
+#+AUTHOR: Jerry
+
+* 简介
+Clojue是运行于JVM的Lisp方言。Lisp是什么？是一种函数式编程语言。Clojure是Lisp方言中具有工业级价值的语言。首先我们从lein开始，lein相当于Java中得maven，用于项目管理。
+
+* 安装 lein
+    + google
+
+* 新建一个项目
+  + lein new project-name
+  + 结构
+

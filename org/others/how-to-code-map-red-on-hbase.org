@@ -1,0 +1,120 @@
+#+TITLE: HOW TO CODE MAP-REDUCE ON HBASE
+#+AUTHOR: Jerry
+#+DATE: 2014-12-17
+#+OPTIONS: creator:nil timestamp:nil
+
+* Map Reduce 框架
+ /注:代码基于 maven 管理/
+**  在 pom.xml 中添加如下依赖（当然，添加 apache 社区的也不会报错）
+#+BEGIN_SRC
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase</artifactId>
+            <version>0.94.6</version>
+        </dependency>
+#+END_SRC
+
+** map 阶段
+   + 此阶段主要用于读取HBase，过滤信息，为Reduce阶段组合，聚合信息，当然可以没有 Reduce 阶段，Map直接写入 HBase。
+   + demo
+#+BEGIN_SRC java
+     public class Mapper1 extends TableMapper<ImmutableBytesWritable, ImmutableBytesWritable> {
+
+        /**
+             row    代表 HBase Rowkey
+             values 代表 HBase 属性值集合
+        */
+        @Override
+        public void map(ImmutableBytesWritable row, Result values, Context context) throws IOException {
+
+                try {
+                    /**
+                         你可以用如下的方法获取具体属性值, 当然不一定是字符串，可以是其他任意类型，只要可以序列化就可以了。
+                    */
+                    String val1 = new String(values.getValue("familyName1".getBytes(), "qualifierName1".getBytes()));
+                    String val2 = new String(values.getValue("familyName2".getBytes(), "qualifierName2".getBytes())));
+                    /**
+                         不满足条件的你可以，不要，和业务需求有关
+                    */
+                    if (StringUtils.isBlank(val1)) {
+                        return;
+                    }
+
+                    /**
+                        将收集的信息写入临时文件, 建议使用 ImmutableBytesWritable, 因为二进制的总是最快的
+                    */
+                    context.write(new ImmutableBytesWritable("rowkey".getBytes()), new ImmutableBytesWritable("value"));
+                } catch (InterruptedException e) {
+                    throw new IOException(e);
+                }
+        }
+    }
+#+END_SRC
+
+** reduce 阶段
+   + 对于 Map 阶段后， shuffle得到的数据，就是 Map 整合后的，一般都是用来做汇总之类的分析，然后调用write()方法写入 HBase
+   + demo
+#+BEGIN_SRC java
+    public static class Reducer1 extends TableReducer<ImmutableBytesWritable, ImmutableBytesWritable, ImmutableBytesWritable> {
+
+        public void reduce(ImmutableBytesWritable key, Iterable<ImmutableBytesWritable> values, Context context) throws IOException, InterruptedException {
+            
+            /**
+                    demo，做聚合
+            */
+            try {
+                int i = 0;
+                for (ImmutableBytesWritable val : values) {
+                    ++i;
+                }
+                
+                /**
+                     写入 HBase
+                */
+                Put put = new Put(key.get());
+                put.add(Bytes.toBytes("familyName"), Bytes.toBytes("qualifierName1"), Bytes.toBytes("value1));
+                put.add(Bytes.toBytes("familyName"), Bytes.toBytes("qualifierName2"), Bytes.toBytes("value2));
+                context.write(key, put);
+
+            } catch (Exception e) {
+                LOG.error(e);
+                return ;
+            }  // catch
+        }  // reduce function
+    }  // reduce class
+#+END_SRC
+
+** job
+   + map, reduce 都准备好了，写一个job组合到一起，提交到 hadoop 集群执行
+   + demo
+#+BEGIN_SRC java
+public class Job {
+    public static void main(String[] args) throws Exception {
+
+        HBaseConfiguration conf = new HBaseConfiguration();
+        conf.set("hbase.zookeeper.quorum", "ip1,ip2,ip3");
+        conf.set("hbase.zookeeper.property.clientPort", "2181");
+
+        Job job = new Job(conf, "jobName");
+        job.setJarByClass(Job.class);
+        /**
+              结合需求
+              设置参数
+        */
+        job.setNumReduceTasks(2);
+        Scan scan = new Scan();
+        scan.setCaching(2500);
+        scan.setCacheBlocks(false);
+
+        TableMapReduceUtil.initTableMapperJob("inputTableName", scan, Mapper1.class, ImmutableBytesWritable.class, ImmutableBytesWritable.class, job);
+        TableMapReduceUtil.initTableReducerJob("outputTableName", Reducer1.class, job);
+        System.exit(job.waitForCompletion(true) ? 0 : 1);
+    }
+}
+
+#+END_SRC

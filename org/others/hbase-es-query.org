@@ -1,0 +1,88 @@
+#+TITLE: Query Processor
+
+* 执行阶段简述
+** 解析阶段
++ 基于SQL-paser完成SQL词法、语法解析，将SQL转化为抽象语法树AST
++ 遍历AST Tree，抽象出查询的基本组成单元QueryBlock
+** 策略阶段
++ 遍历QueryBlock，根据配置（索引等）得到执行操作树OperatorTree
++ 优化OperatorTree，得到最终执行计划
+** 执行阶段
++ 根据执行策略，针对HBase， Es执行查询操作
++ 归并结果
+--------------------------------------------------------------------------------
+#+CAPTION: 结构图
+[[./img/query-strategy.png]]
+* 概述
+** 如何使用SQL-Parser将SQL转化为语法树，进而得到QueryBlock(最小执行单元)
+基于SQL-Parser, 将SQL解析后，得到sql语法树
+执行过程分为：
+1. 解析 : Parser
+2. 语法树 : AST
+3. 遍历 : Visitor
+下面为简单demo
+#+BEGIN_SRC java
+public static void main(String[] args) throws Exception {
+
+        String sql = "select * from tbl t where t.time > '2014-10-10'";
+
+        SQLParser parser = new SQLParser();
+        StatementNode stmt = parser.parseStatement(sql);
+        stmt.treePrint();
+    }
+#+END_SRC
+语法树结构
+#+BEGIN_SRC 
+name: null
+updateMode: UNSPECIFIED
+statementType: SELECT
+resultSet: 	
+	isDistinct: false
+	resultColumns: 		
+
+		[0]:		
+		tableName: null
+		exposedName: null
+		name: null
+		tableName: null
+		isDefaultColumn: false
+		type: null
+	fromList: 		
+
+		[0]:		
+		tableName: tbl
+		updateOrDelete: null
+		null
+		correlation Name: t
+		t
+	whereClause: 		
+		operator: >
+		methodName: greaterThan
+		type: null
+		leftOperand: 			
+			columnName: time
+			tableName: t
+			type: null
+		rightOperand: 			
+			value: 2014-10-10
+			type: CHAR(10) NOT NULL
+
+#+END_SRC
+
+** 依据HBase， ES索引信息，确定执行计划，并优化
+
+*** 分场景具体实现，逻辑复杂
++ 只使用HBase场景
+当查询信息条件符合HBase独立查询条件时，例如，主键查询，主键范围查询，范围可由主键确定多条件灵活查询，主要依据HBase Filter查询（宽表）。
++ 只使用ES场景
+查询信息符合ES索引条件，检索信息恰好为对索引信息的sum/max/min/avg/count等统计,直接调用ES API实现。
++ 兼备ES和HBase
+查询信息较为复杂，兼顾ES，HBase，需要同时使用ES和HBase
+
+** 实现上述逻辑，同时配合 字典信息 等多维度实现
++ 将SQl语言转化为 ES-DSL语言
++ 将SQL语言转化为 HBase-API实现
++ 连接池，线程池等效用，具体实现不描述
+
+
+

@@ -1,0 +1,31 @@
+#+TITLE: FSM有限状态机
+
+* 有限状态机
+FSM： Finite State Machine
+
+wiki上的解释如下：
+
+A finite-state machine (FSM) or finite-state automaton (plural: automata), or simply a state machine, is a mathematical model of computation used to design both computer programs and sequential logic circuits. It is conceived as an abstract machine that can be in one of a finite number of states. The machine is in only one state at a time; the state it is in at any given time is called the current state. It can change from one state to another when initiated by a triggering event or condition; this is called a transition. A particular FSM is defined by a list of its states, and the triggering condition for each transition.
+
+有限个状态以及在这些状态之间的转移和动作等行为的数学模型。
+
+#+BEGIN_SRC
+
+生活实例example
+以地铁的十字转门为例子：首先定义状态
+
+           Locked      ---->   coin/pass   --------
+              ^                                   |
+              |                                   V       
+              | <-----   pass/alarm     ----    Unlocked
+
+#+END_SRC
+
+FSM首先强调状态， 即State。如上demo
+状态为Locked和Unlocked，
+
+使用一个状态转移表来说就是
+     Locked状态  -> coin事件触发     -> 状态转移为 Unlocked状态    -> 执行pass操作
+
+累了，一会写
+* 

@@ -1,0 +1,6 @@
+#+TITLE: 小技巧
+
+boolean sth = false;
+for (MyObj obj : ObjList) {
+       sth = sth || !obj.isNull();  // 省略 if 判断
+}

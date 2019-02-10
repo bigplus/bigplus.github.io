@@ -1,0 +1,353 @@
+BillGates
+https://www.gatesnotes.com/Books#All
+
+tech
+http://tech.meituan.com/spark-streaming-es.html?utm_source=tuicool&utm_medium=referral
+
+一般
+https://www.zybuluo.com/liuhui0803/note/469708
+
+大牛
+http://norvig.com/spell-correct.html
+
+akka, rpcx
+http://colobu.com/about/
+
+git 
+https://github.com/jhamrick?tab=repositories
+
+erlang's Father
+http://joearms.github.io/
+
+ebay
+https://go.developer.ebay.com/
+http://www.ebaytechblog.com/2014/10/20/announcing-kylin-extreme-olap-engine-for-big-data/#.VEgBZ4vF9Ed
+linkedin
+https://engineering.linkedin.com/data
+linked，twitter，snapshot， ingrash
+linkedin
+https://engineering.linkedin.com/blog/2016/04/kafka-ecosystem-at-linkedin
+http://kafka-summit.org/sessions/espresso-database-replication-with-kafka/
+
+
+https://engineering.linkedin.com/data/distributed-data-systems
+
+http://getindata.com/blog/post/data-pipeline-evolution-at-linkedin-on-a-few-pictures/
+
+
+优秀公司博客
+https://blog.twitter.com/engineering
+
+大数据文章资源
+http://www.toxingwang.com/hadoop
+
+阿里
+http://jm-blog.aliapp.com/?p=1047
+
+淘宝核心团队
+http://csrd.aliapp.com/?tag=tair
+
+大数据博客，数据交换
+http://lxw1234.com/archives/2015/04/109.htm
+
+数据仓库
+http://tonyguxu.blog.51cto.com/1148713/470862
+
+牛逼blog
+http://maskray.me/
+
+
+linkedin数据团队
+http://data.linkedin.com/opensource
+
+http://techblog.youdao.com/?p=459
+
+量子恒道
+http://blog.linezing.com/?p=2111
+
+http://blog.confluent.io/
+
+http://www.alidata.org/archives/939
+
+图灵
+http://www.ituring.com.cn/article/668
+
+网易后台研发中心kafka
+http://backend.blog.163.com/blog/static/2022941262014317114658272/
+
+冯大辉
+http://dbanotes.net/
+
+http://it-ebooks.info/book/3171/
+
+——————————————————————————————
+http://www.meetup.com/Boulder-Denver-Storm-Users/events/132540392/
+
+storm vs datacube
+http://bcotton.github.io/storm-meetup-datacube/storm-datacube.html#/1
+datacube tutorial
+http://gbif.blogspot.com/2012/07/getting-started-with-datacube-on-hbase.html
+———————————————————————
+http://blog.csdn.net/jiyiqinlovexx/article/details/41179293
+
+很牛逼的博客
+http://readsandthoughts.sinaapp.com/understand_zk_concepts/
+
+http://codelife.me/blog/archives/
+
+linkedin 翻译
+http://kb.cnblogs.com/page/518558/
+
+*
+
+*
+
+*
+翻译技术博客
+
+http://www.csdn.net/article/2014-10-25/2822286
+
+http://www.cnblogs.com/hsydj/p/4515057.html
+
+
+
+http://www.csdn.net/article/2015-11-27/2826343
+http://www.csdn.net/article/2014-10-30/2822362
+
+http://kylin.apache.org/blog/
+
+http://www.csdn.net/article/2015-10-27/2826054
+
+http://chengjianxiaoxue.iteye.com/blog/2218510
+
+https://groups.google.com/forum/#!topic/kylin-olap/1jSTFvR8Mms
+
+* 好的网站
+  著作权归作者所有。
+  商业转载请联系作者获得授权，非商业转载请注明出处。
+  作者：茶叶末
+  链接：http://www.zhihu.com/question/19799871/answer/26921498
+  来源：知乎
+
+  资讯
+  推酷
+  目前专注于IT领域的内容推荐，是个聚合网站，稍候阅读功能，资讯更新速度还是挺快的
+  36Kr
+  提供科技以及新兴互联网公司信息，很多初创公司的报道
+  爱范儿
+  全景关注移动互联网信息更新速度快
+  极客头条
+  CSDN的跟风，start news
+  极客公园
+  极客公园是国内最大的创新者社区
+  深入
+  互联网的一些事
+  关注国内外互联网业界的最新动态,而且是包罗万像，总有适合你的
+  互联网er的早读课
+  专注产品、用研、交互，每天一篇,很适合产品经理哦
+  #值得模仿#的产品
+  copy to XXX
+  21商评网
+  冬吴相对论，你知道吗，就是这里
+  Be For Web
+  关注移动应用及互联网产品、用户体验设计、前端开发
+  发布于 2014-06-17 添加评论 感谢
+  分享
+
+  收藏 • 没有帮助 •
+  举报
+
+  • 作者保留权利
+  包子，自从得了精神病，整个人都精神多了
+  克尔里、shelly、石晓琛 等人赞同
+  =============团队博客 ============= 淘宝UED http://ued.taobao.com/blog 新浪UED http://ued.sina.com 阿里巴巴UED http://www.aliued.cn/ UCD大社区 http://ucdchina.com/ 支付宝UED：http://ped.alipay.com/ 百度MUX http://mux.baidu.com/ 携程UED … 显示全部
+  =============团队博客 =============
+  淘宝UED http://ued.taobao.com/blog
+  新浪UED http://ued.sina.com
+  阿里巴巴UED http://www.aliued.cn/
+  UCD大社区 http://ucdchina.com/
+  支付宝UED：http://ped.alipay.com/
+  百度MUX http://mux.baidu.com/
+  携程UED http://ued.ctrip.com/blog/
+  百度泛用户体验 http://www.baiduux.com/
+  腾讯WSD http://wsd.tencent.com/
+  微博UDC http://udc.weibo.com/
+  网易UEDC http://uedc.163.com/
+  CUED-迅雷用户体验设计中心 http://cued.xunlei.com/
+  腾讯cdc：http://cdc.tencent.com/
+
+  =============资讯网站 =============
+  互联网的一些事：http://www.yixieshi.com/
+  tech2ipo：http://tech2ipo.com/
+  网易科技：http://tech.163.com/internet
+  techweb：http://www.techweb.com.cn/
+  站酷：http://cool.techweb.com.cn/
+  chinaui：http://www.chinaui.com/
+  36氪：http://www.36kr.com/
+  人人都是产品经理：http://iamsujie.com/
+  互联网那点事：http://www.alibuybuy.com/
+  商业价值：http://content.businessvalue.com.cn/
+  译言：http://www.yeeyan.org/
+  译言精选：http://select.yeeyan.org/
+  艾瑞咨询：http://www.iresearch.cn/
+  艾瑞咨询：http://www.iresearch.com.cn/
+  伯乐在线：http://blog.jobbole.com/
+  16站：http://www.16zhan.com/
+
+  https://github.com/dangdangdotcom
+  https://github.com/meituan
+  https://github.com/dianping
+  https://github.com/mogujie
+  https://github.com/NetEase
+  https://github.com/douban
+  https://github.com/ecomfe
+  https://github.com/xiaomi
+  https://github.com/renren
+  https://github.com/qiniu
+  https://github.com/baifendian
+
+  https://github.com/SOHUDBA/SOHU-DBProxy
+  https://github.com/thx/RAP
+  https://github.com/58code
+  https://github.com/handuyishe
+  https://github.com/Baidu-ecom/bi-platform
+  http://tencentopen.github.io/#recommendInfo
+
+  https://github.com/beecloud
+
+  https://github.com/crosg
+
+
+
+
+  https://github.com/airbnb
+  https://github.com/linkedin
+  github.com/twitter
+  github.com/square
+  https://github.com/confluentinc
+  https://github.com/cloudera
+  https://github.com/ebay
+  https://github.com/google
+  https://github.com/adobe
+  https://github.com/apple
+  https://github.com/paypal
+  https://github.com/instagram
+  https://github.com/ShapeSecurity
+  https://github.com/Sourcegraph
+  https://github.com/Zynga
+  https://github.com/Spotify
+  https://github.com/dropbox
+  https://github.com/Groupon
+
+  http://www.csdn.net/article/2011-06-20/300067
+
+
+  中间件
+  http://jm-blog.aliapp.com/?p=2289
+
+
+
+  https://github.com/fastos/fastsocket
+  http://www.zhihu.com/question/20194937
+  https://github.com/haiwen/seafile
+
+  elk
+
+  trie
+  http://www.2cto.com/kf/201410/340429.html
+
+  https://www.quora.com/Which-Scala-framework-is-the-best-for-REST-API-development
+
+  rest
+  http://www.searchsoa.com.cn/showcontent_83578.htm
+  http://get.ftqq.com/7284.get
+
+  py
+  http://pyzh.readthedocs.org/en/latest/python-setup-dot-py-vs-requirements-dot-txt.html
+
+  cto
+  http://geek.csdn.net/news/detail/51849
+
+  log
+  http://blog.csdn.net/woshixuye/article/details/20858239
+  http://blog.csdn.net/anialy/article/details/8529188
+
+  http://yq.aliyun.com/articles/2948
+
+  heap
+  http://geek.csdn.net/news/detail/51918
+
+  git
+  http://www.zhihu.com/question/23247776
+  http://www.zhihu.com/search?type=question&q=GitHub+%E4%B8%AD%E5%9B%BD
+
+
+
+
+
+
+  https://www.paypal-engineering.com/tag/architecture/
+
+  http://blog.csdn.net/tenfyguo/article/details/41660281
+
+  内部链接了很多有用的blog
+  http://yq.aliyun.com/articles/2949
+
+
+  好博客
+  http://caibaojian.com/some-fe
+  https://constructiveproof.com/
+
+  http://sheet.shiar.nl/vi
+
+  http://blog.jobbole.com/51598/
+  http://blog.jobbole.com/tag/vim/
+
+
+
+
+
+  http://jasshine.iteye.com/
+  http://blog.csdn.net/mindfloating/article/details/39474123
+  http://www.oschina.net/project/alibaba
+
+
+  http://www.zhihu.com/question/31171629
+
+
+
+  http://www.iteye.com/magazines/103#241
+
+
+  http://blog.csdn.net/gzlaiyonghao/article/details/3048947
+
+  http://www.zhihu.com/search?q=python%20hack&type=question
+
+
+* csdn
+http://blog.csdn.net/garfielder007/article/details/50572859
+
+https://tech.knewton.com/blog/2014/12/eureka-shouldnt-use-zookeeper-service-discovery/
+
+http://geek.csdn.net/news/detail/133023
+
+http://geek.csdn.net/news/detail/134876
+
+http://www.dabu.info/vim-shortcut-key-operation.html
+
+spark
+https://databricks.com/blog
+
+https://pymc-devs.github.io/pymc/INSTALL.html
+
+https://github.com/pymc-devs/pymc
+
+https://emacswiki.org/emacs/PythonProgrammingInEmacs#toc1
+
+http://wenku.baidu.com/link?url=mQy0zcVQE5Zq1MkxAHm_U8UxwkEy-jgx71AEMU1J5qjugjoBRKVe5zLtBwPAD884oz-NC6c5TiYfOtYHIaCIuh2XlhsJTT7_7Xi70gBWYy_
+
+http://geek.csdn.net/news/detail/135736
+https://github.com/proofit404/anaconda-mode
+
+http://stackoverflow.com/questions/3987683/homebrew-install-specific-version-of-formula
+http://blog.csdn.net/e421083458/article/details/8518578

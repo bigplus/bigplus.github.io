@@ -1,0 +1,32 @@
+#+TITLE: Spark Tune
+
+问题一：
+建立一个数据接收流进行数据接收，数据会存放于接收work及备份work上。在任务调度的时候考虑到数据本地性，task调度到接收流和副本所在的work上，其他work空闲，形成计算不均匀
+解决：（1）设置多个接收流（2）通过repartition调节RDD中的partition的数量，将task调度分散，使得计算均匀
+问题二：
+reduce task数目不合适
+解决：默认为8，需要根据实际情况进行调节，可以调节参数
+Spark.default.parallelism,通常reduce数目设置为core数目的2-3倍。数量太大造成很多小任务，增加启动任务的开销；数目太少任务运行缓慢
+问题三：
+shuffle磁盘IO时间长
+解决：可以设置spark.local.dir为一组磁盘，并尽量设置磁盘为IO速度快的磁盘，通过增加IO来优化shuflle
+问题四：
+Map/Reduce数量大，造成shuffle小文件数量多，default的数量为map tasks*reduce tasks数目
+解决：通过设置spark.shufle.consolidateFiles为true,来合并shuffle中间文件，文件数问Cores*Reduce tasks数目
+问题五：
+GC或OOM问题严重
+解决：调整spark.storage.memoryFraction,Default 0.6.Further，观察app运行过程中的GC实际情况，进行其他调节
+问题六：
+block not found
+解决：调整sparl.cleaner.ttl。RDD及元数据的过期时间
+问题七：
+序列化时间长或者结果大：
+解决：Kryo
+问题八：
+系统吞吐量不高
+解决：设置spark.streaming.concurrentJobs
+问题九：
+单条记录处理时间长
+解决：使用mapPartition替换map，提高Dstream RDD处理的并行度
+- 原文地址：http://www.bi168.cn/>>http://www.bi168.cn/thread-4189-1-1.html
+
